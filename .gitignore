@@ -13,6 +13,7 @@ bin
 .LSOverride
 Icon
 keystore
+build
 security/keystore
 security/*.*
 *.properties
