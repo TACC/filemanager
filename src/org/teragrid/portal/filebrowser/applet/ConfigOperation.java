@@ -81,7 +81,7 @@ public class ConfigOperation {
 
 	private static ConfigOperation instance = null;
 
-	private static boolean enableLogging = false;
+	private static boolean enableLogging = true;
 
 	// Part of the configure infomation
 	private Properties settings = new Properties();

@@ -211,7 +211,7 @@ public class PnlBrowse extends JPanel {
 	private Dimension minRowSize = new Dimension(400, 25);
 	private Dimension preferredRowSize = new Dimension(400, 25);
 	private Dimension maxRowSize = new Dimension(Integer.MAX_VALUE, 25);
-	private Color backgroundColor = Color.decode("#FFFFFF");
+	private Color backgroundColor = Color.decode("#F4F4F4");
 	
 	private Clipboard clipboard;
 
@@ -361,7 +361,7 @@ public class PnlBrowse extends JPanel {
 					// cmbPath.getComponentCount() +
 					// " components. Resolving number " + index);
 					
-					lblSite.setBackground(Color.decode("#ec6023"));
+					lblSite.setBackground(Color.WHITE);
 					lblSite.setBorder(BorderFactory
 							.createEmptyBorder(2, (2 + 10 * (cmbPath.getModel()
 									.getSize() - 1 - index)), 2, 2));
@@ -531,14 +531,14 @@ public class PnlBrowse extends JPanel {
 					}
 					super.setValue(value);
 				}
-				super.setBorder(BorderFactory.createMatteBorder(0,0,1,0, Color.decode("#cccccc")));
+				super.setBorder(BorderFactory.createMatteBorder(0,0,1,0, Color.decode("#D7D7D7")));
 			}
 		};
 
 		DefaultTableCellRenderer nameCellRenderer = new DefaultTableCellRenderer() {
 			public void setValue(Object value) {
 				super.setValue(value);
-				setBorder(BorderFactory.createMatteBorder(-1,0,1,0, Color.decode("#cccccc")));
+				setBorder(BorderFactory.createMatteBorder(-1,0,1,0, Color.decode("#D7D7D7")));
 			}
 		};
 		nameCellRenderer.setHorizontalAlignment(JLabel.RIGHT);

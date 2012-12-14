@@ -194,21 +194,21 @@ public class AppMain extends JApplet {
     public static final ImageIcon icoResourceLocal = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/local-resource.png"));
     
     // Branding Icons
-//    public static final ImageIcon icoTeraGrid = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/xsede.png"));
-//    public static final ImageIcon icoTeraGridSmall = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/xsede-small.png"));
-//    public static final ImageIcon imgSplash = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/xsede-splash.png"));
-//    public static final ImageIcon icoError = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/error_message_icon.png"));
-//    public static final ImageIcon icoWarn = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/warning_message_icon.png"));
-//    public static final ImageIcon icoPrompt = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/xsede_prompt_message_icon.png"));
-//    public static final Image imgBackground = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/background.jpg")).getImage();
+    public static final ImageIcon icoTeraGrid = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/xsede.png"));
+    public static final ImageIcon icoTeraGridSmall = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/xsede-small.png"));
+    public static final ImageIcon imgSplash = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/xsede-splash.png"));
+    public static final ImageIcon icoError = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/error_message_icon.png"));
+    public static final ImageIcon icoWarn = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/warning_message_icon.png"));
+    public static final ImageIcon icoPrompt = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/xsede_prompt_message_icon.png"));
+    public static final Image imgBackground = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/background.jpg")).getImage();
 
-    public static final ImageIcon icoTeraGrid = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat.png"));
-    public static final ImageIcon icoTeraGridSmall = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat-small.png"));
-    public static final ImageIcon imgSplash = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat-splash.png"));
-    public static final ImageIcon icoError = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat_error_message_icon.png"));
-    public static final ImageIcon icoWarn = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat_warning_message_icon.png"));
-    public static final ImageIcon icoPrompt = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat_prompt_message_icon.png"));
-    public static final Image imgBackground = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat-background.jpg")).getImage();
+//    public static final ImageIcon icoTeraGrid = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat.png"));
+//    public static final ImageIcon icoTeraGridSmall = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat-small.png"));
+//    public static final ImageIcon imgSplash = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat-splash.png"));
+//    public static final ImageIcon icoError = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat_error_message_icon.png"));
+//    public static final ImageIcon icoWarn = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat_warning_message_icon.png"));
+//    public static final ImageIcon icoPrompt = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat_prompt_message_icon.png"));
+//    public static final Image imgBackground = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat-background.jpg")).getImage();
     
     // Share Overlay Icons
     public static final ImageIcon icoShareItem = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/share-item.png"));
@@ -336,15 +336,6 @@ public class AppMain extends JApplet {
         frame.add(tgfmApplet);
         frame.pack();
         
-//        try
-//		{
-//			throw new ServerException(scheduleType);
-//		}
-//		catch (ServerException e)
-//		{
-//			e.printStackTrace();
-//		}
-        
         tgfmApplet.start();
         frame.validate();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -375,24 +366,13 @@ public class AppMain extends JApplet {
 
 	public void init() {
     	
-		UIManager.put("TabbedPane.selected", Color.decode("#ec6023"));
-		UIDefaults ui = UIManager.getLookAndFeel().getDefaults();
-		
-		for ( Object o : ui.keySet() ){
-			if (o.toString().endsWith("selectionForeground")) {
-				UIManager.put(o.toString(), Color.decode("#FFFFFF"));
-			} else if (o.toString().endsWith("selectionBackground")) {
-				UIManager.put(o.toString(), Color.decode("#ec6023"));
-			}
-		}
-		
-        appMain = this;
+		appMain = this;
         
         setPreferredSize(new Dimension(900,700));
         
         Thread.currentThread().setName("AppMain");
         
-        getFrame().setTitle("EUDAT File Manager");
+        getFrame().setTitle("XSEDE File Manager");
         
         showSplashScreen(true);
         
@@ -585,8 +565,8 @@ public class AppMain extends JApplet {
         mnuFileAuth.setText("Login");
         mnuFileAuth.setMnemonic('l');
         mnuFileAuth.addActionListener(evtMenu);
-        //mnuFileLogging.setText("Work offline"); // uncomment this line to use the middleware discovery and logging service 
-        mnuFileLogging.setText("Work online"); // uncomment this line to run blind
+        mnuFileLogging.setText("Work offline"); // uncomment this line to use the middleware discovery and logging service 
+        //mnuFileLogging.setText("Work online"); // uncomment this line to run blind
         mnuFileLogging.setMnemonic('l');
         mnuFileLogging.addActionListener(evtMenu);
         mnuFileResetResources.setText("Refresh resources");
