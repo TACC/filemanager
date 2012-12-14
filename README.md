@@ -1,4 +1,4 @@
-== Overview ==
+# Overview 
 
 The TeraGrid File Manager (TGFM) started out as a portlet adaptation of the SJTU GridFTP GUI Client(SGGC).[[BR]]
 The SGGC is a Java desktop application providing graphical GridFTP access to resources.  It is currently [[BR]]
