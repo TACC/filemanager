@@ -1,6 +1,6 @@
 # Overview 
 
-The TeraGrid File Manager (TGFM) started out as a portlet adaptation of the SJTU GridFTP GUI Client(SGGC).
+The XSEDE File Manager (XFM) started out as a portlet adaptation of the SJTU GridFTP GUI Client(SGGC).
 The SGGC is a Java desktop application providing graphical GridFTP access to resources.  It is currently 
 listed as a Globus Incubator project with downloads available http://dev.globus.org/wiki/Incubator/SGGC. 
 After porting the project to an applet and several months of interal review, the original SGGC interface 
@@ -8,13 +8,13 @@ was replaced with the current two panel approach resembling the FUGU (http://rsu
 SFTP client.  The general feeling among the group was that a dual panel, drag-and-drop interface was much 
 less imposing than a full blown desktop explorer clone.
 
-The TGFM manages the user's credential for them providing single sign on in the portal, then delegated 
+The XFM manages the user's credential for them providing single sign on in the portal, then delegated 
 authentication to the remote machines.  The method for doing this is essentially the same as in the 
 GSI-SSHTerm applet.  "The portlet relies on the OGCE ProxyManager service for in-memory proxy credentials 
 and passes these credentials to the applet in string form using the "sshterm.gsscredential" applet 
 parameters.  So, as long as you can get a credential in string form you can use the applet in virtually 
 any web setting.  The applet is also capable of contacting a MyPproxy server to retrieve a credential but 
-for the single sign-on purposes of the TeraGrid User Portal it is more desirable to not require the user to
+for the single sign-on purposes of the XSEDE User Portal it is more desirable to not require the user to
 authenticate at all."
 
 Several other TGUP-specific features were added to the portlet as well. An XML-RPC sever was written to 
@@ -29,7 +29,7 @@ known list of valid hostnames and short names which is then displayed for the us
 
 
 <p style="border: thin solid red; padding: 3px;">NOTE: the applet used in this portlet has some 
-configurations that are specific to TeraGrid (e.g. the default MyProxy server is the TeraGrid MyProxy 
+configurations that are specific to XSEDE (e.g. the default MyProxy server is the XSEDE MyProxy 
 server) so before using this applet in other projects you may want to speak to Jim Basney (NCSA), Rion 
 Dooley or Maytal Dahan (TACC) about reconfiguring the portlet.</p>
 
@@ -90,13 +90,13 @@ and all needed libraries to a folder that can be deployed to a web server for us
 1. Point your web browser to the directory the client was just deployed in.
 1. The client will run a grid-proxy-init if no valid credentials are passed to it from the index.html file.
 To avoid this, just copy a valid proxy file to the ~/tgup_filemanager/proxies folder on your computer.
-The TGFM will automatically discover it there.
+The XFM will automatically discover it there.
 
-<p style="border: thin solid red; padding: 3px;">NOTE: the TGFM is meant to be run as a client server 
+<p style="border: thin solid red; padding: 3px;">NOTE: the XFM is meant to be run as a client server 
 application.  In the event the TG instance of the server is down, you can run it locally and point the 
-client to it by editing src/org/teragrid/portal/filemanager/applet/AppMain.java and changing the value 
+client to it by editing src/org/XSEDE/portal/filemanager/applet/AppMain.java and changing the value 
 of the 'HISTORY_SERVLET' variable to your server location.  If you don't do anything and no service is 
-running, the TGFM will simply prompt you to run in "loner" mode and get the resource listing from GPIR.  
+running, the XFM will simply prompt you to run in "loner" mode and get the resource listing from GPIR.  
 It won't necessarily be an accurate list, but you should have several resources on there you can access.</p>
 
 
@@ -119,8 +119,8 @@ It then converts the proxy to a ''GlobusGSSCredentialImpl'' object and calls the
 Here is how the applet is declared in the portlet:
 
 
-	<applet codebase="http://localhost/~dooley/TGFMRedux/" 
-		code="com.sshtools.sshterm.SshTermApplet" width="900" height="700" archive="activation.jar, axis.jar, commons-codec-1.3.jar, commons-discovery.jar, commons-httpclient-3.1.jar, gms-xstream-1.1.3.jar, GSI-SSHTerm-teragrid.jar, jaxrpc.jar, jce-jdk13-120.jar, jdom.jar, jhall.jar, saaj.jar, tgfb.jar, ws-commons-util-1.0.2.jar, xmlrpc-client-3.1.jar, xmlrpc-common-3.1.jar"
+	<applet codebase="http://localhost/~dooley/XFMRedux/" 
+		code="com.sshtools.sshterm.SshTermApplet" width="900" height="700" archive="activation.jar, axis.jar, commons-codec-1.3.jar, commons-discovery.jar, commons-httpclient-3.1.jar, gms-xstream-1.1.3.jar, GSI-SSHTerm-XSEDE.jar, jaxrpc.jar, jce-jdk13-120.jar, jdom.jar, jhall.jar, saaj.jar, tgfb.jar, ws-commons-util-1.0.2.jar, xmlrpc-client-3.1.jar, xmlrpc-common-3.1.jar"
 		style="border-style: solid; border-width: 1; padding-left: 4; padding-right: 4; padding-top: 1; padding-bottom: 1">
 	<PARAM name="separate_jvm" value="true">
 	<PARAM name="cache_archive" value="">
@@ -176,10 +176,10 @@ contents are in the archive listing of the applet.
 
 One important note is that the developers at NCSA who provided the GSI-SSHTerm library worked around 
 many of their dependency issues by redeploying all of their application's dependent jar class files in 
-their main GSI-SSHTerm-teragrid.jar library.  This is generally not a problem unless you're running 
+their main GSI-SSHTerm-XSEDE.jar library.  This is generally not a problem unless you're running 
 other applets that rely on the same classes.  The Java security model does not allow applets to share 
 access to previously loaded classes.  Thus if one person starts up a grid enabled app then another person 
-starts one up in another windows, say the gsissh and tgfm portlets respectively, then the tgfm will throw 
+starts one up in another windows, say the gsissh and XFM portlets respectively, then the XFM will throw 
 a fit and quite because the bouncycastle library was already in the classloader and thus, it cannot relaod 
 the same class or remove the other class from the parent classloader.  Huge problem.  Luckily, tThis 
 problem can be avoided by either sharing a common applet archive or hacking the AppletClassLoader by way 
