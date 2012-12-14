@@ -158,7 +158,7 @@ public class PnlSites extends JPanel {
 				
 				String decoration = site.isAvailable() ? "none" : "italic";
 				String titleColor = isSelected? "white" : site.isAvailable() ? "black" : "gray";
-				String urlColor = isSelected? "white" : site.isAvailable() ? "blue" : "gray";
+				String urlColor = isSelected? "white" : site.isAvailable() ? "#BE1F24" : "gray";
 				JLabel lblSite = new JLabel("<html><body>" +
 						"<table cellpadding=\"0\" cellspacing=\"0\">" +
 							"<tr><td>" +
@@ -170,9 +170,10 @@ public class PnlSites extends JPanel {
 				
 				lblSite.setIcon(ico);
 				lblSite.setOpaque(true);
-				lblSite.setBorder(BorderFactory.createCompoundBorder(
-						BorderFactory.createMatteBorder(0,0,0,0, Color.decode("#D7D7D7")), 
-						BorderFactory.createEmptyBorder(5,15,5,5)));
+				lblSite.setBorder(BorderFactory.createMatteBorder(1,0,-1,0, Color.decode("#cccccc")));
+//				lblSite.setBorder(BorderFactory.createCompoundBorder(
+//						BorderFactory.createMatteBorder(-1,0,1,0, Color.decode("#cccccc")), 
+//						BorderFactory.createEmptyBorder(5,15,5,5)));
 				
 				return lblSite;
 			}

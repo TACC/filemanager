@@ -19,6 +19,8 @@ security/*.*
 *.cfg.xml
 test/*.properties
 test/*.cfg.xml
+*.bak
+
 # Thumbnails
 ._*
 

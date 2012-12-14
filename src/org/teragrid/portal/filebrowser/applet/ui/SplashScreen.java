@@ -62,14 +62,14 @@ public class SplashScreen extends JDialog {
     		"the IRODS resource panel while browsing your data. " +
     		"Simply right click on a file or collection and select " +
     		"\"Show Metadata.\"",
-    		"You can add resources outside of the XSEDE by " +
+    		"You can add resources outside of the EUDAT by " +
     		"clicking on the '+' button of the resource listing " +
     		"panel and entering the resource type, nickname, and " +
     		"hostname in the add resource dialog.",
-            "You can copy entire directories between any XSEDE " +
+            "You can copy entire directories between any EUDAT " +
             "resources on which you have accounts simply by " +
             "dragging the folder icon from one panel to the other.",
-            "The File Manager supports moving data between XSEDE " +
+            "The File Manager supports moving data between EUDAT " +
             "resources, your local desktop, the IRODS and Amazon " + 
             " S3 service.",
             "You can subscribe to email notifications for long " +
@@ -108,12 +108,13 @@ public class SplashScreen extends JDialog {
             "on the '+' button of the resource listing panel, " +
             "select \"IRODS\" as the resource type, and enter " +
             "your information.",
+            "Preferences dialog and enter your information.",
             "You can specify your preferred local download " +
             "directory in the Security panel of the Preferences " +
             "dialog. ",
-            "You can get a public link to any file or folder in your " +
-            "\"public\" folder in XSEDE $SHARE by right clicking " +
-            "on that file or folder and selecting \"Get Shared URL\"",
+//            "You can get a public link to any file or folder in your " +
+//            "\"public\" folder in EUDAT $SHARE by right clicking " +
+//            "on that file or folder and selecting \"Get Shared URL\"",
             "Not enough space to view your files and transfer history? " +
             "Try opening another window. Select 'File' -> 'Open current " +
             "instance' from the top menu to open up your current sessions" +
@@ -168,7 +169,7 @@ public class SplashScreen extends JDialog {
         AppMain.imgSplash.getImage().getScaledInstance(350,117,0);
         lblLogo.setPreferredSize(new Dimension(350,100));
         
-        JLabel lblTitle = new JLabel("<html>XSEDE File Manager</html>");
+        JLabel lblTitle = new JLabel("<html>EUDAT File Manager</html>");
         lblTitle.setHorizontalTextPosition(SwingConstants.CENTER);
 
         
@@ -181,9 +182,9 @@ public class SplashScreen extends JDialog {
         pnlMessage = new JPanel(new BorderLayout());
         pnlMessage.setPreferredSize(new Dimension(400,270));
         
-        JLabel lblDYK = new JLabel("<html><p style=\"font-size: 20px;\"><b>DID YOU KNOW...</b></p></html>");
+        JLabel lblDYK = new JLabel("<html><p style=\"font-size: 20px; color:#BE1F24;\"><b>DID YOU KNOW...</b></p></html>");
         lblDYK.setForeground(Color.decode("#333333"));
-        lblDYK.setBackground(Color.decode("#F4F4F4"));
+        lblDYK.setBackground(Color.decode("#FFFFFF"));
         lblDYK.setOpaque(true);
         lblDYK.setHorizontalTextPosition(SwingConstants.LEFT);
         lblDYK.setBorder(new EmptyBorder(0,25,10,3));
@@ -191,7 +192,7 @@ public class SplashScreen extends JDialog {
         txtMessage = new JTextArea();
         txtMessage.setEditable(false);
         txtMessage.setBorder(new EmptyBorder(0,25,10,10));
-        txtMessage.setBackground(Color.decode("#F4F4F4"));
+        txtMessage.setBackground(Color.decode("#FFFFFF"));
         txtMessage.setForeground(Color.decode("#333333"));
         //txtMessage.setFont(lblDYK.getFont());
         txtMessage.setText(didYouKnow[generator.nextInt(didYouKnow.length)]);
@@ -231,7 +232,7 @@ public class SplashScreen extends JDialog {
         lblTask = new JLabel("Loading...");
         lblTask.setHorizontalTextPosition(SwingConstants.LEFT);
         lblTask.setBorder(BorderFactory.createEmptyBorder());
-        //lblTask.setForeground(Color.decode("#FFFFFF"));
+        lblTask.setForeground(Color.decode("#BE1F24"));
         
         progressBar = new JProgressBar(0,SPLASH_TASK_COUNT);
         progressBar.setIndeterminate(false);
