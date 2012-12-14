@@ -1,0 +1,472 @@
+<?xml version="1.0"?>
+<project name="XSEDE File Manager" default="build.exe" basedir=".">
+    
+    <!-- Configuration file for build process  -->
+    <property file="build.properties"/>
+	
+	<!-- read in user environment  -->
+	<property environment="env" />
+    
+    <!-- Dependent directories included in various build tasks  -->
+    <property name="lib.dir" value="lib"/><!-- location of dependent libraries  -->
+    <property name="src.dir" value="src"/><!-- location of source files  -->
+    <property name="build.dir" value="build"/><!-- target of compiled files...contents will be included in the jar  -->
+    <property name="dist.dir" value="bin"/><!-- location of generated jar file  -->
+    <property name="help.files.dir" value="help"/><!-- location of help files  -->
+    <!--property name="cert.dir" 				value="security/certificates"/--><!-- location of trusted ca certificates  -->
+    
+    
+    <!-- Names of jars produced by build targets  -->
+    <property name="test.nagios.class" value="test.jar"/><!-- name given to jar produced for nagios tests  -->
+    <property name="applet.jar.name" value="tgfb.jar"/><!-- name given to client jar  -->
+	<property name="executable.jar.name" value="XSEDEFileManager.jar"/><!-- name given to client jar  -->
+	<property name="nagios.test.jar.name" value="tgfb-nagios.jar"/><!-- name given to nagios test jar  -->
+    
+    <!-- Executable classes in the code base  -->
+    <property name="run.class"
+     value="org.teragrid.portal.filebrowser.applet.AppMain"/><!-- application entry point  -->
+    <property name="test.gsissh.class"
+     value="org.teragrid.portal.filebrowser.applet.transfer.GsiSshClient"/><!-- entry point for gsissh tests  -->
+    
+    
+    <!--property name="lib.dir" value="lib"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="lib.dir" value="lib"/-->
+    
+    <path id="compile-classpath">
+        <fileset dir="${lib.dir}/client" includes="**/*.jar"/>
+        <!--fileset dir="${lib.dir}/client/tgshare" includes="**/*.jar"/-->
+        <fileset dir="${lib.dir}/server" includes="**/*.jar"/>
+        <fileset dir="${lib.dir}/common" includes="**/*.jar"/>
+        <fileset dir="${lib.dir}/help" includes="**/*.jar"/>
+        <fileset dir="${lib.dir}/ext" includes="**/*.jar"/>
+    </path>
+    
+    <path id="server-classpath">
+        <fileset dir="${lib.dir}/server" includes="**/*.jar"/>
+        <fileset dir="${lib.dir}/server/hibernate" includes="**/*.jar"/>
+        <fileset dir="${lib.dir}/common" includes="**/*.jar"/>
+        <fileset dir="${lib.dir}/server/hibernate" includes="**/*.jar"/>
+        <fileset dir="${lib.dir}/ext" includes="**/*.jar"/>
+        <pathelement location="${build.dir}"/>
+        <pathelement location="sggc.properties,hibernate.cfg.xml"/>
+    </path>
+    
+    <path id="client-classpath">
+        <pathelement location="build"/>
+        <pathelement location="tgfb.config,sggc.properties,tgfm-log4j.properties,commons-logging.properties"/>
+        <fileset dir="${lib.dir}/client" includes="**/*.jar"/>
+        <!--fileset dir="${lib.dir}/client/tgshare" includes="**/*.jar"/-->
+        <fileset dir="${lib.dir}/common" includes="**/*.jar"/>
+        <fileset dir="${lib.dir}/help" includes="**/*.jar"/>
+        <fileset dir="${lib.dir}/ext" includes="**/*.jar"/>
+    </path>
+    
+    <target name="init">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${build.dir}/etc"/>
+        <mkdir dir="${dist.dir}"/>
+    </target>
+    
+    <target name="clean" description="Delete all build artifacts">
+        <!-- Delete all output folders -->
+    	<delete file="${executable.jar.name}"/>
+    	<delete file="${applet.jar.name}"/>
+        <delete dir="WEB-INF"/>
+    	<delete dir="${dist.dir}"/>
+        <delete dir="${build.dir}"/>
+    </target>
+    
+    <target name="compile" depends="init" description="Compile/generate all client- and server-side content">
+       <javac classpathref="compile-classpath" 
+        	   	sourcepath="" 
+        	   	srcdir="${src.dir}" 
+        		destdir="${build.dir}"
+         		debug="true" 
+        		debuglevel="lines,vars,source" 
+        		target="5">
+            
+        	<compilerarg value="-g"/>
+            <include name="**/*.java"/>
+            	
+        </javac>
+    	
+    </target>
+    
+    <target name="bundle.help" description="Jar up helpset files and copy to the build directory">
+        
+        <jar destfile="${build.dir}/etc/help.jar"
+         basedir="${help.files.dir}"
+         includes="**"
+         excludes="CVS"
+         update="true"/>
+    </target>
+    
+    <target name="unpack.applet.dependencies" description="Repackage the dependent jars with the binary distribution">
+        <unjar dest="${build.dir}">
+            <fileset dir="${lib.dir}">
+                <include name="client/*.jar"/>
+            	<include name="server/org.json.jar"/>
+            	<include name="server/org.restlet.jar"/>
+                <!--include name="client/tgshare/*.jar"/-->
+                <include name="common/*.jar"/>
+                <include name="help/*.jar"/>
+            </fileset>
+        </unjar>
+        <delete dir="${build.dir}/META-INF"/>
+    </target>
+	
+	<target name="unpack.exe.dependencies" description="Repackage the dependent jars with the binary distribution">
+	        <unjar dest="${build.dir}">
+	            <fileset dir="${lib.dir}">
+	                <include name="client/*.jar"/>
+	            	<include name="server/org.json.jar"/>
+	            	<include name="server/org.restlet.jar"/>
+	            	<include name="common/*.jar"/>
+	                <include name="help/*.jar"/>
+	            </fileset>
+	        </unjar>
+	        <delete dir="${build.dir}/META-INF"/>
+		<delete dir="${build.dir}/**/META-INF"/>
+	    </target>
+    
+    <target name="check.key.exists">
+        <condition property="key.exists">
+            <and>
+                <istrue value="${key.exists.already}"/>
+            </and>
+        </condition>
+        
+        <!-- If the keystore location is bad or it doesn't exist, set it to the default keystore location -->
+        <condition property="storeloc" value="security/keystore" else="${keystore.location}">
+            <or>
+                <equals arg1="${keystore.location}" arg2=""/>
+                <not>
+                    <available file="{keystore.location}"/>
+                </not>
+            </or>
+        </condition>
+       
+	<!-- If the keystore type is blank, set it to the default java keystore type, jks -->
+        <condition property="storetype" value="jks" else="${keystore.storetype}">
+            <equals arg1="${keystore.storetype}" arg2=""/>
+        </condition>
+
+	 
+        <!-- If the keystore password is blank, set it to the default java keystore password -->
+        <condition property="storepass" value="changeit" else="${keystore.pass}">
+            <equals arg1="${keystore.pass}" arg2=""/>
+        </condition>
+        
+        <!-- If the keystore alias is blank, set it to "auto-gen-key" by default -->
+        <condition property="alias" value="Unknown" else="${key.alias}">
+            <equals arg1="${key.alias}" arg2=""/>
+        </condition>
+        
+        <!-- If the key pass is blank, set it to "auto-gen-key" by default -->
+        <condition property="keypass" value="changeit" else="${key.pass}">
+            <equals arg1="${key.pass}" arg2=""/>
+        </condition>
+        
+        <antcall target="generate.key"/>
+        
+    </target>
+    
+    <!-- Generate a key (and keystore if necessary) to sign the jar. This is only called if the key.exists.already property
+    in the build.properties file is set to "true"-->
+    <target name="generate.key" description="Generate a self-signed key to sign the applet jar" unless="key.exists">
+        
+        <!-- If the keystore duration is blank, set it to one year by default -->
+        <condition property="lifetime" value="365" else="${key.lifetime}">
+            <equals arg1="${key.lifetime}" arg2=""/>
+        </condition>
+        
+        <!-- Sanity check the key subject -->
+        <condition property="cname" value="Unknown Group" else="${key.cn}">
+            <equals arg1="${key.cn}" arg2=""/>
+        </condition>
+        <condition property="orgunit" value="Unknown Organizational Unit" else="${key.ou}">
+            <equals arg1="${key.ou}" arg2=""/>
+        </condition>
+        <condition property="org" value="Unknown Organization" else="${key.o}">
+            <equals arg1="${key.o}" arg2=""/>
+        </condition>
+    	<condition property="city" value="Unknown City" else="${key.l}">
+            <equals arg1="${key.l}" arg2=""/>
+        </condition>
+		<condition property="state" value="Unknown State" else="${key.st}">
+            <equals arg1="${key.st}" arg2=""/>
+        </condition>
+        <condition property="country" value="Unknown Country" else="${key.c}">
+            <equals arg1="${key.c}" arg2=""/>
+        </condition>
+        
+        <!-- They said they wanted to generate a key, so now having sanity checked the key
+        and keystore config values, generate it. -->
+        <genkey alias="${alias}"
+         keystore="${storeloc}"
+         storepass="${storepass}"
+         keypass="${keypass}"
+         validity="${lifetime}"
+         verbose="true">
+            <dname>
+                <param name="CN" value="${cname}"/>
+                <param name="OU" value="${orgunit}"/>
+                <param name="O" value="${org}"/>
+                <param name="L" value="${city}"/>
+            	<param name="ST" value="${state}"/>
+            	<param name="C" value="${country}"/>
+            </dname>
+        </genkey>
+    </target>
+    
+	<target name="build.exe" depends="clean,compile,unpack.exe.dependencies,bundle.help" description="Create client/server jar">
+	        <mkdir dir="${dist.dir}"/>
+	        
+	    	 <!-- Copy image files to the build directory for deployment with the jar-->
+	        <copy todir="build">
+	            <!--fileset dir="${src.dir}" excludes="**/*.java"/-->
+	            <fileset file="build.num"/>
+	            <fileset file="log4j.properties"/>
+	            <fileset file="commons-logging.properties"/>
+	            <fileset dir="${src.dir}">
+	                <include name="**/*.png"/>
+	                <include name="**/*.gif"/>
+	                <include name="**/*.jpg"/>
+	            </fileset>
+	        </copy>
+	        
+	        <copy todir="${build.dir}/org/teragrid/portal/filebrowser/applet">
+	            <fileset file="tgfb.config"/>
+	        </copy>
+	        
+	        <copy todir="build/">
+	            <fileset file="tgfm-log4j.properties"/>
+	            <fileset file="commons-logging.properties"/>
+	        </copy>
+	    	
+	    	<mkdir dir="build/security"/>
+	    	
+	    	<copy todir="build/security">
+	            <fileset file="security/keystore"/>
+	        </copy>
+	    	
+	        <!-- Build the jar from the source, image, and cert files -->
+	    	<property name="version.num" value="3.0"/>
+	    	<buildnumber file="build.num"/>
+	    	<tstamp>
+		    	<format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
+		   	</tstamp>
+
+		    <jar destfile="${executable.jar.name}" 
+		     filesetmanifest="mergewithoutmain"
+	         basedir="${build.dir}"
+	         includes="**"
+	         update="true">
+		    	<manifest>
+	                
+	            </manifest>
+	            <manifest>
+	            	<!-- Run params -->
+	            	<attribute name="Main-Class" value="org.teragrid.portal.filebrowser.applet.AppMain"/>
+	            	<attribute name="Class-Path" value="."/>
+	                <!-- Who is building this jar? -->
+	                <attribute name="Built-By" value="${user.name}"/>
+	                <!-- Information about the program itself -->
+	                <attribute name="Implementation-Vendor" value="TACC"/>
+	                <attribute name="Implementation-Title" value="File Manager"/>
+	                <attribute name="Implementation-Version" value="${version.num}-b${build.number}"/>
+	            	<attribute name="Built-Date" value="${TODAY}"/> 
+	            </manifest>
+		    	<zipfileset excludes="META-INF/*.SF" src="lib/ext/GSI-SSHTerm-teragrid.jar"/>
+	        </jar>
+	    </target>
+	
+    <target name="build.jar" depends="compile,unpack.applet.dependencies,bundle.help,check.key.exists" description="Create client/server jar">
+        <mkdir dir="${dist.dir}"/>
+        
+    	 <!-- Copy image files to the build directory for deployment with the jar-->
+        <copy todir="build">
+            <!--fileset dir="${src.dir}" excludes="**/*.java"/-->
+            <fileset file="build.version"/>
+            <fileset file="log4j.properties"/>
+            <fileset file="commons-logging.properties"/>
+            <fileset dir="${src.dir}">
+                <include name="**/*.png"/>
+                <include name="**/*.gif"/>
+                <include name="**/*.jpg"/>
+            </fileset>
+        </copy>
+        
+        <copy todir="${build.dir}/org/teragrid/portal/filebrowser/applet">
+            <fileset file="tgfb.config"/>
+        </copy>
+        
+        <copy todir="build/">
+            <fileset file="tgfm-log4j.properties"/>
+            <fileset file="commons-logging.properties"/>
+        </copy>
+    	
+    	<mkdir dir="build/security"/>
+    	
+    	<copy todir="build/security">
+            <fileset file="security/keystore"/>
+        </copy>
+    	
+        <!-- Build the jar from the source, image, and cert files -->
+    	<property name="version.num" value="3.0"/>
+    	<buildnumber file="build.num"/>
+    	<tstamp>
+	    	<format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
+	   	</tstamp>
+
+
+        <jar destfile="${applet.jar.name}"
+         basedir="${build.dir}"
+         includes="**"
+         update="true">
+            <manifest>
+                <!-- Who is building this jar? -->
+                <attribute name="Built-By" value="${user.name}"/>
+                <!-- Information about the program itself -->
+                <attribute name="Implementation-Vendor" value="TACC"/>
+                <attribute name="Implementation-Title" value="File Manager"/>
+                <attribute name="Implementation-Version" value="${version.num}-b${build.number}"/>
+            	<attribute name="Built-Date" value="${TODAY}"/> 
+            </manifest>
+        </jar>
+    </target>
+    
+    <target name="build.war" depends="clean,compile" description="Build server war">
+    	
+    	<!-- create war structure -->
+    	<mkdir dir="${dist.dir}/WEB-INF/classes"/>
+    	<mkdir dir="${dist.dir}/WEB-INF/lib"/>
+    	
+    	<!-- copy class files -->
+    	<copy todir="${dist.dir}/WEB-INF/classes">
+    		<fileset dir="build"/>
+    	</copy>
+    	
+    	<!-- copy dependencies -->
+        <copy todir="${dist.dir}/WEB-INF/lib" flatten="true">
+            <fileset dir="${lib.dir}/client">
+            	<include name="*.jar"/>
+            </fileset>
+        	<fileset dir="${lib.dir}/common" includes="**/*.jar"/>
+            <fileset dir="${lib.dir}/server" includes="**/*.jar"/>
+        	<fileset dir="${lib.dir}/ext" includes="**/*.jar"/>
+        </copy>
+    	
+    	<!-- copy config files -->
+    	<copy todir="${dist.dir}/WEB-INF">
+    		<fileset file="etc/web.xml"/>
+		</copy>
+    		
+    	<copy todir="${dist.dir}/WEB-INF/classes">
+    		<fileset dir="${src.dir}" excludes="**/*.java"/>
+            <fileset file="hibernate.cfg.xml"/>
+            <fileset file="sggc.properties"/>
+            <fileset file="log4j.properties"/>
+		</copy>
+    	
+    	<jar destfile="bin/xmlrpc.war"
+    	         basedir="${dist.dir}"
+    	         includes="**"
+    	         update="true"/>
+    
+    </target>
+	
+	<target name="deploy.service.to.tomcat" depends="build.war" description="Deploy war to tomcat">
+	
+		<!-- copy war to catalina home -->
+		<copy todir="${env.CATALINA_HOME}/webapps">
+			<fileset file="${dist.dir}/xmlrpc.war"/>
+		</copy>
+		
+	</target>
+    	
+    <target name="build.client" depends="build.jar" description="Create signed client jar used for applet and standalone">
+        
+        <signjar jar="bin/${executable.jar.name}" alias="${alias}" keystore="${storeloc}" storepass="${storepass}" storetype="${storetype}"/>
+        
+    </target>
+    
+    <target name="sign.gsissh.jar" depends="check.key.exists">
+        <signjar jar="lib/ext/GSI-SSHTerm-teragrid.jar" alias="${alias}" keystore="${storeloc}" storepass="${storepass}" keypass="${keypass}"/>
+    </target>
+    
+    <target name="build.nagios.test" depends="clean,compile,unpack.applet.dependencies,bundle.help" description="Create executable jar to perform nagios test of the service.">
+        
+    	<mkdir dir="${dist.dir}"/>
+        
+        <!-- include the log4j jar -->
+        <unjar dest="${build.dir}" src="${lib.dir}/ext/GSI-SSHTerm-teragrid.jar">
+            <patternset>
+                <include name="org/apache/commons/**/*.class"/>
+            	<include name="org/apache/log4j/**/*.class"/>
+            	<include name="org/globus/**/*.class"/>
+            </patternset>
+        </unjar>
+        
+        <delete dir="${build.dir}/META-INF"/>
+        <delete file="${build.dir}/tgfm-log4j.properties"/>
+        
+        <!-- Build the jar from the source, image, and cert files -->
+        <jar destfile="${dist.dir}/${nagios.test.jar.name}" 
+         basedir="${build.dir}" 
+         includes="**" 
+         update="true">
+            <manifest>
+                <!-- Who is building this jar? -->
+                <attribute name="Built-By" value="${user.name}"/>
+                <!-- Information about the program itself -->
+                <attribute name="Implementation-Vendor" value="TACC"/>
+                <attribute name="Implementation-Title" value="TeraGrid File Manager"/>
+                <attribute name="Implementation-Version" value="0.1beta"/>
+                <attribute name="Main-Class" value="org.teragrid.portal.filebrowser.server.servlet.test.NagiosTestRunner"/>
+            </manifest>
+        </jar>
+    </target>
+    
+    <target name="deploy.to.web" depends="build.jar" description="Bundle the client and deploy it in the web folder">
+        
+        <!-- Copy the client jar and dependent jars to the web dir to test the applet-->
+        <copy todir="web.dir">
+            <fileset dir="${lib.dir}/client" includes="**/*.jar"/>
+            <fileset dir="${lib.dir}/common" includes="**/*.jar"/>
+            <fileset dir="${lib.dir}/help" includes="**/*.jar"/>
+            <fileset dir="${lib.dir}/ext" includes="**/*.jar"/>
+            <fileset file="${dist.dir}/${build.jar.name}"/>
+            <fileset file="${html.dir}/*.html"/>
+        </copy>
+        
+    </target>
+    
+    <target name="run.server" depends="build.jar" description="Compile/generate all client- and server-side content">
+        
+        <!-- Run the server.  It runs out of the build directory. -->
+        <java classname="org.teragrid.portal.filebrowser.server.servlet.TGFileTransfer"
+         dir="${basedir}"
+         fork="true">
+            <classpath refid="server-classpath"/>
+            <jvmarg value="-Djdbc.drivers=org.postgresql.Driver"/>
+        </java>
+        
+    </target>
+    
+    <target name="run.client" depends="" description="Test the gsissh env and find commands">
+        
+        <java classname="${run.class}"
+         fork="true">
+            <classpath refid="client-classpath"/>
+            <jvmarg value="-Xmx256m"/>
+            <jvmarg value="-Dlog4j.configuration=tgfm-log4j.properties -Dlog4j.debug=true"/>
+        </java>
+    </target>
+</project>

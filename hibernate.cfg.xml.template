@@ -1,0 +1,27 @@
+<!DOCTYPE hibernate-configuration PUBLIC
+ "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+ "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<!-- DO NOT EDIT: This is a generated file that is synchronized -->
+<!-- by MyEclipse Hibernate tool integration.                   -->
+<hibernate-configuration>
+
+ <session-factory>
+         <!-- properties -->
+		 <property name="connection.datasource">java:/comp/env/jdbc/TGCDB-portal</property>
+		 <property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+		 <property name="hibernate.current_session_context_class">thread</property>
+         <property name="transaction.flush_before_completion">true</property>
+         <property name="hibernate.query.factory_class">org.hibernate.hql.classic.ClassicQueryTranslatorFactory</property>
+         
+         <mapping resource="org/teragrid/portal/filebrowser/server/servlet/persistence/enumerators/UserTypes.hbm.xml"/>
+         <mapping resource="org/teragrid/portal/filebrowser/server/servlet/model/notification/Notification.hbm.xml"/>
+         <mapping resource="org/teragrid/portal/filebrowser/server/servlet/model/filetransfer/Transfer.hbm.xml"/>
+         <mapping resource="org/teragrid/portal/filebrowser/server/servlet/model/user/Acctv.hbm.xml"/>
+         <mapping resource="org/teragrid/portal/filebrowser/server/servlet/model/user/User.hbm.xml"/>
+         <mapping resource="org/teragrid/portal/filebrowser/server/servlet/model/user/DN.hbm.xml"/>
+         <mapping resource="org/teragrid/portal/filebrowser/server/servlet/model/resource/TeraGridSystem.hbm.xml"/>
+         
+ </session-factory>
+
+</hibernate-configuration>

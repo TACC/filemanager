@@ -1,0 +1,1 @@
+select d.username, count(distinct t.id) as total_transfers, min(t.fsize) as min_size, max(t.fsize) as max_size, avg(t.speed) as avg_speed from portal.filemgr_transfers as t left join dns d on (d.dn = t.dn) where t.starttime >= '2008-10-01' and t.stoptime < '2008-11-01' group by d.username

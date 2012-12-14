@@ -1,0 +1,82 @@
+<html>
+
+<head>
+<title>TeraGrid File Manager</title>
+</head>
+<script type="text/javascript">
+
+var proxyString = "-----BEGIN CERTIFICATE-----\n\r" +
+"MIICfDCCAWSgAwIBAgICBJEwDQYJKoZIhvcNAQEEBQAwXTELMAkGA1UEBhMCVVMx\n\r" +
+"ODA2BgNVBAoTL05hdGlvbmFsIENlbnRlciBmb3IgU3VwZXJjb21wdXRpbmcgQXBw\n\r" +
+"bGljYXRpb25zMRQwEgYDVQQDEwtSaW9uIERvb2xleTAeFw0wODAxMTAxNjUwMjha\n\r" +
+"Fw0wODAxMTEwNDU1MjhaMG0xCzAJBgNVBAYTAlVTMTgwNgYDVQQKEy9OYXRpb25h\n\r" +
+"bCBDZW50ZXIgZm9yIFN1cGVyY29tcHV0aW5nIEFwcGxpY2F0aW9uczEUMBIGA1UE\n\r" +
+"AxMLUmlvbiBEb29sZXkxDjAMBgNVBAMTBXByb3h5MFwwDQYJKoZIhvcNAQEBBQAD\n\r" +
+"SwAwSAJBAJHm2adYo1oX4WThU3HBc8XViIv/gH59Dwo0dhXdwBZEDHUhBiIApJzk\n\r" +
+"dyeNWMQWgZMzNeKQ+X+PjiGxAnhNFf0CAwEAATANBgkqhkiG9w0BAQQFAAOCAQEA\n\r" +
+"SbL3iFoTTVhMV7NtCt2tc+v+p+Ttu0bTvQ0S/fgc5VSadrHWHyl2izA0kVlScN3j\n\r" +
+"qB6UNhBPLlFlxrayKYf4+ZXV5UHjTvB4bDtQKUzZFLIdT4ITWTYSYuF6BmwvIDry\n\r" +
+"S6M/ftfBmnlag6RxBa0tqwBzFdd4fmAvcMNK37PMN9A9/tZEQPpMiP5dlncDKBaa\n\r" +
+"KK5yKIJ1+vUkINyx2ErVsL/bSI5y9pd9tPFQ0ezq7oDha+g/ra2LZkWky/6Y6TmM\n\r" +
+"fSKoUyE3oDMZmPAhd6l/T9Mmu8Fz/ru4Ah/0EtZmvvyL1sGctgfnFqN//Ld6NALp\n\r" +
+"hn/BhQrujc54GxdqhcFtNQ==\n\r" +
+"-----END CERTIFICATE-----\n\r" +
+"-----BEGIN RSA PRIVATE KEY-----\n\r" +
+"MIIBOgIBAAJBAJHm2adYo1oX4WThU3HBc8XViIv/gH59Dwo0dhXdwBZEDHUhBiIA\n\r" +
+"pJzkdyeNWMQWgZMzNeKQ+X+PjiGxAnhNFf0CAwEAAQJAT93huWShDvlRjap2xieS\n\r" +
+"m3I3bANyMEt/ByQOnAumUckbnTIQ6IAHoFHEBnm1Lm0YqZzPjk9NZEP9+EoYPgYM\n\r" +
+"1QIhANZG6Dz42S3MFzD8gSuMdnvRFBmxWRIwk7sxqHKZlKaHAiEArk+iY5lH44HK\n\r" +
+"Xgk2CceN0XYgyS36zRKs8TLsv+hv/FsCIBjgyKvzlHuNu4+TcYfV2hfMEZJeFeJX\n\r" +
+"w38zZ8ROcoTXAiEAkzKecDstkPq2mMhwgLuqkBqQPzN72peNwbV+ZeT0RIcCIAbz\n\r" +
+"sWXnKWuG+GEAzhM+8UxWjBaaLBenV7aA0oYErVyQ\n\r" +
+"-----END RSA PRIVATE KEY-----\n\r" +
+"-----BEGIN CERTIFICATE-----\n\r" +
+"MIIESzCCAzOgAwIBAgICBJEwDQYJKoZIhvcNAQEEBQAwaTELMAkGA1UEBhMCVVMx\n\r" +
+"ODA2BgNVBAoTL05hdGlvbmFsIENlbnRlciBmb3IgU3VwZXJjb21wdXRpbmcgQXBw\n\r" +
+"bGljYXRpb25zMSAwHgYDVQQDExdDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTAeFw0w\n\r" +
+"NjAxMTIxNzU5MjBaFw0wODAxMTIxNzU5MjBaMF0xCzAJBgNVBAYTAlVTMTgwNgYD\n\r" +
+"VQQKEy9OYXRpb25hbCBDZW50ZXIgZm9yIFN1cGVyY29tcHV0aW5nIEFwcGxpY2F0\n\r" +
+"aW9uczEUMBIGA1UEAxMLUmlvbiBEb29sZXkwggEiMA0GCSqGSIb3DQEBAQUAA4IB\n\r" +
+"DwAwggEKAoIBAQCjaoijCHuYNEFzhn6DteiNIyNa22FqTQE+AlYP/8pc81jcBiWE\n\r" +
+"QKKJ3metUP1eZvN+DQItsD47ckZQawfj0+xsDssVVgU3ARuifRPb3duke2npXxr1\n\r" +
+"GDoIsPSepIUDH7wOlv5HlTUhukkr9w5NR3TJKv/bqs4a+3tYzD5YIQTDf0ySP0KA\n\r" +
+"rUDyilfZ1pGk47XH5rzhpLyCUKoQURlyh4aeIPvubwOgLGFB6BN/eT/8NKWK7A6O\n\r" +
+"5kQipN1lcDyCc4eqNWkbcqaBcka7Q0OsqUZ+tKgPfCX4ajj6gd0kCV6ifO4oQxdz\n\r" +
+"WpAzs9yT9oPAt9NMZjaZ8iz5dbikYKM02CBhAgMBAAGjggEHMIIBAzAJBgNVHRME\n\r" +
+"AjAAMAsGA1UdDwQEAwIE8DAdBgNVHQ4EFgQU9XmMGtqa0vMg6/au4ma7z71aT3Uw\n\r" +
+"gZMGA1UdIwSBizCBiIAU8r6NqmFJES25W3IkKhjSwoXGmIGhbaRrMGkxCzAJBgNV\n\r" +
+"BAYTAlVTMTgwNgYDVQQKEy9OYXRpb25hbCBDZW50ZXIgZm9yIFN1cGVyY29tcHV0\n\r" +
+"aW5nIEFwcGxpY2F0aW9uczEgMB4GA1UEAxMXQ2VydGlmaWNhdGlvbiBBdXRob3Jp\n\r" +
+"dHmCAQAwNAYDVR0fBC0wKzApoCegJYYjaHR0cDovL2NhLm5jc2EudWl1Yy5lZHUv\n\r" +
+"NGE2Y2Q4YjEucjAwDQYJKoZIhvcNAQEEBQADggEBADb7FoPhSRkXV70Y+mzhEHLP\n\r" +
+"7BGScD1UY084eXr4M27q8elpmwrS3zf/4D0iY+4AUmxJCi0rekfzc8EDtAD0+fpl\n\r" +
+"w9TrhPKSZlxZxvYaTe/ERaRUzbEF6VhcLu+glWloFBSzwF94BeN7mVl+UMdJV4nz\n\r" +
+"00zfbyNr9DkkkHmy+LASAHHZlYsQwcdhBtwAav5Tyodrppc5yJM5GW/C0z5QW9nZ\n\r" +
+"Y2pYsQkrX/yj2SuIMDeZhlc9fUDVSN0rgRXGTZrqfw0IfB6o66MrG7j6jocGjSoP\n\r" +
+"j91MLzEB2LrZ5guqeuiZjBrpOLzgvLueBtkiBTnnmB4kSP8ZN0HKi4AnQl8qPps=\n\r" +
+"-----END CERTIFICATE-----";
+
+function getProxy() {
+	return proxyString;
+}
+
+
+document.write('<div id="maindiv">');
+document.write('<p align="center">');
+document.write('<applet codebase="http://localhost:8888/tgfm/" ');
+document.write('code="org.teragrid.portal.filebrowser.applet.AppMain" width=900 height=700 archive="GSI-SSHTerm-teragrid.jar, tgfb.jar" ');
+document.write('style="border-style: solid; border-width: 1; padding-left: 4; padding-right: 4; padding-top: 1; padding-bottom: 1"> ');
+document.write('<PARAM name="separate_jvm" value="true">');
+document.write('<PARAM name="cache_archive" value="">');
+document.write('<PARAM name="filebrowser.ssousername" value="">');
+document.write('<PARAM name="filebrowser.ssocredential" value="">');
+document.write('<PARAM name="classloader_cache" value="false">');
+document.write('<param name="filebrowser.gsscredential" value="' + getProxy() + '">');
+
+document.write('</applet></p>');
+document.write('</div>');
+
+</script>
+
+</body>
+</html>

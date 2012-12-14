@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE map
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN"
+         "http://java.sun.com/products/javahelp/map_1_0.dtd">
+
+<map version="1.0">
+	<mapID target="main" url="master/chapter1.html" />
+	<mapID target="chap1" url="master/chapter1.html" /><!-- ok -->
+	<mapID target="chap2" url="master/chapter2.htm" />
+	<mapID target="chap3" url="master/chapter3.htm" />
+	<mapID target="chap4" url="master/chapter4.htm" />
+	<mapID target="chap5" url="master/chapter5.htm" />
+	<mapID target="chap6" url="master/chapter6.htm" />
+	<mapID target="chap7" url="master/chapter7.htm" />
+</map>

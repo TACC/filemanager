@@ -1,0 +1,27 @@
+local-values.conf
+target
+*~
+bin
+*.idea
+*.iml
+*.eml
+.project
+.settings
+.classpath
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+keystore
+security/keystore
+security/*.*
+*.properties
+*.cfg.xml
+test/*.properties
+test/*.cfg.xml
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes

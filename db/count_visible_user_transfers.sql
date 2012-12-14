@@ -1,0 +1,1 @@
+select count (distinct t.id) from portal.filemgr_transfers t left join portal.dns d on t.dn = d.dn where d.username = 'cariyar2' and t.is_visible = 'true'

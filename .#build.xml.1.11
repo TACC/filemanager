@@ -1,0 +1,228 @@
+<?xml version="1.0"?>
+<project name="TGFMRedux" default="dist" basedir=".">
+
+
+	<path id="compile-classpath">
+	  	<fileset dir="lib/client" includes="**/*.jar" />
+	  	<fileset dir="lib/server" includes="**/*.jar" />
+	    	<fileset dir="lib/common" includes="**/*.jar" />
+		<fileset dir="lib/help" includes="**/*.jar" />
+		<fileset dir="lib/ext" includes="**/*.jar" />
+	</path>
+
+	<path id="server-classpath">
+	  	<fileset dir="lib/server" includes="**/*.jar" />
+		<fileset dir="lib/server/hibernate" includes="**/*.jar" />
+	    	<fileset dir="lib/common" includes="**/*.jar" />
+		<fileset dir="lib/ext" includes="**/*.jar" />
+		<pathelement location="build"/>
+		<pathelement location="sggc.properties,hibernate.cfg.xml"/>
+	</path>
+
+	<path id="client-classpath">
+		<pathelement location="build"/>
+                <pathelement location="tgfb.config,sggc.properties,tgfm-log4j.properties,commons-logging.properties"/>
+	  	<fileset dir="lib/client" includes="**/*.jar" />
+	  	<fileset dir="lib/common" includes="**/*.jar" />
+		<fileset dir="lib/help" includes="**/*.jar" />
+		<fileset dir="lib/ext" includes="**/*.jar" />
+	</path>
+
+	
+	<target name="server" depends="compile" description="Compile/generate all client- and server-side content">
+		
+		<!-- Run the server.  It runs out of the build directory. -->
+		<java classname="org.teragrid.portal.filebrowser.server.servlet.TGFileTransfer"
+    		dir="${basedir}"
+			fork="true">
+			<classpath refid="server-classpath" />
+			<jvmarg value="-Djdbc.drivers=org.postgresql.Driver"/>
+    	</java> 
+			
+	</target>
+	
+	
+	<target name="clean" description="Delete all build artifacts">
+		<!-- Delete all output folders -->
+		<delete dir="WEB-INF"/>
+	    <delete dir="bin"/>
+		<delete dir="build"/>
+	</target>
+
+	<target name="compile" description="Compile/generate all client- and server-side content">
+	    <mkdir dir="build"/>
+		<mkdir dir="build/etc"/>
+	  	  
+	    <javac classpathref="compile-classpath" sourcepath="" srcdir="src" destdir="build"
+			debug="true" debuglevel="lines,vars,source" target="1.5">
+	    	<compilerarg value="-g"/>
+		      <include name="**/*.java"/>
+	    </javac>
+	  	
+		<!-- Copy image files to the build directory for deployment with the jar-->
+	 	<copy todir="build">
+			<fileset dir="src" excludes="**/*.java"/>
+			<fileset file="hibernate.cfg.xml"/>
+	 		<fileset file="sggc.properties"/>
+	 		<fileset file="log4j.properties"/>
+	 		<fileset file="commons-logging.properties"/>
+	 	</copy>
+		
+		<copy todir="build/org/teragrid/portal/filebrowser/applet">
+			<fileset file="tgfb.config"/>
+	 	</copy>
+
+	  	<copy todir="build/">
+            <fileset file="tgfm-log4j.properties"/>
+			<fileset file="commons-logging.properties"/>
+        </copy>
+	</target>
+
+	<target name="deploy-eclipse" description="Deploy client to WEB-INF folder">
+	
+		<mkdir dir="WEB-INF"/>
+	  	<mkdir dir="WEB-INF/classes"/>
+	  	<mkdir dir="WEB-INF/lib"/>
+		
+		<!-- Copy supporting config and properties files for the service 
+			 to the deplyment directory -->
+		<copy todir="WEB-INF">
+			<fileset file="etc/web.xml"/>
+		</copy>
+		
+		<!-- Copy the class files for the service and client
+					 to the deplyment classes directory -->
+		<copy todir="WEB-INF/classes">
+			<fileset dir="build"/>
+		</copy>
+		
+		<!-- Copy supporting libs for the service and client 
+					 to the deplyment lib directory -->
+		<copy todir="WEB-INF/lib">
+			<fileset dir="lib/client" includes="**/*.jar"/>
+			<fileset dir="lib/common" includes="**/*.jar"/>
+			<fileset dir="lib/help" includes="**/*.jar"/>
+			<fileset dir="lib/tmp" includes="**/*.jar"/>
+			<fileset dir="lib/xmlrpc" includes="**/*.jar"/>
+			<fileset dir="lib/ext" includes="**/*.jar"/>
+		</copy>
+			
+	</target>
+	
+	<target name="jarhelp" description="Jar up helpset files and copy to the build directory">
+		<delete file="build/etc/help.jar"/>
+		
+		<jar destfile="build/etc/help.jar"
+			basedir="build/org/teragrid/portal/filebrowser/applet/help"
+			includes="**"
+			excludes="CVS"/>
+	</target>
+
+	<target name="jarcerts" description="Jar up trusted ca certs and copy to the build directory">
+		<delete file="build/etc/certs.jar"/>
+
+		<jar destfile="build/etc/certs.jar"
+                        basedir="etc/certificates"
+                        includes="**"
+                        excludes="CVS"/>
+	</target>
+
+	<target name="jardependencies" description="Repackage the dependent jars with the binary distribution">
+		<unjar dest="build/">
+			<fileset dir="lib/">
+			        <include name="client/*.jar"/>
+				<include name="common/*.jar"/>
+				<include name="help/*.jar"/>
+    			</fileset>
+		</unjar>
+		<delete dir="build/META-INF"/>
+	</target>
+
+	<target name="jar" depends="" description="Create client/server jar">
+		<mkdir dir="bin"/>
+		
+		<!-- Remove the old jar to make sure it always forces a rewrite. -->
+		<delete file="bin/tgfb.jar"/>
+		
+		<!-- Build the jar from the source, image, and cert files -->
+		<jar destfile="bin/tgfb.jar"
+			basedir="build"
+			includes="**">
+			<manifest>
+		      <!-- Who is building this jar? -->
+		      <attribute name="Built-By" value="${user.name}"/>
+		      <!-- Information about the program itself -->
+		      <attribute name="Implementation-Vendor" value="TACC"/>
+		      <attribute name="Implementation-Title" value="TeraGrid File Manager"/>
+		      <attribute name="Implementation-Version" value="0.1beta"/>
+		  	</manifest>
+		</jar>		
+		
+		<signjar jar="bin/tgfb.jar" alias="tacc" keystore="security/keystore" keypass="changeit" storepass="changeit"/>
+	</target>
+	
+	<target name="buildtestjar" depends="clean,compile,jardependencies,jarhelp,jarcerts" description="Create executable jar to perform nagios test of the service.">
+		<mkdir dir="bin"/>
+		
+		<!-- include the log4j jar -->
+		<unjar dest="build/" src="lib/ext/GSI-SSHTerm-teragrid.jar">
+			<patternset>
+				<include name="org/apache/commons/**/*.class"/>
+			</patternset>
+		</unjar>
+		<unjar dest="build/" src="lib/server/log4j-1.2.8.jar"/>
+		
+		<delete dir="build/META-INF"/>
+		<delete file="build/tgfm-log4j.properties"/>
+		
+		<!-- Remove the old jar to make sure it always forces a rewrite. -->
+		<delete file="bin/test-service.jar"/>
+		
+		<!-- Build the jar from the source, image, and cert files -->
+		<jar destfile="bin/test-service.jar"
+			basedir="build"
+			includes="**">
+			<manifest>
+		      <!-- Who is building this jar? -->
+		      <attribute name="Built-By" value="${user.name}"/>
+		      <!-- Information about the program itself -->
+		      <attribute name="Implementation-Vendor" value="TACC"/>
+		      <attribute name="Implementation-Title" value="TeraGrid File Manager"/>
+		      <attribute name="Implementation-Version" value="0.1beta"/>
+			  <attribute name="Main-Class" value="org.teragrid.portal.filebrowser.server.servlet.test.NagiosTestRunner"/>
+		    </manifest>
+		</jar>		
+	</target>	
+	<target name="dist" depends="jar" description="Bundle the client and deploy it in the web folder">
+		
+		<!-- Copy the client jar and dependent jars to the web dir to test the applet-->
+		<copy todir="/Users/dooley/Sites/TGFMRedux">
+			<fileset dir="lib/client" includes="**/*.jar"/>
+			<fileset dir="lib/common" includes="**/*.jar"/>
+			<fileset dir="lib/help" includes="**/*.jar"/>
+			<fileset dir="lib/ext" includes="**/*.jar"/>
+			<fileset file="bin/tgfb.jar"/>
+			<fileset file="www/index.html"/>
+		</copy>
+		
+	</target>
+
+	<target name="gsissh" depends="" description="Test the gsissh env and find commands">
+		
+		<java classname="org.teragrid.portal.filebrowser.applet.transfer.GsiSshClient"
+				fork="true">
+			<classpath refid="client-classpath" />
+			<jvmarg value="-Xmx256m"/>
+			<jvmarg value="-Dlog4j.debug=true"/>
+		</java>
+	</target>
+	<target name="run" depends="jar" description="Test the gsissh env and find commands">
+			
+		<java classname="org.teragrid.portal.filebrowser.applet.AppMain"
+				fork="true">
+			<classpath refid="client-classpath" />
+			<jvmarg value="-Xmx256m"/>
+			<jvmarg value="-Dlog4j.configuration=tgfm-log4j.properties -Dlog4j.debug=true"/>
+		</java>
+	</target>
+</project>

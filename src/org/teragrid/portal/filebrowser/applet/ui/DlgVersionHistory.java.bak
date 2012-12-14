@@ -1,0 +1,298 @@
+/**
+ * 
+ */
+package org.teragrid.portal.filebrowser.applet.ui;
+
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
+
+import org.alfresco.service.cmr.version.Version;
+import org.alfresco.service.cmr.version.VersionHistory;
+import org.globus.ftp.FileInfo;
+import org.teragrid.portal.filebrowser.applet.file.TGShareFileInfo;
+import org.teragrid.portal.filebrowser.applet.ui.permissions.StripedTable;
+import org.teragrid.portal.filebrowser.applet.util.LogManager;
+
+import com.explodingpixels.macwidgets.IAppWidgetFactory;
+import com.explodingpixels.macwidgets.MacFontUtils;
+
+/**
+ * Dialog to show the user's version history on a TGShareFileItem
+ * 
+ * @author dooley
+ *
+ */
+@SuppressWarnings({"serial","unused"})
+public class DlgVersionHistory extends DlgEscape {
+
+	private JPanel pnlButton;
+	
+	private StripedTable tblHistory;
+	private JButton btnCancel;
+	private JButton btnRevert;
+	private JScrollPane spHistory;
+	
+	private FTPThread tBrowse;
+	private FileInfo fileInfo;
+	private String path;
+	
+	private Version selectedVersion;
+	private VersionHistory history;
+	
+	/**
+	 * 
+	 */
+	public DlgVersionHistory() {
+//		initDummyData();
+//		initHistoryTable();
+	}
+
+	/**
+	 * @param owner
+	 */
+	public DlgVersionHistory(Frame owner, TGShareFileInfo fileInfo, VersionHistory history) {
+		super(owner, fileInfo.getName() + " Version History", true);
+		
+		LogManager.debug("Displaying version history for: " + fileInfo.toString());
+		
+		initTable(history);
+		initButtons();
+		locateDialog(owner);
+		initLayout();
+	}
+
+	private void initTable(VersionHistory history) {
+		
+		tblHistory = new StripedTable(new VersionHistoryTableModel(history));
+		tblHistory.getSelectionModel().addListSelectionListener(new HistoryTableSelectionListener(this));
+//		tblHistory.addHighlighter(HighlighterFactory.createSimpleStriping(Color.LIGHT_GRAY));
+		tblHistory.setPreferredSize(new Dimension(350,190));
+		int[] widths = {50,50,75,150};
+		for (int i=0;i<widths.length;i++) {
+			tblHistory.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+			tblHistory.getColumnModel().getColumn(i).setCellRenderer(new VersionHistoryTableCellRenderer());
+		}
+		tblHistory.setFont(MacFontUtils.SOURCE_LIST_ITEM_FONT);
+//		tblHistory.setAutoResizeMode(StripedTable.AUTO_RESIZE_OFF);
+//		tblHistory.setDefaultRenderer(Object, renderer)
+		spHistory = new JScrollPane(tblHistory);
+		spHistory.setAutoscrolls(true);
+		spHistory.setWheelScrollingEnabled(true);
+		IAppWidgetFactory.makeIAppScrollPane(spHistory);
+	}
+	
+	private void initButtons() {
+		btnCancel = new JButton("Cancel");
+		btnCancel.addActionListener(new VersionHistoryButtonActionListener(this));
+		
+		btnRevert = new JButton("Revert");
+		btnRevert.addActionListener(new VersionHistoryButtonActionListener(this));
+		btnRevert.setEnabled(false);
+		
+		pnlButton = new JPanel();
+		pnlButton.setLayout(new BoxLayout(pnlButton,BoxLayout.X_AXIS));
+		pnlButton.add(Box.createHorizontalGlue());
+		pnlButton.add(btnCancel);
+		pnlButton.add(btnRevert);
+	}
+	
+	private void initLayout() {
+		JPanel pnlMain = new JPanel();
+		pnlMain.setLayout(new BoxLayout(pnlMain,BoxLayout.Y_AXIS));
+		pnlMain.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+		pnlMain.add(spHistory);
+		pnlMain.add(pnlButton);
+		pnlMain.setPreferredSize(new Dimension(400,200));
+		add(pnlMain);
+		pack();
+		setVisible(true);
+	}
+	
+	protected void buttonClickedActionListener(ActionEvent e) {
+		if (e.getSource() == btnCancel) {
+			// simply close the dialog and invalidate any selection
+			selectedVersion = null;
+			setVisible(false);
+		} else if (e.getSource() == btnRevert) {
+			// if a row is selected, set that as the selected version for retrieval
+			if (!tblHistory.getSelectionModel().isSelectionEmpty()) {
+				selectedVersion = ((VersionHistoryTableModel)tblHistory.getModel()).getVersionAtRow(tblHistory.getSelectedRow());
+			} else {
+				LogManager.error("No version selected. Button should be disabled. This should not happen!");
+			}
+			setVisible(false);
+		} 
+	}
+
+	public void tableListSeleciontListener(ListSelectionEvent e) {
+		btnRevert.setEnabled(!tblHistory.getSelectionModel().isSelectionEmpty());
+	}
+	
+	public Version getSelectedVersion() {
+		return this.selectedVersion;
+	}
+}
+
+class HistoryTableSelectionListener implements ListSelectionListener {
+	private DlgVersionHistory adaptee;
+
+	public HistoryTableSelectionListener(DlgVersionHistory adaptee) {
+		this.adaptee = adaptee;
+	}
+
+	public void valueChanged(ListSelectionEvent e) {
+		adaptee.tableListSeleciontListener(e);
+	}
+}
+
+class VersionHistoryButtonActionListener implements ActionListener {
+	private DlgVersionHistory adaptee;
+
+	public VersionHistoryButtonActionListener(DlgVersionHistory adaptee) {
+		this.adaptee = adaptee;
+	}
+	
+	public void actionPerformed(ActionEvent e) {
+		adaptee.buttonClickedActionListener(e);
+	}
+	
+}
+
+@SuppressWarnings("serial")
+class VersionHistoryTableCellRenderer extends JLabel
+implements TableCellRenderer {
+
+	public Component getTableCellRendererComponent(JTable table, Object value,
+			boolean isSelected, boolean hasFocus, int row, int column) {
+		
+		setFont(MacFontUtils.SOURCE_LIST_ITEM_FONT);
+		setText((String)value);
+		setOpaque(true);
+		setBackground(((StripedTable)table).colorForRow(row));
+		
+		if (column == 3 || column == 2) {
+			setToolTipText(wrapText((String)value));
+		}
+		return this;
+	}
+	
+	private String wrapText(String text) {
+		if (text == null || text.equals("")) return "";
+		
+		String html = "<html>";
+		StringTokenizer tokens = new StringTokenizer(text);
+		String token = "";
+		int lineWidth = 0;
+		while (tokens.hasMoreTokens()) {
+			token = tokens.nextToken();
+			if (lineWidth + token.length() <= 32) {
+				html += token + " ";
+				lineWidth += token.length();
+			} else {
+				html += "<br>" + token + " ";
+				lineWidth = token.length();
+			}
+			
+		}
+		return html + "</html>";
+	}
+}
+
+@SuppressWarnings("serial")
+class VersionHistoryTableModel extends AbstractTableModel {
+	
+	private final String [] TABLE_COLUMN_NAMES = new String[]{"Version","Owner","Created","Description"};
+	private List<Version> versions;
+	
+	public VersionHistoryTableModel(VersionHistory history) {
+		super();
+		this.versions = new ArrayList<Version>(history.getAllVersions());
+		sortData();
+	}
+
+	public int getColumnCount() {
+		return TABLE_COLUMN_NAMES.length;
+	}
+
+	@Override 
+	public String getColumnName(int column) {
+		return TABLE_COLUMN_NAMES[column];
+	}
+	
+	public int getRowCount() {
+		return versions.size();
+	}
+	
+	public Version getVersionAtRow(int row) {
+		return versions.get(row);
+	}
+
+	public Object getValueAt(int rowIndex, int columnIndex) {
+		Object value = null;
+		Version version = versions.get(rowIndex);
+		switch(columnIndex){
+        case 0:
+        	value = version.getVersionLabel();
+        	break;
+        case 1:
+        	value = version.getCreator();
+        	break;
+        case 2:
+        	value = new SimpleDateFormat("M/dd/yy HH:mm a").format(version.getCreatedDate());
+        	break;
+        case 3:
+        	value = version.getVersionProperty(Version.PROP_DESCRIPTION);
+        	break;
+        default:
+        	value = version.getVersionLabel();
+            break;
+        }
+        return value;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void sortData() {
+        Collections.sort(versions, new
+                VersionComparator(true));
+        this.fireTableDataChanged();
+    }
+}
+
+@SuppressWarnings("unchecked")
+class VersionComparator implements Comparator {
+
+	protected boolean sortAscending;
+	
+	public VersionComparator(boolean sortAscending) {
+		this.sortAscending = sortAscending;
+	}
+	
+	public int compare(Object o1, Object o2) {
+		if(!(o1 instanceof Version) || !(o2 instanceof Version))
+            return 0;
+		return ((Version)o1).getVersionLabel().compareTo(((Version)o2).getVersionLabel());
+	}
+	
+}

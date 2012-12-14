@@ -1,0 +1,1 @@
+select count(distinct t.dn) as total_users, count(t.id) as total_transfers, min(t.fsize) as min_size, max(t.fsize) as max_size, round(avg(t.speed),0) as avg_speed from portal.filemgr_transfers as t where t.starttime >= '2008-10-01' and t.stoptime < '2008-11-01'

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping SYSTEM
+			"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+
+<!--
+Various Hibernate value types for TG file transfer notification service.
+Make sure this mapping file is loaded before the others.
+
+
+@author Rion Dooley dooley [at] tacc [dot] utexas [dot] edu.
+-->
+
+<hibernate-mapping>
+<typedef class="org.teragrid.portal.filebrowser.server.servlet.persistence.enumerators.StringEnumUserType" name="transfer_status">
+    <param name="enumClassname">org.teragrid.portal.filebrowser.server.servlet.model.filetransfer.TransferStatus</param>
+</typedef>
+<typedef class="org.teragrid.portal.filebrowser.server.servlet.persistence.enumerators.StringEnumUserType" name="notification_type">
+    <param name="enumClassname">org.teragrid.portal.filebrowser.server.servlet.model.notification.NotificationType</param>
+</typedef>
+</hibernate-mapping>

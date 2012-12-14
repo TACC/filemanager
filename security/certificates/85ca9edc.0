@@ -1,0 +1,70 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 115 (0x73)
+        Signature Algorithm: md5WithRSAEncryption
+        Issuer: C=US, O=Pittsburgh Supercomputing Center, CN=PSC Root Certificate Authority
+        Validity
+            Not Before: Oct  1 16:31:07 2003 GMT
+            Not After : Aug 20 04:00:00 2006 GMT
+        Subject: C=US, O=Pittsburgh Supercomputing Center, CN=PSC Kerberos Certification Authority
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public Key: (1024 bit)
+                Modulus (1024 bit):
+                    00:9d:d9:d6:8e:90:f2:2c:ee:46:bd:4a:80:80:51:
+                    39:32:23:32:3f:ca:f5:92:50:83:7d:a1:57:8a:77:
+                    6c:46:b3:67:f9:eb:4e:14:d9:20:fa:46:c8:a9:79:
+                    fe:04:d9:71:c0:ce:9f:6c:1c:86:66:4e:e6:25:d2:
+                    23:01:8e:46:10:21:84:61:d0:ca:2d:b7:58:db:fe:
+                    db:b3:e6:ae:e2:83:b1:2c:9c:b4:4a:37:00:2d:7d:
+                    19:d5:4d:f6:2f:00:64:9e:34:ba:ba:21:12:40:3d:
+                    af:8c:8b:d0:86:b4:12:f0:65:db:e6:fc:bc:53:7a:
+                    c2:8d:02:9f:61:7a:33:cc:47
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Authority Key Identifier:
+                keyid:BB:50:32:60:AB:1F:63:B5:92:96:26:20:08:7C:A2:0E:49:A4:00:E1
+
+            Authority Information Access:
+                OCSP - URI:http://ocsp.psc.edu:8000/ocsp
+
+            Netscape Cert Type:
+                SSL Server, Object Signing, SSL CA, S/MIME CA, Object Signing CA
+    Signature Algorithm: md5WithRSAEncryption
+        ba:bd:fc:a1:dc:6a:8e:ab:44:c2:ed:07:60:f4:8b:6a:14:50:
+        86:8d:a4:09:da:44:4e:1f:0d:05:2f:98:4d:6a:72:2f:62:ea:
+        97:a2:1a:c7:a9:51:c9:80:de:cc:ff:bf:24:1f:7f:9f:33:07:
+        4b:f9:1f:80:a1:e3:d7:96:47:7b:d2:16:9e:0f:16:37:64:32:
+        af:94:00:8f:b2:b4:2d:75:1b:db:77:f4:21:00:38:60:eb:81:
+        2f:b4:f7:ef:90:55:3f:c9:25:7a:37:4c:21:3b:ee:9b:29:a4:
+        50:2f:e6:10:1e:f4:aa:42:cd:f6:55:9b:b9:59:2e:78:86:48:
+        c1:36:93:4b:58:f8:09:6e:27:fa:08:c8:64:45:f0:17:84:3d:
+        35:be:5b:66:cf:17:cd:75:de:bf:15:26:a8:23:d5:e9:79:1e:
+        4a:33:96:b5:58:99:66:70:7c:77:5e:4d:c6:0a:38:71:a1:4b:
+        e6:42:b5:dc:68:c7:66:56:06:88:14:bd:66:fb:62:a2:ef:cf:
+        36:fc:98:4f:4b:11:dc:1f:5f:1d:b1:03:6f:62:bc:3c:78:d1:
+        51:a4:da:d0:03:e9:34:75:91:23:5f:37:45:ac:74:15:13:a7:
+        80:52:9d:ba:9f:55:87:35:b1:ac:c9:1c:d6:a6:77:df:66:94:
+        57:79:77:3d
+
+-----BEGIN CERTIFICATE-----
+MIIDMDCCAhigAwIBAgIBczANBgkqhkiG9w0BAQQFADBhMQswCQYDVQQGEwJVUzEp
+MCcGA1UEChMgUGl0dHNidXJnaCBTdXBlcmNvbXB1dGluZyBDZW50ZXIxJzAlBgNV
+BAMTHlBTQyBSb290IENlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0wMzEwMDExNjMx
+MDdaFw0wNjA4MjAwNDAwMDBaMGcxCzAJBgNVBAYTAlVTMSkwJwYDVQQKEyBQaXR0
+c2J1cmdoIFN1cGVyY29tcHV0aW5nIENlbnRlcjEtMCsGA1UEAxMkUFNDIEtlcmJl
+cm9zIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MIGfMA0GCSqGSIb3DQEBAQUAA4GN
+ADCBiQKBgQCd2daOkPIs7ka9SoCAUTkyIzI/yvWSUIN9oVeKd2xGs2f5604U2SD6
+Rsipef4E2XHAzp9sHIZmTuYl0iMBjkYQIYRh0Mott1jb/tuz5q7ig7EsnLRKNwAt
+fRnVTfYvAGSeNLq6IRJAPa+Mi9CGtBLwZdvm/LxTesKNAp9hejPMRwIDAQABo3Ew
+bzAfBgNVHSMEGDAWgBS7UDJgqx9jtZKWJiAIfKIOSaQA4TA5BggrBgEFBQcBAQQt
+MCswKQYIKwYBBQUHMAGGHWh0dHA6Ly9vY3NwLnBzYy5lZHU6ODAwMC9vY3NwMBEG
+CWCGSAGG+EIBAQQEAwIAVzANBgkqhkiG9w0BAQQFAAOCAQEAur38odxqjqtEwu0H
+YPSLahRQho2kCdpETh8NBS+YTWpyL2Lql6Iax6lRyYDezP+/JB9/nzMHS/kfgKHj
+15ZHe9IWng8WN2Qyr5QAj7K0LXUb23f0IQA4YOuBL7T375BVP8klejdMITvumymk
+UC/mEB70qkLN9lWbuVkueIZIwTaTS1j4CW4n+gjIZEXwF4Q9Nb5bZs8XzXXevxUm
+qCPV6XkeSjOWtViZZnB8d15Nxgo4caFL5kK13GjHZlYGiBS9Zvtiou/PNvyYT0sR
+3B9fHbEDb2K8PHjRUaTa0APpNHWRI183Rax0FROngFKdup9VhzWxrMkc1qZ332aU
+V3l3PQ==
+-----END CERTIFICATE-----

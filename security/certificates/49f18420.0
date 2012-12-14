@@ -1,0 +1,111 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 0 (0x0)
+        Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=IT, O=INFN, CN=INFN Certification Authority
+        Validity
+            Not Before: Sep 18 16:06:29 2002 GMT
+            Not After : Sep 18 16:06:29 2007 GMT
+        Subject: C=IT, O=INFN, CN=INFN Certification Authority
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public Key: (2048 bit)
+                Modulus (2048 bit):
+                    00:ae:bc:93:9a:ba:b1:70:c0:4f:82:d8:fa:83:70:
+                    b9:dc:cf:86:29:29:c2:ab:3d:70:5d:0f:41:0b:fc:
+                    22:1a:73:a3:ad:36:63:2b:c6:01:10:02:98:26:4f:
+                    f4:1e:9f:e0:4f:04:e1:95:a0:71:d5:22:85:78:0d:
+                    53:10:83:da:2c:17:78:7a:4c:db:3a:a1:0f:80:4a:
+                    a9:c3:54:54:65:7e:0b:87:12:e0:75:7f:fc:ee:19:
+                    13:8f:ea:92:b2:71:a1:cc:cd:19:a1:34:84:dc:ef:
+                    12:8e:ca:29:eb:9d:06:28:f5:64:3f:94:60:22:18:
+                    08:a2:7e:5c:c2:c2:b2:f6:0e:22:91:14:0c:60:f4:
+                    32:69:6b:1a:1d:d7:7a:46:bb:6b:e0:a6:72:3b:1b:
+                    0e:aa:be:e1:7d:ad:bf:f2:46:85:0a:86:3a:14:96:
+                    e6:2c:9a:09:22:ae:dc:da:2e:19:cb:45:d3:0d:ff:
+                    91:bd:31:9f:79:18:8f:64:7d:29:b0:1e:ca:ac:6c:
+                    c5:4b:b8:36:ae:dd:34:58:a2:71:46:fa:e2:07:44:
+                    b0:dd:70:48:ff:89:21:9a:6e:e5:bc:d5:d8:f6:2d:
+                    89:fd:91:e7:da:18:03:26:6c:4a:55:20:ed:8a:8b:
+                    32:84:a7:06:56:83:35:2c:74:65:7a:4d:f5:a3:73:
+                    95:9d
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Key Usage: critical
+                Certificate Sign, CRL Sign
+            X509v3 Subject Key Identifier: 
+                CA:11:EF:5D:1D:07:04:98:A9:A5:B5:58:1A:66:4E:0A:16:2B:E0:49
+            X509v3 Authority Key Identifier: 
+                keyid:CA:11:EF:5D:1D:07:04:98:A9:A5:B5:58:1A:66:4E:0A:16:2B:E0:49
+                DirName:/C=IT/O=INFN/CN=INFN Certification Authority
+                serial:00
+
+            X509v3 Issuer Alternative Name: 
+                email:infn-ca@fi.infn.it
+            X509v3 Subject Alternative Name: 
+                email:infn-ca@fi.infn.it
+            X509v3 CRL Distribution Points: 
+                URI:http://security.fi.infn.it/CA/crl.crl
+
+            Netscape Cert Type: 
+                SSL CA, S/MIME CA, Object Signing CA
+            Netscape CA Policy Url: 
+                http://security.fi.infn.it/CA/CPS/
+            Netscape Base Url: 
+                http://security.fi.infn.it/
+            Netscape Revocation Url: 
+                cgi-bin/check-rev.pl?
+            Netscape Renewal Url: 
+                cgi-bin/check-renew.pl?
+            Netscape Comment: 
+                INFN Certification Authority, CP & CPS at http://security.fi.infn.it/CA/CPS/
+    Signature Algorithm: sha1WithRSAEncryption
+        78:69:0f:8a:cb:7e:cf:a1:b1:48:4b:75:ee:8b:bb:a5:e3:f9:
+        00:20:9d:e8:ef:4b:ac:3e:ab:2b:27:cc:29:a5:b6:33:54:f3:
+        66:85:e9:29:76:ac:15:0c:8d:b1:a2:77:1f:2c:2b:85:bb:f5:
+        74:ec:39:cb:b0:da:31:13:9d:56:96:92:ff:a9:6d:fb:8d:fc:
+        aa:7c:b7:38:21:49:42:f0:2a:9a:73:ad:23:12:f4:f4:3f:24:
+        1c:69:bc:26:8c:89:7f:46:e7:be:bd:4f:1e:cb:cf:a7:d5:04:
+        29:d6:b9:c9:9e:55:b6:d7:f6:b0:d1:81:f6:88:67:00:a6:91:
+        33:78:ae:d4:24:e0:78:6d:6a:29:4c:80:07:fa:5d:ba:4c:11:
+        12:3e:8b:2a:c3:ba:42:1f:bd:c7:37:79:92:7d:21:95:9c:1d:
+        ee:59:1d:9f:d4:b6:72:a5:4f:89:24:2d:ab:32:14:72:db:86:
+        10:0a:eb:88:bf:be:66:a1:2c:19:53:9b:38:ad:08:ad:82:03:
+        2f:86:e1:17:57:35:fe:d1:7e:c8:c6:e7:e0:ab:e0:c2:a1:ae:
+        05:10:21:82:d8:c5:1a:02:c2:ef:48:44:99:3b:cd:43:12:ed:
+        a3:26:8b:48:65:7b:a5:94:62:f5:6f:d4:23:80:e7:7c:25:75:
+        f3:4a:9d:c3
+-----BEGIN CERTIFICATE-----
+MIIFRzCCBC+gAwIBAgIBADANBgkqhkiG9w0BAQUFADBDMQswCQYDVQQGEwJJVDEN
+MAsGA1UEChMESU5GTjElMCMGA1UEAxMcSU5GTiBDZXJ0aWZpY2F0aW9uIEF1dGhv
+cml0eTAeFw0wMjA5MTgxNjA2MjlaFw0wNzA5MTgxNjA2MjlaMEMxCzAJBgNVBAYT
+AklUMQ0wCwYDVQQKEwRJTkZOMSUwIwYDVQQDExxJTkZOIENlcnRpZmljYXRpb24g
+QXV0aG9yaXR5MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArryTmrqx
+cMBPgtj6g3C53M+GKSnCqz1wXQ9BC/wiGnOjrTZjK8YBEAKYJk/0Hp/gTwThlaBx
+1SKFeA1TEIPaLBd4ekzbOqEPgEqpw1RUZX4LhxLgdX/87hkTj+qSsnGhzM0ZoTSE
+3O8Sjsop650GKPVkP5RgIhgIon5cwsKy9g4ikRQMYPQyaWsaHdd6Rrtr4KZyOxsO
+qr7hfa2/8kaFCoY6FJbmLJoJIq7c2i4Zy0XTDf+RvTGfeRiPZH0psB7KrGzFS7g2
+rt00WKJxRvriB0Sw3XBI/4khmm7lvNXY9i2J/ZHn2hgDJmxKVSDtiosyhKcGVoM1
+LHRlek31o3OVnQIDAQABo4ICRDCCAkAwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8B
+Af8EBAMCAQYwHQYDVR0OBBYEFMoR710dBwSYqaW1WBpmTgoWK+BJMGsGA1UdIwRk
+MGKAFMoR710dBwSYqaW1WBpmTgoWK+BJoUekRTBDMQswCQYDVQQGEwJJVDENMAsG
+A1UEChMESU5GTjElMCMGA1UEAxMcSU5GTiBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0
+eYIBADAdBgNVHRIEFjAUgRJpbmZuLWNhQGZpLmluZm4uaXQwHQYDVR0RBBYwFIES
+aW5mbi1jYUBmaS5pbmZuLml0MDYGA1UdHwQvMC0wK6ApoCeGJWh0dHA6Ly9zZWN1
+cml0eS5maS5pbmZuLml0L0NBL2NybC5jcmwwEQYJYIZIAYb4QgEBBAQDAgAHMDEG
+CWCGSAGG+EIBCAQkFiJodHRwOi8vc2VjdXJpdHkuZmkuaW5mbi5pdC9DQS9DUFMv
+MCoGCWCGSAGG+EIBAgQdFhtodHRwOi8vc2VjdXJpdHkuZmkuaW5mbi5pdC8wJAYJ
+YIZIAYb4QgEDBBcWFWNnaS1iaW4vY2hlY2stcmV2LnBsPzAmBglghkgBhvhCAQcE
+GRYXY2dpLWJpbi9jaGVjay1yZW5ldy5wbD8wWwYJYIZIAYb4QgENBE4WTElORk4g
+Q2VydGlmaWNhdGlvbiBBdXRob3JpdHksIENQICYgQ1BTIGF0IGh0dHA6Ly9zZWN1
+cml0eS5maS5pbmZuLml0L0NBL0NQUy8wDQYJKoZIhvcNAQEFBQADggEBAHhpD4rL
+fs+hsUhLde6Lu6Xj+QAgnejvS6w+qysnzCmltjNU82aF6Sl2rBUMjbGidx8sK4W7
+9XTsOcuw2jETnVaWkv+pbfuN/Kp8tzghSULwKppzrSMS9PQ/JBxpvCaMiX9G5769
+Tx7Lz6fVBCnWucmeVbbX9rDRgfaIZwCmkTN4rtQk4HhtailMgAf6XbpMERI+iyrD
+ukIfvcc3eZJ9IZWcHe5ZHZ/UtnKlT4kkLasyFHLbhhAK64i/vmahLBlTmzitCK2C
+Ay+G4RdXNf7RfsjG5+Cr4MKhrgUQIYLYxRoCwu9IRJk7zUMS7aMmi0hle6WUYvVv
+1COA53wldfNKncM=
+-----END CERTIFICATE-----

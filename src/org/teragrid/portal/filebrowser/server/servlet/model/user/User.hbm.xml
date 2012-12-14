@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping SYSTEM
+			"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<!--
+
+Mapping file for the Transfer class of the TG File Browser transfer logging service..
+
+A transfer has a source, dest, start, stop, status, and end point reference if
+done via 3rd party transfer.
+
+@author Rion Dooley < dooley [at] tacc [dot] utexas [dot] edu >
+
+-->
+<hibernate-mapping package="org.teragrid.portal.filebrowser.server.servlet.model.user">
+
+<class name="org.teragrid.portal.filebrowser.server.servlet.model.user.User" 
+	   table="portal.user_info" 
+	   lazy="true">
+
+	<id name="id"
+		type="long"
+		column="person_id"
+		unsaved-value="null"
+		access="org.hibernate.property.DirectPropertyAccessor">
+		<generator class="native"/>
+	</id>
+
+	<property name="username" type="string" column="username"/>
+	<property name="firstName" type="string" column="first_name"/>
+	<property name="lastName" type="string" column="last_name"/>
+	<property name="email" type="string" column="email"/>
+	<property name="cell" type="string" column="home_phone_number"/>
+	<property name="organization" type="string" column="organization"/>
+	<property name="department" type="string" column="department"/>
+	
+	<!--<set name="dns"
+	 		cascade="save-update"
+			access="org.hibernate.property.DirectPropertyAccessor">
+		<key column="person_id"/>
+		<one-to-many class="org.teragrid.portal.filebrowser.server.servlet.model.user.DN"/>
+	</set>-->
+	 
+	<!--<sql-query name="findUser">
+	    <return alias="user" class="org.teragrid.portal.filebrowser.server.servlet.model.user.User"/>
+	    <return-join alias="person_id" property="user.person_id"/>
+	    SELECT user.person_id AS {user.id},
+	    	   user.first_name AS {user.firstName},
+	           user.last_name AS {user.lastName},
+	           user.username AS {user.username},
+	           tgDns.dn AS {user.dn},
+	           user.email AS {user.email}
+	           user.bus_phone_number AS {user.cell}
+	    FROM user_info user
+	    JOIN dns tgDns
+	        ON person.person_id = tgDns.person_id
+	    WHERE tgDns.dn = :userDn
+	</sql-query>-->
+				
+</class>
+
+
+	
+</hibernate-mapping>
