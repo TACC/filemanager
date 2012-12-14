@@ -19,7 +19,7 @@
     <!-- Names of jars produced by build targets  -->
     <property name="test.nagios.class" value="test.jar"/><!-- name given to jar produced for nagios tests  -->
     <property name="applet.jar.name" value="tgfb.jar"/><!-- name given to client jar  -->
-	<property name="executable.jar.name" value="XSEDEFileManager.jar"/><!-- name given to client jar  -->
+	<property name="executable.jar.name" value="FileManager.jar"/><!-- name given to client jar  -->
 	<property name="nagios.test.jar.name" value="tgfb-nagios.jar"/><!-- name given to nagios test jar  -->
     
     <!-- Executable classes in the code base  -->

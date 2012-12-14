@@ -69,7 +69,8 @@ public class StripedTable extends JTable {
      * Returns the appropriate background color for the given row.
      */
     public Color colorForRow(int row) {
-        return (row % 2 == 0) ? Color.decode("#f9f5f6") : Color.decode("#f0f0f0");//getBackground();
+        //return (row % 2 == 0) ? Color.decode("#f9f5f6") : Color.decode("#f0f0f0");
+    	return (row % 2 == 0) ? Color.decode("#E3E3E3") : getBackground();
     }
 
     /**
@@ -81,8 +82,10 @@ public class StripedTable extends JTable {
             c.setBackground(colorForRow(row));
             c.setForeground(UIManager.getColor("Table.foreground"));
         } else {
-            c.setBackground(Color.decode("#E5601E"));
-            c.setForeground(Color.white);
+//            c.setBackground(Color.decode("#E5601E"));
+//            c.setForeground(Color.white);
+        	c.setBackground(UIManager.getColor("Table.selectionBackground"));
+        	c.setForeground(UIManager.getColor("Table.selectionForeground"));
         }
 
         return c;
