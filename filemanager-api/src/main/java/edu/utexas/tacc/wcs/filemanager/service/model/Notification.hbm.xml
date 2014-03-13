@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping SYSTEM
+			"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<!--
+
+Mapping file for the Notification class of the GridChem Middleware Service.
+
+A Notification is a message sent to the user informing them of a change in the
+status of their job.  The deliver mechanism is determined by the userType field.
+
+@author Rion Dooley < dooley [at] cct [dot] lsu [dot] edu >
+
+-->
+<hibernate-mapping package="edu.utexas.tacc.wcs.filemanager.service.model">
+
+<typedef name="notification_type" class="EnumUserType">
+	<param name="enumClassName">edu.utexas.tacc.wcs.filemanager.common.model.enumeration.NotificationType</param>
+</typedef>
+  
+<class name="edu.utexas.tacc.wcs.filemanager.service.model.Notification" 
+	   table="portal.filemgr_notifications" 
+	   lazy="true">
+
+	<id name="id"
+		type="java.lang.Integer"
+		column="id"
+		unsaved-value="null">
+		<generator class="sequence">
+			<param name="sequence">filemgr_notification_id_seq</param>
+		</generator>
+	</id>
+
+	<property name="transferId" type="java.lang.Integer" column="transferId"/>
+	<property name="type" type="notification_type" column="notificiationType"/>
+	<property name="subject" type="string" column="subject"/>
+	<property name="message" type="string" column="message"/>
+	<property name="created" type="java.util.Calendar" column="created"/>
+	<property name="deliveryDate" type="java.util.Calendar" column="deliveryDate"/>
+	<property name="username" type="string" column="username"/>
+	<property name="address" type="string" column="address"/>
+				
+</class>
+
+</hibernate-mapping>

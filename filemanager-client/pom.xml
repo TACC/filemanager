@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2014, Texas Advanced Computing Center All rights reserved. 
+	Redistribution and use in source and binary forms, with or without modification, 
+	are permitted provided that the following conditions are met: * Redistributions 
+	of source code must retain the above copyright notice, this list of conditions 
+	and the following disclaimer. * Redistributions in binary form must reproduce 
+	the above copyright notice, this list of conditions and the following disclaimer 
+	in the documentation and/or other materials provided with the distribution. 
+	* Neither the name of the University of Texas at Austin nor the names of 
+	its contributors may be used to endorse or promote products derived from 
+	this software without specific prior written permission. THIS SOFTWARE IS 
+	PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY EXPRESS 
+	OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+	OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN 
+	NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+	INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF 
+	USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+	THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+	NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+	EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. The views and conclusions 
+	contained in the software and documentation are those of the authors and 
+	should not be interpreted as representing official policies, either expressed 
+	or implied, of the FreeBSD Project. -->
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>edu.utexas.tacc.wcs</groupId>
+		<artifactId>filemanager</artifactId>
+		<version>3.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>filemanager-client</artifactId>
+	<name>Filemanager Client</name>
+	<description>Filemanager client application</description>
+	<packaging>jar</packaging>
+
+	<scm>
+		<connection>scm:git:ssh://git@github.com/TACC/filemanager.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/TACC/filemanager.git</developerConnection>
+		<url>https://github.com/TACC/filemanager</url>
+	</scm>
+
+	<properties>
+		<force.check.version>false</force.check.version>
+	</properties>
+
+	<build>
+		<resources>
+			<resource>
+				<filtering>true</filtering>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<filtering>true</filtering>
+				<directory>src/test/resources</directory>
+			</testResource>
+		</testResources>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>edu.utexas.tacc.wcs</groupId>
+			<artifactId>filemanager-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javatar</groupId>
+			<artifactId>javatar</artifactId>
+			<version>2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4.6</version>
+		</dependency>
+
+		<!-- Commons love -->
+
+		<dependency>
+			<groupId>org.jasypt</groupId>
+			<artifactId>jasypt</artifactId>
+			<version>1.9.0</version>
+		</dependency>
+
+		<!-- Jackson -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sun.woodstock.dependlibs</groupId>
+			<artifactId>jhall</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>2.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.kenai.nbpwr</groupId>
+			<artifactId>com-explodingpixels-macwidgets</artifactId>
+			<version>0.9.5-201002261215</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jgoodies</groupId>
+			<artifactId>forms</artifactId>
+			<version>1.2.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.swinglabs</groupId>
+			<artifactId>swingx</artifactId>
+			<version>0.9.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.4.5</version>
+		</dependency>
+
+		<!-- Testing -->
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>6.1.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.uncommons</groupId>
+			<artifactId>reportng</artifactId>
+			<version>1.1.2</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.testng</groupId>
+					<artifactId>testng</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- Grid -->
+		<dependency>
+			<groupId>org.jglobus</groupId>
+			<artifactId>myproxy</artifactId>
+			<version>${jglobus.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jglobus</groupId>
+			<artifactId>io</artifactId>
+			<version>${jglobus.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>airavata</groupId>
+			<artifactId>gsissh</artifactId>
+			<version>0.12.1</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>org.globus</artifactId>
+					<groupId>myproxy</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>org.globus</artifactId>
+					<groupId>gss</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.irods.jargon</groupId>
+			<artifactId>jargon-core</artifactId>
+			<version>3.3.2-beta1</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>cog-jglobus</artifactId>
+					<groupId>org.globus.jglobus</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>net.java.dev.jets3t</groupId>
+			<artifactId>jets3t</artifactId>
+			<version>0.6.0</version>
+		</dependency>
+
+
+
+	</dependencies>
+
+
+</project>

@@ -1,1 +1,0 @@
-kill `cat cap.PID`

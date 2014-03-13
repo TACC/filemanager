@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2014, Texas Advanced Computing Center All rights reserved. 
+	Redistribution and use in source and binary forms, with or without modification, 
+	are permitted provided that the following conditions are met: * Redistributions 
+	of source code must retain the above copyright notice, this list of conditions 
+	and the following disclaimer. * Redistributions in binary form must reproduce 
+	the above copyright notice, this list of conditions and the following disclaimer 
+	in the documentation and/or other materials provided with the distribution. 
+	* Neither the name of the University of Texas at Austin nor the names of 
+	its contributors may be used to endorse or promote products derived from 
+	this software without specific prior written permission. THIS SOFTWARE IS 
+	PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY EXPRESS 
+	OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+	OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN 
+	NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+	INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF 
+	USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+	THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+	NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+	EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. The views and conclusions 
+	contained in the software and documentation are those of the authors and 
+	should not be interpreted as representing official policies, either expressed 
+	or implied, of the FreeBSD Project. -->
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>edu.utexas.tacc.wcs</groupId>
+	<artifactId>filemanager</artifactId>
+	<version>3.0-SNAPSHOT</version>
+
+	<name>XSEDE Filemanager Parent</name>
+	<description>Filemanager project parent pom</description>
+	<packaging>pom</packaging>
+	<organization>
+		<name>TACC</name>
+		<url>http://tacc.utexas.edu</url>
+	</organization>
+	<developers>
+		<developer>
+			<id>deardooley</id>
+			<name>Rion Dooley</name>
+			<email>dooley@tacc.utexas.edu</email>
+			<url>http://agaveapi.org</url>
+			<organization>TACC</organization>
+			<organizationUrl>http://www.tacc.utexas.edu</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<repositories>
+		<repository>
+			<id>taccaci</id>
+			<name>TACC ACI Maven repository</name>
+			<url>https://maven.tacc.utexas.edu/nexus/content/repositories/releases</url>
+		</repository>
+		<repository>
+			<id>maven-restlet</id>
+			<name>Public online Restlet repository</name>
+			<url>http://maven.restlet.org</url>
+		</repository>
+		<repository>
+			<id>renci.repository</id>
+			<name>renci.repository</name>
+			<url>http://ci-dev.renci.org/nexus/content/repositories/public</url>
+		</repository>
+		
+	</repositories>
+
+	<scm>
+		<connection>scm:git:ssh://git@github.com/TACC/filemanager.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/TACC/filemanager.git</developerConnection>
+		<url>https://github.com/TACC/filemanager</url>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<restlet.version>2.1.4</restlet.version>
+		<sonar.language>java</sonar.language>
+		<force.check.update>true</force.check.update>
+		<force.check.version>true</force.check.version>
+		<jglobus.version>2.0.6.1-SNAPSHOT</jglobus.version>
+	</properties>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>com.mycila</groupId>
+					<artifactId>license-maven-plugin</artifactId>
+					<version>2.6</version>
+					<configuration>
+						<header>LICENSE</header>
+						<properties>
+							<owner>Texas Advanced Computing Center</owner>
+							<year>2014</year>
+							<email>dooley@tacc.utexas.edu</email>
+							<url>https://bitbucket.org/taccaci/oa4mp-wso2</url>
+						</properties>
+						<excludes>
+							<exclude>target/**</exclude>
+							<exclude>src/main/html/**</exclude>
+							<exclude>**/README.md</exclude>
+							<exclude>**/*.conf</exclude>
+							<exclude>**/*.config</exclude>
+							<exclude>**/*.config</exclude>
+							<exclude>**/LICENSE</exclude>
+							<exclude>**/.gitignore</exclude>
+							<exclude>src/test/resources/**</exclude>
+							<exclude>src/main/resources/**</exclude>
+						</excludes>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<!-- Boilerplace compile -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.1</version>
+					<executions>
+						<execution>
+							<id>default-compile</id>
+							<phase>compile</phase>
+							<goals>
+								<goal>compile</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<proc>none</proc>
+						<debug>true</debug>
+						<source>1.6</source>
+						<target>1.6</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.13</version>
+					<configuration>
+						<suiteXmlFiles>
+							<suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+						</suiteXmlFiles>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.2-beta-2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.5</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>2.5.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>2.3</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.sonar</groupId>
+					<artifactId>sonar-maven-plugin</artifactId>
+					<version>3.6.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>2.8</version>
+					<executions>
+						<execution>
+							<id>install</id>
+							<phase>install</phase>
+							<goals>
+								<goal>sources</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.jglobus</groupId>
+			<artifactId>gridftp</artifactId>
+			<version>${jglobus.version}</version>
+		</dependency>
+	</dependencies>
+
+	<modules>
+		<module>filemanager-client</module>
+		<module>filemanager-api</module>
+		<module>filemanager-core</module>
+	</modules>
+
+</project>

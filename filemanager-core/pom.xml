@@ -1,0 +1,76 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>edu.utexas.tacc.wcs</groupId>
+		<artifactId>filemanager</artifactId>
+		<version>3.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>filemanager-core</artifactId>
+	<name>Filemanager Core</name>
+	<description>Core classes support the filemanager client and api</description>
+
+	<dependencies>
+		
+		<dependency>
+			<groupId>org.restlet.jse</groupId>
+			<artifactId>org.restlet</artifactId>
+			<version>${restlet.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.restlet.jse</groupId>
+			<artifactId>org.restlet.ext.json</artifactId>
+			<version>${restlet.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.restlet.jse</groupId>
+			<artifactId>org.restlet.ext.xstream</artifactId>
+			<version>${restlet.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.16</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>jdom</groupId>
+			<artifactId>jdom</artifactId>
+			<version>1.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.5</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>bad.robot</groupId>
+			<artifactId>simple-http</artifactId>
+			<version>1.0-jdk6</version>
+		</dependency>
+		
+		<!-- Jackson -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+	</dependencies>
+</project>

@@ -1,0 +1,14 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="iPlant Profile Service API" verbose="5" parallel="false">
+	<test name="APIResourceTests">
+		<packages>
+			<package name="edu.utexas.tacc.wcs.filemanager.service.resources.impl" />
+		</packages>
+	</test>
+	<test name="ModelTests">
+		<packages>
+			<package name="edu.utexas.tacc.wcs.filemanager.service.model" />
+		</packages>
+	</test>
+</suite>

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping SYSTEM
+			"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<!--
+
+Mapping file for the User class of the TG File Browser transfer logging service..
+
+This class implements a named procedure to retrieve the user give a dn
+
+@author Rion Dooley < dooley [at] tacc [dot] utexas [dot] edu >
+
+-->
+<hibernate-mapping package="edu.utexas.tacc.wcs.filemanager.service.model">
+
+<class name="edu.utexas.tacc.wcs.filemanager.service.model.System" 
+	   table="portal.usage" 
+	   lazy="false">
+
+	<id name="id"
+		type="long"
+		column="request_id"
+		unsaved-value="null">
+		<generator class="assigned"/>
+	</id>
+
+	<property name="userId" type="long" column="person_id"/>
+	<property name="userName" type="string" column="username"/>
+	<property name="resourceName" type="string" column="resource_name"/>
+	<property name="userState" type="string" column="user_state"/>
+				
+</class>
+
+
+	
+</hibernate-mapping>
