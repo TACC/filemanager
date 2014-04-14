@@ -14,6 +14,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -43,8 +44,10 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.lang3.StringUtils;
 //import org.alfresco.service.cmr.version.Version;
 import org.globus.ftp.FileInfo;
+import org.globus.ftp.exception.ServerException;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.renderer.ComponentProvider;
 import org.jdesktop.swingx.renderer.DefaultTreeRenderer;
@@ -54,7 +57,8 @@ import org.jdesktop.swingx.renderer.StringValue;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 import org.teragrid.portal.filebrowser.applet.AppMain;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
+import org.teragrid.portal.filebrowser.applet.exception.ResourceException;
+import org.teragrid.portal.filebrowser.applet.file.IRODSFileInfo;
 import org.teragrid.portal.filebrowser.applet.ui.permissions.PermissionsPanel;
 import org.teragrid.portal.filebrowser.applet.ui.table.DetailListModel;
 import org.teragrid.portal.filebrowser.applet.ui.tree.AnimatedTreeUI;
@@ -63,6 +67,9 @@ import org.teragrid.portal.filebrowser.applet.util.LogManager;
 import com.explodingpixels.macwidgets.IAppWidgetFactory;
 import com.explodingpixels.macwidgets.MacFontUtils;
 //import org.teragrid.portal.filebrowser.applet.file.TGShareFileInfo;
+
+
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
 
 /**
  * Display dialog to show extended information on files. 
@@ -220,7 +227,7 @@ public class DlgInfo extends DlgEscape {
 		
 		String[][] accessTableRows = new String[][]{
 				{"Access:",""},
-				{"Type:", FTPType.FTP_PROTOCOL[this.tBrowse.ftpServer.type]},
+				{"Type:", this.tBrowse.ftpServer.protocol.name()},
 //				{"Type: ",DetailListModel.getTypeName(fileInfo)},
 				{"System: ",this.tBrowse.ftpServer.name}
 		};
@@ -317,13 +324,30 @@ public class DlgInfo extends DlgEscape {
 //			
 //		}
 		
-		
-		
-		String[][] permissionTableRows = new String[][]{
-				{"Permissions:",""},
-				{"You can: ",getPermission(fileInfo.userCanRead(), fileInfo
-						.userCanWrite(), fileInfo.userCanExecute())}
-		};
+		String[][] permissionTableRows;
+		if (fileInfo instanceof IRODSFileInfo) {
+			// pull the permissions directly
+			String permissions;
+			try {
+				permissions = (String)this.tBrowse.getPermissions(path);
+				permissionTableRows = new String[][]{
+						{"Permissions:",""},
+						{"You can: ", getPermission(permissions)}
+				};
+			} catch (Exception e) {
+				permissionTableRows = new String[][]{
+						{"Permissions:",""},
+						{"You can: ", "Read"}
+				};
+			}
+		} 
+		else
+		{
+			permissionTableRows = new String[][]{
+					{"Permissions:",""},
+					{"You can: ", getPermission(fileInfo.userCanRead(), fileInfo.userCanWrite(), fileInfo.userCanExecute())}
+			};
+		}
 		ttPermissions = new JXTreeTable(new FileInfoTreeTableModel(permissionTableRows));
 		ttPermissions.addTreeExpansionListener(new FileInfoTreeExpansionListener(
 				this));
@@ -455,7 +479,7 @@ public class DlgInfo extends DlgEscape {
 
 		DefaultMutableTreeNode nAccess = new DefaultMutableTreeNode(
 				new String[] { "Type",
-						FTPType.FTP_PROTOCOL[this.tBrowse.ftpServer.type] });
+						this.tBrowse.ftpServer.protocol.name() });
 		nAccess.setAllowsChildren(false);
 		accessMenuTreeNode.add(nAccess);
 
@@ -545,7 +569,7 @@ public class DlgInfo extends DlgEscape {
 	private Icon getFileItemIcon() {
 		Icon icn = null;
 
-		if (this.tBrowse.ftpServer.type == FTPType.FILE) {
+		if (this.tBrowse.ftpServer.protocol.equals(FileProtocolType.FILE)) {
 			try {
 				JFileChooser chooser = new JFileChooser();
 				File file = new File(path + File.separator + fileInfo.getName());
@@ -572,6 +596,29 @@ public class DlgInfo extends DlgEscape {
 		}
 
 		return icn;
+	}
+	
+	private String getPermission(String permission) 
+	{
+		if (permission.equalsIgnoreCase("all")) {
+            return "Read & Write & Execute" ;
+        } 
+		
+		List<String> response = new ArrayList<String>();
+		
+		if (permission.contains("read")) {
+			response.add("Read");
+		}
+		
+		if (permission.contains("write")) {
+			response.add("Write");
+		}
+		
+		if (permission.contains("execute")) {
+			response.add("Execute");
+		}
+		
+		return StringUtils.join(response.toArray(), " & ");
 	}
 
 	private String getPermission(boolean read, boolean write, boolean execute) {
@@ -687,7 +734,7 @@ class FileInfoTreeRenderer extends DefaultTreeRenderer {
 	}
 
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	@Override
 	protected ComponentProvider createDefaultComponentProvider() {
 		ComponentProvider provider = super.createDefaultComponentProvider();
@@ -833,7 +880,7 @@ class FileInfoTreeNode implements TreeTableNode {
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Enumeration children() {
 		return new IteratorEnumeration(children.iterator());
 	}
@@ -893,7 +940,7 @@ class FileInfoTreeTableModel extends DefaultTreeTableModel {
 	}
 }
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({ "rawtypes" })
 class IteratorEnumeration implements Enumeration {
 	Iterator iterator;
 

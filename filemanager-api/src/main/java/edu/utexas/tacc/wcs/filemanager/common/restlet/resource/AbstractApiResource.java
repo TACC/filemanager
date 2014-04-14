@@ -34,8 +34,9 @@
 package edu.utexas.tacc.wcs.filemanager.common.restlet.resource;
 
 import org.restlet.Request;
-import org.restlet.data.Form;
+import org.restlet.engine.header.Header;
 import org.restlet.resource.ServerResource;
+import org.restlet.util.Series;
 
 
 /**
@@ -44,14 +45,14 @@ import org.restlet.resource.ServerResource;
  */
 public class AbstractApiResource extends ServerResource
 {
-	public static String DN_HEADER = "x-user-dn";
+	public static String DN_HEADER = "X-USER-DN";
 	
 	protected String dn;
 	
 	public AbstractApiResource()
 	{
-		Form headers = (Form)Request.getCurrent().getAttributes().get("org.restlet.http.headers");
-		this.dn = (String)headers.getFirstValue(DN_HEADER);
+		Series<Header> headers = (Series<Header>) Request.getCurrent().getAttributes().get("org.restlet.http.headers");
+		this.dn = (String)headers.getFirstValue(DN_HEADER, true);
 	}
 
 	/**

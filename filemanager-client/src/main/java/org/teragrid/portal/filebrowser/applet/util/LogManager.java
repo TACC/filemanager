@@ -25,7 +25,7 @@ public class LogManager {
 //    private static File logFile = new File("/Users/dooley/Desktop/sggc.log");
     private static Appender textAreaAppender;
     
-    private static URL logFile = LogManager.class.getClassLoader().getResource("tgfm-log4j.properties");
+    private static URL logFile = LogManager.class.getClassLoader().getResource("log4j.properties");
     
 	public static void init() {
 	    

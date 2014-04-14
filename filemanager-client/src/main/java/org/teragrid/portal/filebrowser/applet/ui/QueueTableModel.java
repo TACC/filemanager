@@ -75,7 +75,7 @@ public class QueueTableModel extends AbstractTableModel{
     }
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Class getColumnClass(int c) {
         switch(c){
         //"ID","Item Name","Source","-->","Destination","Progress","Parellelism","Stripe","Speed","Total Time","Left Time","Status"
@@ -180,7 +180,7 @@ public class QueueTableModel extends AbstractTableModel{
             break;
         case 10:
             //Status
-            value = fileTask.getStatusString();
+            value = FileTransferTask.getStatusString(fileTask.getStatus());
             break;
         }
 
@@ -200,8 +200,7 @@ public class QueueTableModel extends AbstractTableModel{
         UIRefresher.refreshQueue();
     }
 
-    @SuppressWarnings("unchecked")
-	public void setTaskList(List<FileTransferTask> taskList){
+    public void setTaskList(List<FileTransferTask> taskList){
 //        if (taskList.size() != this.fileTaskList.size() || 
 //                !this.fileTaskList.containsAll(taskList)) {
 //            UIRefresher.scrollQueuePanelToBottom();
@@ -288,11 +287,11 @@ public class QueueTableModel extends AbstractTableModel{
         UIRefresher.refreshQueue();
     }
     
-    private ArrayList<Integer> getId(int[] rows) {
-        ArrayList<Integer> ids = new ArrayList<Integer>();
+    private ArrayList<Long> getId(int[] rows) {
+        ArrayList<Long> ids = new ArrayList<Long>();
         
         for (int i=0;i<rows.length;i++) {
-            ids.add(Integer.valueOf(((FileTransferTask)fileTaskList.get(rows[i])).getId()));
+            ids.add(((FileTransferTask)fileTaskList.get(rows[i])).getId());
         }
         
         return ids;

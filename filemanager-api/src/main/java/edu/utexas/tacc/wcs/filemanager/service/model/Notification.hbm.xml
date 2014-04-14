@@ -3,21 +3,21 @@
 			"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
 <!--
 
-Mapping file for the Notification class of the GridChem Middleware Service.
+Mapping file for the Notification class of the Filemanager API
 
 A Notification is a message sent to the user informing them of a change in the
-status of their job.  The deliver mechanism is determined by the userType field.
+status of their transfer. The deliver mechanism is determined by the userType field.
 
 @author Rion Dooley < dooley [at] cct [dot] lsu [dot] edu >
 
 -->
-<hibernate-mapping package="edu.utexas.tacc.wcs.filemanager.service.model">
+<hibernate-mapping package="edu.utexas.tacc.wcs.filemanager.common.model">
 
-<typedef name="notification_type" class="EnumUserType">
+<typedef name="notification_type" class="edu.utexas.tacc.wcs.filemanager.service.model.EnumUserType">
 	<param name="enumClassName">edu.utexas.tacc.wcs.filemanager.common.model.enumeration.NotificationType</param>
 </typedef>
   
-<class name="edu.utexas.tacc.wcs.filemanager.service.model.Notification" 
+<class name="edu.utexas.tacc.wcs.filemanager.common.model.Notification" 
 	   table="portal.filemgr_notifications" 
 	   lazy="true">
 
@@ -30,12 +30,12 @@ status of their job.  The deliver mechanism is determined by the userType field.
 		</generator>
 	</id>
 
-	<property name="transferId" type="java.lang.Integer" column="transferId"/>
-	<property name="type" type="notification_type" column="notificiationType"/>
+	<property name="transferId" type="java.lang.Integer" column="transferid"/>
+	<property name="type" type="notification_type" column="notificiationtype"/>
 	<property name="subject" type="string" column="subject"/>
 	<property name="message" type="string" column="message"/>
 	<property name="created" type="java.util.Calendar" column="created"/>
-	<property name="deliveryDate" type="java.util.Calendar" column="deliveryDate"/>
+	<property name="deliveryDate" type="java.util.Calendar" column="deliverydate"/>
 	<property name="username" type="string" column="username"/>
 	<property name="address" type="string" column="address"/>
 				

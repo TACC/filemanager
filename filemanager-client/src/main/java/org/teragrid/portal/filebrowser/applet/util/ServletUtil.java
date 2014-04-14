@@ -17,6 +17,7 @@ import org.restlet.engine.header.Header;
 import org.restlet.resource.ClientResource;
 import org.restlet.util.Series;
 import org.teragrid.portal.filebrowser.applet.AppMain;
+import org.teragrid.portal.filebrowser.applet.ConfigSettings;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.basic.DateConverter;
@@ -31,22 +32,13 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
  */
 public class ServletUtil {
 
-    public static final String GET_RESOURCES = TGResourceDiscovery.class.getName() + ".retrieveResources";
-    public static final String GET_PAGED_RESOURCES = TGFileTransferHistory.class.getName() + ".getPage";
-    public static final String GET_HISTORY = TGFileTransferHistory.class.getName() + ".get";
-    public static final String GET_BANDWIDTH = TGResourceDiscovery.class.getName() + ".getBandwidth";
-    public static final String ADD_RECORD = TGFileTransferHistory.class.getName() + ".add";
-    public static final String UPDATE_RECORD = TGFileTransferHistory.class.getName() + ".update";
-    public static final String REMOVE_RECORD = TGFileTransferHistory.class.getName() + ".remove";
-    public static final String CLEAR_RECORDS = TGFileTransferHistory.class.getName() + ".clear";
-    public static final String ADD_NOTIFICATION = TGNotification.class.getName() + ".add";
-    public static final String ADD_NOTIFICATIONS = TGNotification.class.getName() + ".addAll";
-    public static final String REMOVE_NOTIFICATION = TGNotification.class.getName() + ".remove";
-    public static final String REMOVE_NOTIFICATIONS = TGNotification.class.getName() + ".removeAll";
-    public static final String CLEAR_NOTIFICATIONS = TGNotification.class.getName() + ".clear";
-    public static final String FIND_USER = TGProfile.class.getName() + ".findUsers";
-    public static final String FIND_COLLEAGUES = TGProfile.class.getName() + ".findColleagues";
-    public static final String FIND_PROJECT_PARTNERS = TGProfile.class.getName() + ".findProjectPartners";
+	public static final String TRANSFERS_SERVICE_URL = ConfigSettings.SERVICE_TGFM_API + "transfers";
+	public static final String NOTIFICATIONS_ADD_SERVICE_URL = ConfigSettings.SERVICE_TGFM_API + "notifications/add";
+	public static final String NOTIFICATIONS_DELETE_SERVICE_URL = ConfigSettings.SERVICE_TGFM_API + "notifications/delete";
+	public static final String USERS_SERVICE_URL = ConfigSettings.SERVICE_TGFM_API + "users";
+	public static final String COLLEAGUES_SERVICE_URL = ConfigSettings.SERVICE_TGFM_API + "colleagues";
+	public static final String PARTNERS_SERVICE_URL = ConfigSettings.SERVICE_TGFM_API + "partners";
+	public static final String SYSTEMS_SERVICE_URL = ConfigSettings.SERVICE_TGFM_API + "systems";
     
 	private static XStream xstream = new XStream(new DomDriver());
     
@@ -75,11 +67,14 @@ public class ServletUtil {
 	public static ClientResource getClient(String endpoint) 
     {
     	ClientResource clientResource = new ClientResource(endpoint);
-    	Series<Header> headers = (Series<Header>) clientResource.getRequestAttributes().get("org.restlet.http.headers");
+    	Series<Header> headers = (Series<Header>) clientResource.getRequest().getAttributes().get("org.restlet.http.headers");;
     	if (headers == null) { 
     		headers = new Series<Header>(Header.class); 
     	} 
-    	headers.add("x-user-dn", ((GlobusGSSCredentialImpl)AppMain.defaultCredential).getX509Credential().getIdentity());
+    	headers.add("X-USER-DN", ((GlobusGSSCredentialImpl)AppMain.defaultCredential).getX509Credential().getIdentity());
+    	
+    	clientResource.getRequest().getAttributes().put("org.restlet.http.headers", headers);
+    	
     	return clientResource;
     }
     

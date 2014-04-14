@@ -10,8 +10,6 @@
 
 package org.teragrid.portal.filebrowser.applet.transfer;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,7 +18,7 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
-import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
+import org.apache.commons.lang.StringUtils;
 import org.restlet.resource.ClientResource;
 import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.ConfigOperation;
@@ -37,7 +35,7 @@ import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.NotificationType
 import edu.utexas.tacc.wcs.filemanager.service.resources.BulkAddNotificationsResource;
 import edu.utexas.tacc.wcs.filemanager.service.resources.BulkDeleteNotificationsResource;
 import edu.utexas.tacc.wcs.filemanager.service.resources.BulkTransfersResource;
-import edu.utexas.tacc.wcs.filemanager.service.resources.TransferNotificationsResource;
+import edu.utexas.tacc.wcs.filemanager.service.resources.TransfersResource;
 
 public class HistoryManager {
 	private static List<FileTransferTask> taskList = Collections.synchronizedList(new ArrayList<FileTransferTask>());
@@ -84,7 +82,7 @@ public class HistoryManager {
 
 	private static void updateTaskList(List<FileTransferTask> tasks) {
 		for (FileTransferTask task: tasks) {
-			if (task.getId() == -1) task.setId(taskList.size());
+			if (task.getId() == null) task.setId((long)taskList.size());
 			LogManager.debug("New transfer id = " + task.getId());
 			
 			taskList.add(task);
@@ -127,8 +125,8 @@ public class HistoryManager {
 		task.cancel();
 		taskList.remove(task);
 		if (task.getId() > -1) {
-			ArrayList<Integer> ids = new ArrayList<Integer>();
-			ids.add(Integer.valueOf(task.getId()));
+			ArrayList<Long> ids = new ArrayList<Long>();
+			ids.add(task.getId());
 			deregister(ids);
 		}
 	}
@@ -151,7 +149,7 @@ public class HistoryManager {
 	 */
 	public static void deleteTasks(int[] taskIndecies) {
 
-		List<Integer> taskIds = new ArrayList<Integer>();
+		List<Long> taskIds = new ArrayList<Long>();
 
 		for (int i = 0; i < taskIndecies.length; i++) {
 			if (taskIndecies[i] < 0 || taskIndecies[i] >= taskList.size()) {
@@ -166,7 +164,7 @@ public class HistoryManager {
 				fileTask.kill();
 			}
 			if (fileTask.getId() > -1)
-				taskIds.add(new Integer(fileTask.getId()));
+				taskIds.add(fileTask.getId());
 		}
 
 		deregister(taskIds);
@@ -201,7 +199,6 @@ public class HistoryManager {
 		clearHistory();
 
 		taskList.clear();
-
 	}
 
 	/**
@@ -221,11 +218,11 @@ public class HistoryManager {
 		}
 
 		// delete on the server
-		ArrayList<Integer> ids = new ArrayList<Integer>();
+		ArrayList<Long> ids = new ArrayList<Long>();
 		
 		for (FileTransferTask fileTask : tasks) {
 			if (fileTask.getId() > -1)
-				ids.add(Integer.valueOf(fileTask.getId()));
+				ids.add(Long.valueOf(fileTask.getId()));
 		}
 
 		deregister(ids);
@@ -264,7 +261,6 @@ public class HistoryManager {
 	 * Make an RPC call to the TG File History servlet and retrieve the user's
 	 * file transfer history.
 	 */
-	@SuppressWarnings("unchecked")
 	public static void refreshTaskList() 
 	{	
 		if (!ConfigOperation.isLoggingEnabled()) return;
@@ -273,7 +269,7 @@ public class HistoryManager {
 		{
 			taskList.clear();
 			
-			ClientResource clientResource = ServletUtil.getClient(ServletUtil.GET_HISTORY);
+			ClientResource clientResource = ServletUtil.getClient(ServletUtil.TRANSFERS_SERVICE_URL);
 			BulkTransfersResource client = clientResource.wrap(BulkTransfersResource.class);
 			List<Transfer> transfers = client.getAllTransfers();
 			for(Transfer transfer: transfers) {
@@ -282,13 +278,14 @@ public class HistoryManager {
 		} 
 		catch (Exception e)
 		{
-			if (ConfigOperation.isLoggingEnabled())
-				AppMain
-					.enableLogging(AppMain.Confirm(
-									AppMain.getFrame(),
-									"There was an error connecting with the\n" +
-									"middleware. Would you like to work offline?",
-									"Transfer History Error") != 0);
+			if (ConfigOperation.isLoggingEnabled()) {
+//				AppMain.enableLogging(AppMain.Confirm(
+//						AppMain.getFrame(),
+//						"There was an error connecting with the\n" +
+//						"middleware. Would you like to work offline?",
+//						"Transfer History Error") != 0);
+				LogManager.error("Failed to refresh the user's file transfer history.", e);
+			}
 		}
 	
 		for (FileTransferTask task : taskList) {
@@ -309,7 +306,7 @@ public class HistoryManager {
 	 * Make an RPC call to the TG File History servlet and create a notificaiton
 	 * event for the file transfer completion.
 	 */
-	public static void setNotification(final Integer id,
+	public static void setNotification(final Long id,
 			final NotificationType type, final boolean enable) {
 
 		if (!ConfigOperation.isLoggingEnabled())
@@ -321,24 +318,31 @@ public class HistoryManager {
 			public Object construct() {
 				try 
 				{	
-					ClientResource clientResource = ServletUtil.getClient(ServletUtil.BASE_URL + id + "/notifications/" + type.name() );
-					TransferNotificationsResource client = clientResource.wrap(TransferNotificationsResource.class);
+					List<Long> ids = new ArrayList<Long>();
+					ids.add(id);
 					
 					if (enable) {
-						client.addNotification();
+						ClientResource clientResource = ServletUtil.getClient(ServletUtil.NOTIFICATIONS_ADD_SERVICE_URL);
+						BulkAddNotificationsResource client = clientResource.wrap(BulkAddNotificationsResource.class);
+						BulkNotificationRequest bulkNotificationRequest = new BulkNotificationRequest(ids, type);
+						client.addAll(bulkNotificationRequest);
 					} else {
-						client.removeNotification();
+						ClientResource clientResource = ServletUtil.getClient(ServletUtil.NOTIFICATIONS_DELETE_SERVICE_URL);
+						BulkDeleteNotificationsResource client = clientResource.wrap(BulkDeleteNotificationsResource.class);
+						BulkNotificationRequest bulkNotificationRequest = new BulkNotificationRequest(ids, type);
+						client.removeAll(bulkNotificationRequest);
 					}
 				} 
 				catch (Exception e) 
 				{
-					if (ConfigOperation.isLoggingEnabled())
-						AppMain
-							.enableLogging(AppMain.Confirm(
-									AppMain.getFrame(),
-									"There was an error registering the\n" +
-									"notification. Would you like to work offline?",
-									"Notification Error") != 0);
+					if (ConfigOperation.isLoggingEnabled()) {
+//						AppMain.enableLogging(AppMain.Confirm(
+//									AppMain.getFrame(),
+//									"There was an error registering the\n" +
+//									"notification. Would you like to work offline?",
+//									"Notification Error") != 0);
+						LogManager.error("Failed to update notification.", e);
+					}
 				}
 
 				return null;
@@ -364,12 +368,12 @@ public class HistoryManager {
 				try 
 				{
 					if (enable) {
-						ClientResource clientResource = ServletUtil.getClient(ServletUtil.ADD_NOTIFICATIONS);
+						ClientResource clientResource = ServletUtil.getClient(ServletUtil.NOTIFICATIONS_ADD_SERVICE_URL);
 						BulkAddNotificationsResource client = clientResource.wrap(BulkAddNotificationsResource.class);
 						BulkNotificationRequest bulkNotificationRequest = new BulkNotificationRequest(ids, type);
 						client.addAll(bulkNotificationRequest);
 					} else {
-						ClientResource clientResource = ServletUtil.getClient(ServletUtil.ADD_NOTIFICATIONS);
+						ClientResource clientResource = ServletUtil.getClient(ServletUtil.NOTIFICATIONS_DELETE_SERVICE_URL);
 						BulkDeleteNotificationsResource client = clientResource.wrap(BulkDeleteNotificationsResource.class);
 						BulkNotificationRequest bulkNotificationRequest = new BulkNotificationRequest(ids, type);
 						client.removeAll(bulkNotificationRequest);
@@ -378,16 +382,13 @@ public class HistoryManager {
 				catch (Exception e) 
 				{
 					if (ConfigOperation.isLoggingEnabled()) {
-						AppMain
-							.enableLogging(AppMain.Confirm(
-									AppMain.getFrame(),
-									"There was an error registering the\n" +
-									"notification. Would you like to work offline?",
-									"Notification Error") != 0);
-						LogManager
-							.error(
-									"Failed to save the user's historical file transfer record.",
-									e);
+//						AppMain
+//							.enableLogging(AppMain.Confirm(
+//									AppMain.getFrame(),
+//									"There was an error registering the\n" +
+//									"notification. Would you like to work offline?",
+//									"Notification Error") != 0);
+						LogManager.error("Failed to save the user's historical file transfer record.", e);
 					}
 				}
 				return null;
@@ -420,7 +421,7 @@ public class HistoryManager {
 						transfers.add(fileTransferTask.toTransfer());
 					}
 					
-					ClientResource clientResource = ServletUtil.getClient(ServletUtil.ADD_RECORD);
+					ClientResource clientResource = ServletUtil.getClient(ServletUtil.TRANSFERS_SERVICE_URL);
 					BulkTransfersResource client = clientResource.wrap(BulkTransfersResource.class);
 					NotificationType notificationType = null;
 					try {
@@ -442,14 +443,15 @@ public class HistoryManager {
 				} 
 				catch (Exception e) 
 				{
-					if (ConfigOperation.isLoggingEnabled())
-						AppMain
-							.enableLogging(AppMain.Confirm(
-											AppMain.getFrame(),
-											"There was an error connecting with the\n" +
-											"middleware. Would you like to work offline?",
-											"Transfer History Error") != 0);
-				
+					if (ConfigOperation.isLoggingEnabled())  {
+//						AppMain
+//							.enableLogging(AppMain.Confirm(
+//											AppMain.getFrame(),
+//											"There was an error connecting with the\n" +
+//											"middleware. Would you like to work offline?",
+//											"Transfer History Error") != 0);
+						LogManager.error("Failed to register file transfer.", e);
+					}
 				} 
 				
 				return tasks;
@@ -481,7 +483,7 @@ public class HistoryManager {
 			{
 				try 
 				{
-					ClientResource clientResource = ServletUtil.getClient(ServletUtil.ADD_NOTIFICATIONS);
+					ClientResource clientResource = ServletUtil.getClient(ServletUtil.NOTIFICATIONS_DELETE_SERVICE_URL);
 					BulkDeleteNotificationsResource client = clientResource.wrap(BulkDeleteNotificationsResource.class);
 					BulkNotificationRequest bulkNotificationRequest = new BulkNotificationRequest(ids, NotificationType.EMAIL);
 					client.removeAll(bulkNotificationRequest);
@@ -493,17 +495,15 @@ public class HistoryManager {
 								.getMessage(), "Notification Error",
 								JOptionPane.OK_OPTION);
 					} else {
-						if (ConfigOperation.isLoggingEnabled())
-							AppMain
-								.enableLogging(AppMain.Confirm(
-												AppMain.getFrame(),
-												"There was an error connecting with the\n" +
-												"middleware. Would you like to work offline?",
-												"Transfer History Error") != 0);
-							LogManager
-								.error(
-									"Failed to clear the user's file transfer history.",
-									e);
+						if (ConfigOperation.isLoggingEnabled()) {
+//							AppMain
+//								.enableLogging(AppMain.Confirm(
+//												AppMain.getFrame(),
+//												"There was an error connecting with the\n" +
+//												"middleware. Would you like to work offline?",
+//												"Transfer History Error") != 0);
+							LogManager.error("Failed to clear the user's file transfer history.", e);
+						}
 					}
 				}
 				return null;
@@ -519,35 +519,35 @@ public class HistoryManager {
 	 * Make an RPC call to the TG File History servlet and clear the
 	 * notifications for this file transfer
 	 */
-	public static void deregister(final List<Integer> ids) {
+	public static void deregister(final List<Long> ids) {
 
 		if (!ConfigOperation.isLoggingEnabled())
 			return;
 		
 		SwingWorker worker = new SwingWorker() {
 			@Override
-			public Object construct() {
-				
-				try {
-					Vector<String> params = new Vector<String>();
-					params.addElement(AppMain.defaultCredential.getIdentity());
-					params.addElement(ServletUtil.getXStream().toXML(ids));
-					LogManager
-							.debug("ID's for deletion are: "
-									+ ServletUtil.dewebify(ServletUtil.getXStream()
-											.toXML(ids)));
-					ServletUtil.getClient().execute(ServletUtil.REMOVE_RECORD, params);
-		
-				} catch (XmlRpcException e) {
+			public Object construct() 
+			{	
+				try 
+				{	
+					LogManager.debug("ID's for deletion are: " + Arrays.toString(ids.toArray()));
+					
+					for(Long transferId: ids) 
+					{
+						ClientResource clientResource = ServletUtil.getClient(ServletUtil.TRANSFERS_SERVICE_URL + "/" + transferId);
+						TransfersResource client = clientResource.wrap(TransfersResource.class);
+						client.removeTransfer();
+					}
+				} 
+				catch (Exception e) 
+				{
 					if (ConfigOperation.isLoggingEnabled()) {
-						AppMain
-							.enableLogging(AppMain.Confirm(
-											AppMain.getFrame(),
-											"There was an error connecting with the\n" +
-											"middleware. Would you like to work offline?",
-											"Transfer History Error") != 0);
-						LogManager
-							.error(
+//						AppMain.enableLogging(AppMain.Confirm(
+//											AppMain.getFrame(),
+//											"There was an error connecting with the\n" +
+//											"middleware. Would you like to work offline?",
+//											"Transfer History Error") != 0);
+						LogManager.error(
 									"Failed to deregister selected historical file transfer records",
 									e);
 					}
@@ -579,52 +579,36 @@ public class HistoryManager {
 		
 		SwingWorker worker = new SwingWorker() {
 			@Override
-			public Object construct() {
-		
+			public Object construct() 
+			{
+				try
+				{	
+					List<Transfer> transfers = new ArrayList<Transfer>();
 
-				try {
-					String dn = AppMain.defaultCredential.getIdentity();
-		
-					ArrayList<Transfer> transfers = new ArrayList<Transfer>();
-		
-					for (FileTransferTask task : tasks) {
-						// don't update transfers that aren't registered
-						if (task.getId() >=0) {
-							transfers.add(new Transfer(task, "", dn));
-						}
+					for (FileTransferTask fileTransferTask : tasks) {
+						transfers.add(fileTransferTask.toTransfer());
 					}
-		
-					Vector<String> params = new Vector<String>();
-					params.addElement(dn);
-					params.addElement(ServletUtil.getXStream().toXML(transfers));
-		
-					ServletUtil.getClient().execute(ServletUtil.UPDATE_RECORD, params);
-		
-				} catch (XmlRpcException e) {
+					
+					ClientResource clientResource = ServletUtil.getClient(ServletUtil.TRANSFERS_SERVICE_URL);
+					BulkTransfersResource client = clientResource.wrap(BulkTransfersResource.class);
+					NotificationType notificationType = null;
+					
+					BulkTransferRequest bulkTransferRequest = new BulkTransferRequest(transfers, "", notificationType);
+					client.update(bulkTransferRequest);
+					
+					LogManager.debug("Sending transfers to service for logging");
+					
+					return tasks;
+				} 
+				catch (Exception e) 
+				{
 					if (ConfigOperation.isLoggingEnabled()) {
-						AppMain
-							.enableLogging(AppMain.Confirm(
-											AppMain.getFrame(),
-											"There was an error connecting with the\n" +
-											"middleware. Would you like to work offline?",
-											"Transfer History Error") != 0);
-						LogManager
-							.error(
-									"Failed to save the user's historical file transfer record.",
-									e);
-					}
-				} catch (Exception e) {
-					if (ConfigOperation.isLoggingEnabled()) {
-						AppMain
-							.enableLogging(AppMain.Confirm(
-											AppMain.getFrame(),
-											"There was an error connecting with the\n" +
-											"middleware. Would you like to work offline?",
-											"Transfer History Error") != 0);
-						LogManager
-							.error(
-									"Failed to save the user's historical file transfer record.",
-									e);
+//						AppMain.enableLogging(AppMain.Confirm(
+//											AppMain.getFrame(),
+//											"There was an error connecting with the\n" +
+//											"middleware. Would you like to work offline?",
+//											"Transfer History Error") != 0);
+						LogManager.error("Failed to update the transfer record.", e);
 					}
 				}
 				
@@ -639,42 +623,22 @@ public class HistoryManager {
 
 		if (!ConfigOperation.isLoggingEnabled())
 			return;
+		
 		SwingWorker worker = new SwingWorker() {
 			@Override
 			public Object construct() {
 				try {
-					String dn = AppMain.defaultCredential.getIdentity();
-		
-					Vector<String> params = new Vector<String>();
-					params.addElement(dn);
-		
-					ServletUtil.getClient().execute(ServletUtil.CLEAR_RECORDS, params);
-		
-				} catch (XmlRpcException e) {
-					if (ConfigOperation.isLoggingEnabled()) {
-						AppMain
-							.enableLogging(AppMain.Confirm(
-											AppMain.getFrame(),
-											"There was an error connecting with the\n" +
-											"middleware. Would you like to work offline?",
-											"Transfer History Error") != 0);
-						LogManager
-							.error(
-									"Failed to save the user's historical file transfer record.",
-									e);
-					}
+					ClientResource clientResource = ServletUtil.getClient(ServletUtil.TRANSFERS_SERVICE_URL);
+					BulkTransfersResource client = clientResource.wrap(BulkTransfersResource.class);
+					client.clearAllTransfers();
 				} catch (Exception e) {
 					if (ConfigOperation.isLoggingEnabled()) {
-						AppMain
-							.enableLogging(AppMain.Confirm(
-											AppMain.getFrame(),
-											"There was an error connecting with the\n" +
-											"middleware. Would you like to work offline?",
-											"Transfer History Error") != 0);
-						LogManager
-							.error(
-									"Failed to clear the user's historical file transfer record.",
-									e);
+//						AppMain.enableLogging(AppMain.Confirm(
+//							AppMain.getFrame(),
+//							"There was an error connecting with the\n" +
+//							"middleware. Would you like to work offline?",
+//							"Transfer History Error") != 0);
+						LogManager.error("Failed to clear the user's historical file transfer record.", e);
 					}
 				}
 				return null;

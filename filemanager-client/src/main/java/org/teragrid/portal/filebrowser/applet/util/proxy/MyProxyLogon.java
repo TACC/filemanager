@@ -1,47 +1,37 @@
 /**
- * 
+ * Copyright (c) 2014, Texas Advanced Computing Center
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * * Neither the name of the University of Texas at Austin nor the names of its
+ *   contributors may be used to endorse or promote products derived from
+ *   this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The views and conclusions contained in the software and documentation are those
+ * of the authors and should not be interpreted as representing official policies,
+ * either expressed or implied, of the FreeBSD Project.
  */
 package org.teragrid.portal.filebrowser.applet.util.proxy;
-
-/*
- * Copyright 2007 The Board of Trustees of the University of Illinois.
- * All rights reserved.
- * 
- * Developed by:
- * 
- *   MyProxy Team
- *   National Center for Supercomputing Applications
- *   University of Illinois
- *   http://myproxy.ncsa.uiuc.edu/
- * 
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal with the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- * 
- *   Redistributions of source code must retain the above copyright
- *   notice, this list of conditions and the following disclaimers.
- * 
- *   Redistributions in binary form must reproduce the above copyright
- *   notice, this list of conditions and the following disclaimers in the
- *   documentation and/or other materials provided with the distribution.
- * 
- *   Neither the names of the National Center for Supercomputing
- *   Applications, the University of Illinois, nor the names of its
- *   contributors may be used to endorse or promote products derived from
- *   this Software without specific prior written permission.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR
- * ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
- */
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -55,12 +45,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.Writer;
 import java.net.InetAddress;
 import java.net.ProtocolException;
+import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.cert.CertPath;
 import java.security.cert.CertPathValidator;
@@ -74,11 +68,11 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
@@ -86,7 +80,10 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.x500.X500Principal;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DERObject;
@@ -95,13 +92,17 @@ import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.X509Name;
 import org.bouncycastle.jce.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
+import org.globus.gsi.CertUtil;
+import org.globus.gsi.X509Credential;
+import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
+import org.globus.myproxy.MyProxy;
+import org.globus.myproxy.MyProxyException;
 import org.gridforum.jgss.ExtendedGSSCredential;
 import org.gridforum.jgss.ExtendedGSSManager;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
-import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.ConfigOperation;
-import org.teragrid.portal.filebrowser.applet.util.LogManager;
+import org.testng.Assert;
 
 /**
  * The MyProxyLogon class provides an interface for retrieving credentials from
@@ -122,9 +123,8 @@ import org.teragrid.portal.filebrowser.applet.util.LogManager;
  * @version 1.0
  * @see <a href="http://myproxy.ncsa.uiuc.edu/">MyProxy Project Home Page</a>
  */
-@SuppressWarnings({"unchecked"})
 public class MyProxyLogon {
-	static Logger logger = Logger.getLogger(MyProxyLogon.class.getName());
+	static Logger logger = Logger.getLogger(MyProxyLogon.class);
 	public final static String version = "1.0";
 	public final static String BouncyCastleLicense = org.bouncycastle.LICENSE.licenseText;
 
@@ -132,8 +132,10 @@ public class MyProxyLogon {
 		READY, CONNECTED, LOGGEDON, DONE
 	}
 
-	private class MyTrustManager implements X509TrustManager {
-		public X509Certificate[] getAcceptedIssuers() {
+	private class MyTrustManager implements X509TrustManager 
+	{
+		public X509Certificate[] getAcceptedIssuers() 
+		{
 			X509Certificate[] issuers = null;
 			String certDirPath = MyProxyLogon.getExistingTrustRootPath();
 			if (certDirPath == null) {
@@ -167,7 +169,7 @@ public class MyProxyLogon {
 		public void checkClientTrusted(X509Certificate[] certs, String authType)
 				throws CertificateException {
 			throw new CertificateException(
-					"checkClientTrusted not implemented by edu.uiuc.ncsa.MyProxy.MyProxyLogon.MyTrustManager");
+					"checkClientTrusted not implemented by trust manager");
 		}
 
 		public void checkServerTrusted(X509Certificate[] certs, String authType)
@@ -188,15 +190,14 @@ public class MyProxyLogon {
 				X509Certificate[] acceptedIssuers = getAcceptedIssuers();
 				if (acceptedIssuers == null) {
 					String certDir = MyProxyLogon.getExistingTrustRootPath();
-					if (certDir != null) {
+					if (certDir != null && !requestTrustRoots) {
 						throw new CertificateException(
 								"no CA certificates found in " + certDir);
 					} else if (!requestTrustRoots) {
 						throw new CertificateException(
 								"no CA certificates directory found");
 					}
-					logger
-							.info("no trusted CAs configured -- bootstrapping trust from MyProxy server");
+					logger.info("No trusted CAs configured -- bootstrapping trust from MyProxy server at " + host);
 					acceptedIssuers = new X509Certificate[1];
 					acceptedIssuers[0] = certs[certs.length - 1];
 				}
@@ -217,9 +218,9 @@ public class MyProxyLogon {
 		}
 
 		private void checkServerDN(X509Certificate cert)
-				throws CertificateException {
+		throws CertificateException 
+		{
 			String subject = cert.getSubjectX500Principal().getName();
-			logger.fine("MyProxy server DN: " + subject);
 			int index = subject.indexOf("CN=");
 			if (index == -1) {
 				throw new CertificateException("Server certificate subject ("
@@ -269,14 +270,15 @@ public class MyProxyLogon {
 	private final static String ERROR = "ERROR=";
 	private final static String DN = "CN=ignore";
 	private final static String TRUSTED_CERT_PATH = ConfigOperation.getCertificateDir();
-
+	public static final int DEFAULT_PORT = 7512;
+	
 	protected final static int keySize = 1024;
 	protected final int MIN_PASS_PHRASE_LEN = 6;
 	protected final static String keyAlg = "RSA";
 	protected final static String pkcs10SigAlgName = "SHA1withRSA";
 	protected final static String pkcs10Provider = "SunRsaSign";
 	protected State state = State.READY;
-	protected String host = "myproxy.teragrid.org";
+	protected String host = "myproxy.xsede.org";
 	protected String username;
 	protected String credname;
 	protected String passphrase;
@@ -290,32 +292,19 @@ public class MyProxyLogon {
 	protected Collection certificateChain;
 	protected String[] trustrootFilenames;
 	protected String[] trustrootData;
-
+	
+	public MyProxyLogon() {
+		super();
+	}
+	
 	/**
 	 * Constructs a MyProxyLogon object. Order of preference lookup for server
 	 * and port are TGFM config, System env, default values.
 	 */
-	public MyProxyLogon() {
+	public MyProxyLogon(String host, int port) {
 		super();
-		String hostString = ConfigOperation.getInstance().getConfigValue(
-				"myproxy_server");
-		if (hostString == null) {
-			hostString = System.getenv("MYPROXY_SERVER");
-		}
-		if (hostString != null) {
-			host = hostString;
-		}
-
-		String portString = ConfigOperation.getInstance().getConfigValue(
-				"myproxy_port");
-		if (portString == null) {
-			portString = System.getenv("MYPROXY_SERVER_PORT");
-		}
-		if (portString != null) {
-			port = Integer.parseInt(portString);
-		}
-		
-		username = System.getProperty("user.name");
+		this.host = host;
+		this.port = port;
 	}
 
 	/**
@@ -373,7 +362,6 @@ public class MyProxyLogon {
 	 */
 	public void setUsername(String username) {
 		this.username = username;
-		AppMain.ssoUsername = username;
 	}
 
 	/**
@@ -403,7 +391,6 @@ public class MyProxyLogon {
 	 */
 	public void setPassphrase(String passphrase) {
 		this.passphrase = passphrase;
-		AppMain.ssoPassword = passphrase;
 	}
 
 	/**
@@ -609,41 +596,72 @@ public class MyProxyLogon {
 	/**
 	 * Retrieves credentials from the MyProxy server.
 	 */
-	public void getCredentials() throws IOException, GeneralSecurityException {
-		int numCertificates;
-		KeyPairGenerator keyGenerator;
-		PKCS10CertificationRequest pkcs10;
-		CertificateFactory certFactory;
-
-		if (this.state != State.LOGGEDON) {
-			this.logon();
+	@SuppressWarnings("rawtypes")
+	public GSSCredential getCredentials() throws MyProxyException 
+	{
+		try 
+		{
+			int numCertificates;
+			KeyPairGenerator keyGenerator;
+			PKCS10CertificationRequest pkcs10;
+			CertificateFactory certFactory;
+	
+			if (this.state != State.LOGGEDON) {
+				this.logon();
+			}
+	
+			keyGenerator = KeyPairGenerator.getInstance(keyAlg);
+			keyGenerator.initialize(keySize);
+			this.keypair = keyGenerator.genKeyPair();
+	
+			pkcs10 = new PKCS10CertificationRequest(pkcs10SigAlgName, new X509Name(
+					DN), this.keypair.getPublic(), null, this.keypair.getPrivate(),
+					pkcs10Provider);
+	
+			this.socketOut.write(pkcs10.getEncoded());
+			this.socketOut.flush();
+			numCertificates = this.socketIn.read();
+			if (numCertificates == -1) {
+				System.err.println("connection aborted");
+				System.exit(1);
+			} else if (numCertificates == 0 || numCertificates < 0) {
+				System.err.print("bad number of certificates sent by server: ");
+				System.err.println(Integer.toString(numCertificates));
+				System.exit(1);
+			}
+			certFactory = CertificateFactory.getInstance("X.509");
+			this.certificateChain = certFactory.generateCertificates(this.socketIn);
+			this.state = State.DONE;
+			
+			X509Certificate certificate;
+			PrintStream printStream;
+			
+			Iterator iter = this.certificateChain.iterator();
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	
+			certificate = (X509Certificate) iter.next();
+			printStream = new PrintStream(bos);
+			printCert(certificate, printStream);
+			printKey(keypair.getPrivate(), printStream);
+			while (iter.hasNext()) {
+				certificate = (X509Certificate) iter.next();
+				printCert(certificate, printStream);
+			}
+	
+			ExtendedGSSManager manager = (ExtendedGSSManager) ExtendedGSSManager
+					.getInstance();
+			GSSCredential proxy = (GlobusGSSCredentialImpl)manager.createCredential(bos.toByteArray(),
+					ExtendedGSSCredential.IMPEXP_OPAQUE,
+					GSSCredential.DEFAULT_LIFETIME, null, // use default mechanism -
+															// GSI
+					GSSCredential.INITIATE_AND_ACCEPT);
+			return proxy;
+		} 
+		catch (Exception e) 
+		{
+			throw new MyProxyException(e.getMessage(), e);
 		}
-
-		keyGenerator = KeyPairGenerator.getInstance(keyAlg);
-		keyGenerator.initialize(keySize);
-		this.keypair = keyGenerator.genKeyPair();
-		
-		pkcs10 = new PKCS10CertificationRequest(pkcs10SigAlgName,
-				new X509Name(DN), this.keypair.getPublic(), null,
-				this.keypair.getPrivate(), pkcs10Provider);
-		
-		this.socketOut.write(pkcs10.getEncoded());
-		this.socketOut.flush();
-		numCertificates = this.socketIn.read();
-		if (numCertificates == -1) {
-			System.err.println("connection aborted");
-			System.exit(1);
-		} else if (numCertificates == 0 || numCertificates < 0) {
-			System.err.print("bad number of certificates sent by server: ");
-			System.err.println(Integer.toString(numCertificates));
-			System.exit(1);
-		}
-		certFactory = CertificateFactory.getInstance("X.509");
-		this.certificateChain = certFactory.generateCertificates(this.socketIn);
-		this.state = State.DONE;
 	}
-	
-	
 
 	/**
 	 * Writes the retrieved credentials to the Globus proxy file location.
@@ -651,15 +669,16 @@ public class MyProxyLogon {
 	public void writeProxyFile() throws IOException, GeneralSecurityException {
 		saveCredentialsToFile(getProxyLocation());
 	}
-	
+
 	public Collection getCertificateChain() {
 		return certificateChain;
 	}
+
 	/**
 	 * Writes the retrieved credentials to the specified filename.
 	 */
 	public void saveCredentialsToFile(String filename) throws IOException,
-			GeneralSecurityException {
+	GeneralSecurityException {
 		Iterator iter;
 		X509Certificate certificate;
 		PrintStream printStream;
@@ -679,16 +698,15 @@ public class MyProxyLogon {
 		}
 	}
 
-	public GSSCredential convertCredentialsToGlobusCredential() 
-	throws CertificateEncodingException, IOException, GSSException 
-	{
-		Iterator iter;
+	public X509Credential convertCredentialsToGlobusCredential()
+			throws CertificateEncodingException, IOException, GSSException {
+		Iterator<X509Certificate> iter;
 		X509Certificate certificate;
 		PrintStream printStream;
-		
+
 		iter = this.certificateChain.iterator();
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		
+
 		certificate = (X509Certificate) iter.next();
 		printStream = new PrintStream(bos);
 		printCert(certificate, printStream);
@@ -697,17 +715,25 @@ public class MyProxyLogon {
 			certificate = (X509Certificate) iter.next();
 			printCert(certificate, printStream);
 		}
-		
+
 		ExtendedGSSManager manager = (ExtendedGSSManager) ExtendedGSSManager
-			.getInstance();
+				.getInstance();
 		GSSCredential proxy = manager.createCredential(bos.toByteArray(),
 				ExtendedGSSCredential.IMPEXP_OPAQUE,
-				GSSCredential.DEFAULT_LIFETIME, null, // use default mechanism - GSI
+				GSSCredential.DEFAULT_LIFETIME, null, // use default mechanism -
+														// GSI
 				GSSCredential.ACCEPT_ONLY);
-		
-		return proxy;
+
+		X509Credential globusCred = null;
+
+		if (proxy instanceof GlobusGSSCredentialImpl) {
+			globusCred = ((GlobusGSSCredentialImpl) proxy).getX509Credential();
+		}
+
+		return globusCred;
 
 	}
+
 	/**
 	 * Writes the retrieved trust roots to the Globus trusted certificates
 	 * directory.
@@ -736,16 +762,34 @@ public class MyProxyLogon {
 			rootDir.mkdirs();
 		}
 		for (int i = 0; i < trustrootFilenames.length; i++) {
-			LogManager.debug("Wrote trust file " + directory
-					+ File.separator + this.trustrootFilenames[i]);
-			System.out.println("Wrote trust file " + directory
-					+ File.separator + this.trustrootFilenames[i]);
+//			logger.debug("Wrote trust file " + directory + File.separator
+//					+ this.trustrootFilenames[i]);
 			FileOutputStream out = new FileOutputStream(directory
 					+ File.separator + this.trustrootFilenames[i]);
 			out.write(this.trustrootData[i].getBytes());
 			out.close();
 		}
+		logger.info("Wrote trust files for " + host + " to " + directory);
+		
 		return true;
+	}
+	
+	/**
+	 * Writes the retrieved trust roots to a trusted certificates directory.
+	 * 
+	 * @param directory
+	 *            path where the trust roots should be written
+	 * @return true if trust roots are written successfully, false if no trust
+	 *         roots are available to be written
+	 */
+	public Map<String, String> writeTrustRootsAsMap() 
+	{
+		Map<String, String> trustRootMap = new HashMap<String, String>();
+    	
+    	for (int i = 0; i < trustrootFilenames.length; i++) {
+    		trustRootMap.put(this.trustrootFilenames[i], this.trustrootData[i]);
+        }
+        return trustRootMap;
 	}
 
 	/**
@@ -781,10 +825,10 @@ public class MyProxyLogon {
 					c.add(cert);
 				} catch (Exception e) {
 					if (nameList != null) {
-						logger.warning(nameList[i]
+						logger.debug(nameList[i]
 								+ " can not be parsed as an X509Certificate.");
 					} else {
-						logger.warning("failed to parse an X509Certificate");
+						logger.error("failed to parse an X509Certificate");
 					}
 				}
 			}
@@ -817,7 +861,7 @@ public class MyProxyLogon {
 							.generateCRL(inputStream);
 					c.add(crl);
 				} catch (Exception e) {
-					logger.warning(this.trustrootFilenames[i]
+					logger.error(this.trustrootFilenames[i]
 							+ " can not be parsed as an X509CRL.");
 				}
 			}
@@ -828,21 +872,19 @@ public class MyProxyLogon {
 	}
 
 	/**
-	 * Returns the trusted certificates directory location where
-	 * writeTrustRoots() will store certificates.
-	 */
-	public static String getTrustRootPath() {
-		String path;
-
-		path = System.getenv("X509_CERT_DIR");
-		if (path == null) {
-			path = System.getProperty("X509_CERT_DIR");
-		}
-		if (path == null) {
-			path = TRUSTED_CERT_PATH;
-		}
-		return path;
-	}
+     * Returns the trusted certificates directory location where
+     * writeTrustRoots() will store certificates.
+     * It first checks the X509_CERT_DIR system property.
+     * If that property is not set, it uses
+     * ${user.home}/.globus/certificates.
+     * Note that, unlike CoGProperties.getCaCertLocations(),
+     * it does not return /etc/grid-security/certificates or
+     * ${GLOBUS_LOCATION}/share/certificates.
+     */
+    public static String getTrustRootPath() 
+    {
+        return TRUSTED_CERT_PATH;
+    }
 
 	/**
 	 * Gets the existing trusted CA certificates directory.
@@ -850,29 +892,7 @@ public class MyProxyLogon {
 	 * @return directory path string or null if none found
 	 */
 	public static String getExistingTrustRootPath() {
-		String path, GL;
-
-		GL = System.getenv("GLOBUS_LOCATION");
-		if (GL == null) {
-			GL = System.getProperty("GLOBUS_LOCATION");
-		}
-
-		path = System.getenv("X509_CERT_DIR");
-		if (path == null) {
-			path = System.getProperty("X509_CERT_DIR");
-		}
-		if (path == null) {
-			path = getDir(TRUSTED_CERT_PATH);
-		}
-		if (path == null) {
-			path = getDir("/etc/grid-security/certificates");
-		}
-		if (path == null) {
-			path = getDir(GL + File.separator + "share" + File.separator
-					+ "certificates");
-		}
-
-		return path;
+		return TRUSTED_CERT_PATH;
 	}
 
 	/**
@@ -893,8 +913,8 @@ public class MyProxyLogon {
 
 		try {
 			proc = Runtime.getRuntime().exec("id -u");
-			bufferedReader = new BufferedReader(new InputStreamReader(proc
-					.getInputStream()));
+			bufferedReader = new BufferedReader(new InputStreamReader(
+					proc.getInputStream()));
 			suffix = bufferedReader.readLine();
 		} catch (IOException e) {
 			// will fail on windows
@@ -909,8 +929,8 @@ public class MyProxyLogon {
 			}
 		}
 
-		return System.getProperty("java.io.tmpdir") + File.separator + X509_USER_PROXY_FILE
-				+ suffix;
+		return System.getProperty("java.io.tmpdir") + File.separator
+				+ X509_USER_PROXY_FILE + suffix;
 	}
 
 	/**
@@ -918,51 +938,30 @@ public class MyProxyLogon {
 	 */
 	public static void main(String[] args) {
 		try {
-			MyProxyLogon m = new MyProxyLogon();
+			MyProxyLogon m = new MyProxyLogon("myproxy.xsede.org", DEFAULT_PORT);
 			// Console cons = System.console();
 			String passphrase = null;
 			X509Certificate[] CAcerts;
 			X509CRL[] CRLs;
-			MyProxyLogon.logger.setLevel(Level.ALL);
-
-			// if (cons != null) {
-			// char[] pass = cons.readPassword("[%s]", "MyProxy Passphrase:
-			// ");
-			// if (pass != null) {
-			// passphrase = new String(pass);
-			// }
-			// } else {
-			System.out
-					.println("Warning: terminal will echo passphrase as you type.");
+			
+			m.setUsername("dooley");
+			System.out.println("Warning: terminal will echo passphrase as you type.");
 			System.out.print("MyProxy Passphrase: ");
 			passphrase = readLine(System.in);
-			// }
+			
 			if (passphrase == null) {
 				System.err.println("Error reading passphrase.");
 				System.exit(1);
 			}
 			m.setPassphrase(passphrase);
 			m.requestTrustRoots(true);
-			m.getCredentials();
+			GSSCredential proxy = m.getCredentials();
 			m.writeProxyFile();
-			System.out.println("Credential written successfully.");
-			CAcerts = m.getTrustedCAs();
-			if (CAcerts != null) {
-				System.out.println(Integer.toString(CAcerts.length)
-						+ " CA certificates received.");
-			}
-			CRLs = m.getCRLs();
-			if (CRLs != null) {
-				System.out.println(Integer.toString(CRLs.length)
-						+ " CRLs received.");
-			}
-			if (m.writeTrustRoots()) {
-				System.out.println("Wrote trust roots to "
-						+ MyProxyLogon.getTrustRootPath() + ".");
-			} else {
-				System.out
-						.println("Received no trust roots from MyProxy server.");
-			}
+			
+			Assert.assertNotNull(proxy, "No proxy retrieved");
+			Assert.assertTrue(new File(getTrustRootPath()).exists(), "Trusted CA folder was not created");
+			Assert.assertTrue(new File(getTrustRootPath()).list().length > 0, "Trusted CA folder is empty");
+			
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
 		}
@@ -992,8 +991,8 @@ public class MyProxyLogon {
 	private static void printKey(PrivateKey key, PrintStream out)
 			throws IOException {
 		out.println("-----BEGIN RSA PRIVATE KEY-----");
-		ByteArrayInputStream inStream = new ByteArrayInputStream(key
-				.getEncoded());
+		ByteArrayInputStream inStream = new ByteArrayInputStream(
+				key.getEncoded());
 		ASN1InputStream derInputStream = new ASN1InputStream(inStream);
 		DERObject keyInfo = derInputStream.readObject();
 		PrivateKeyInfo pkey = new PrivateKeyInfo((ASN1Sequence) keyInfo);
@@ -1010,7 +1009,7 @@ public class MyProxyLogon {
 		try {
 			Runtime.getRuntime().exec(command);
 		} catch (IOException e) {
-			logger.warning("Failed to run: " + command); // windows
+			logger.error("Failed to run: " + command); // windows
 		}
 	}
 
@@ -1033,5 +1032,209 @@ public class MyProxyLogon {
 			return f.getAbsolutePath();
 		}
 		return null;
+	}
+	
+	public static String serializeCredential(GSSCredential cred) throws GSSException 
+	{
+		byte[] serializedCredential = ((GlobusGSSCredentialImpl)cred).export(ExtendedGSSCredential.IMPEXP_OPAQUE);
+		return new String(serializedCredential);
+	}
+	
+	public Map<String,String> bootstrapTrust(boolean writeToDisk) throws MyProxyException 
+    {
+        try 
+        {
+        	Map<String, String> trustCertMap = new HashMap<String,String>();
+        	
+            SSLContext sc = SSLContext.getInstance("SSL");
+            MyTrustManager myTrustManager = new MyTrustManager();
+            TrustManager[] trustAllCerts = new TrustManager[] { myTrustManager };
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            SSLSocketFactory sf = sc.getSocketFactory();
+            SSLSocket socket = (SSLSocket)sf.createSocket(getHost(), getPort());
+            socket.setEnabledProtocols(new String[] { "SSLv3" });
+            socket.startHandshake();
+            socket.close();
+
+            X509Certificate[] acceptedIssuers = myTrustManager.getAcceptedIssuers();
+            
+            if (acceptedIssuers == null) {
+                throw new MyProxyException("Failed to determine MyProxy server trust roots in bootstrapTrust.");
+            }
+            
+            for (int idx = 0; idx < acceptedIssuers.length; idx++)
+            {   
+            	File x509Dir = new File(getTrustRootPath());
+                if (!x509Dir.exists())
+                {
+                	x509Dir.mkdirs();
+                }
+                
+                StringBuffer newSubject = new StringBuffer();
+                String[] subjArr = acceptedIssuers[idx].getSubjectDN().getName().split(", ");
+                for(int i = (subjArr.length - 1); i > -1; i--)
+                {
+                    newSubject.append("/");
+                    newSubject.append(subjArr[i]);
+                }
+                String subject = newSubject.toString();
+                String hash = opensslHash(acceptedIssuers[idx]);
+                String filename = x509Dir.getPath() + File.separator + hash + ".0";
+
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                FileOutputStream fos = new FileOutputStream(new File(filename));
+                CertUtil.writeCertificate(os, acceptedIssuers[idx]);
+                CertUtil.writeCertificate(fos, acceptedIssuers[idx]);
+                
+                os.close();
+                fos.close();
+
+                trustCertMap.put(hash + ".0", new String(os.toByteArray()));
+                
+                if (logger.isDebugEnabled()) {
+                	logger.debug("wrote trusted certificate " + hash + ".0");
+                    logger.debug("wrote trusted certificate to " + filename);
+                }
+
+                filename = x509Dir.getPath() + File.separator + hash + ".signing_policy";
+
+                fos = new FileOutputStream(new File(filename));
+                Writer wr = new OutputStreamWriter(fos, Charset.forName("UTF-8"));
+                wr.write("access_id_CA X509 '");
+                wr.write(subject);
+                wr.write("'\npos_rights globus CA:sign\ncond_subjects globus \"*\"\n");
+                wr.flush();
+                wr.close();
+                fos.close();
+                
+                
+                StringBuilder sb = new StringBuilder();
+                sb.append("access_id_CA X509 '");
+                sb.append(subject);
+                sb.append("'\npos_rights globus CA:sign\ncond_subjects globus \"*\"\n");
+                
+                trustCertMap.put(hash + ".signing_policy", sb.toString());
+                
+                logger.debug("wrote trusted certificate policy " + hash + ".signing_policy");
+            }
+            
+//            if (writeToDisk) {
+//            	writeBootstrapedTrust(acceptedIssuers);
+//            }
+            	
+            return trustCertMap;
+        } 
+        catch(Exception e) 
+        {
+            throw new MyProxyException("MyProxy bootstrapTrust failed.", e);
+        }
+    }
+    
+    public void writeBootstrapedTrust(X509Certificate[] acceptedIssuers) 
+    throws MyProxyException 
+    {
+        try 
+        {   
+            if (acceptedIssuers == null) {
+                throw new MyProxyException("Failed to determine MyProxy server trust roots in bootstrapTrust.");
+            }
+         
+            for (int idx = 0; idx < acceptedIssuers.length; idx++)
+            {
+                File x509Dir = new File(getTrustRootPath());
+                if (!x509Dir.exists())
+                {
+                	x509Dir.mkdirs();
+                }
+                
+                StringBuffer newSubject = new StringBuffer();
+                String[] subjArr = acceptedIssuers[idx].getSubjectDN().getName().split(", ");
+                for(int i = (subjArr.length - 1); i > -1; i--)
+                {
+                    newSubject.append("/");
+                    newSubject.append(subjArr[i]);
+                }
+                String subject = newSubject.toString();
+
+                String hash = opensslHash(acceptedIssuers[idx]);
+                String filename = x509Dir.getPath() + File.separator + hash + ".0";
+
+                FileOutputStream os = new FileOutputStream(new File(filename));
+                CertUtil.writeCertificate(os, acceptedIssuers[idx]);
+
+                os.close();
+                if (logger.isDebugEnabled()) {
+                    logger.debug("wrote trusted certificate to " + filename);
+                }
+
+                filename = x509Dir.getPath() + File.separator + hash + ".signing_policy";
+
+                os = new FileOutputStream(new File(filename));
+                Writer wr = new OutputStreamWriter(os, Charset.forName("UTF-8"));
+                wr.write("access_id_CA X509 '");
+                wr.write(subject);
+                wr.write("'\npos_rights globus CA:sign\ncond_subjects globus \"*\"\n");
+                wr.flush();
+                wr.close();
+                os.close();
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("wrote trusted certificate policy to " + filename);
+                }                    
+            }
+        } catch(Exception e) {
+            throw new MyProxyException("MyProxy bootstrapTrust failed.", e);
+        }
+    }
+    
+	/*
+		the following methods are based off code to compute the subject
+		name hash from:
+		http://blog.piefox.com/2008/10/javaopenssl-ca-generation.html
+	*/
+	private String opensslHash(X509Certificate cert) 
+	{
+		try {
+			return openssl_X509_NAME_hash(cert.getSubjectX500Principal());
+		}
+		catch (Exception e) {
+			throw new Error("MD5 isn't available!", e);
+		}
+	}
+	
+	/**
+	* Generates a hex X509_NAME hash (like openssl x509 -hash -in cert.pem)
+	* Based on openssl's crypto/x509/x509_cmp.c line 321
+	*/
+	private String openssl_X509_NAME_hash(X500Principal p) throws Exception 
+	{
+		// This code replicates OpenSSL's hashing function
+		// DER-encode the Principal, MD5 hash it, then extract the first 4 bytes and reverse their positions
+		byte[] derEncodedSubject = p.getEncoded();
+		byte[] md5 = MessageDigest.getInstance("MD5").digest(derEncodedSubject);
+	
+		// Reduce the MD5 hash to a single unsigned long
+		byte[] result = new byte[] { md5[3], md5[2], md5[1], md5[0] };
+		return toHex(result);
+	}
+	
+	// encode binary to hex
+	private String toHex(final byte[] bin) 
+	{
+		if (bin == null || bin.length == 0)
+			return "";
+
+		char[] buffer = new char[bin.length * 2];
+
+		final char[] hex = "0123456789abcdef".toCharArray();
+
+		// i tracks input position, j tracks output position
+		for (int i = 0, j = 0; i < bin.length; i++)
+		{
+			final byte b = bin[i];
+			buffer[j++] = hex[(b >> 4) & 0x0F];
+			buffer[j++] = hex[b & 0x0F];
+		}
+		return new String(buffer);
 	}
 }

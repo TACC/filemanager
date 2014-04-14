@@ -13,6 +13,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.globus.myproxy.MyProxyException;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 
@@ -55,8 +56,8 @@ public class MyProxyDialog extends JDialog {
 		gui.myproxy.saveCredentialsToFile(fileName);
 	}
 	
-	public GSSCredential getGSSCredential() throws CertificateEncodingException, IOException, GSSException {
-		return gui.myproxy.convertCredentialsToGlobusCredential();
+	public GSSCredential getGSSCredential() throws MyProxyException {
+		return gui.myproxy.getCredentials();
 	}
 	
 	/**

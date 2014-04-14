@@ -38,6 +38,7 @@ import org.teragrid.portal.filebrowser.applet.exception.ResourceException;
 import org.teragrid.portal.filebrowser.applet.util.LogManager;
 
 import edu.utexas.tacc.wcs.filemanager.common.model.User;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
 
 class FTPCommand {
 	public static final int NONE = 0;
@@ -108,8 +109,10 @@ public class SHGridFTP {
 
 	private FTPSettings ftpServer = null;
 
-	private int nType = Session.TYPE_ASCII;
-
+	private FileProtocolType nType = FileProtocolType.GRIDFTP;
+	
+	private int sessionType = Session.TYPE_ASCII;
+	
 	private String sRemote = null, sRemoteHome = null;
 
 	private String sLocalFile = "", sRemoteFile = "";
@@ -128,7 +131,7 @@ public class SHGridFTP {
 	 * 
 	 * @param host
 	 *            remote GRIDFTP host
-	 * @param port
+	 * @param filePort
 	 *            remote GridFTP port (default is 2811)
 	 */
 	public SHGridFTP(Component parent,String sHost) throws IOException, ServerException {
@@ -136,13 +139,13 @@ public class SHGridFTP {
 		ftpServer.parent = parent;
 	}
 
-	public SHGridFTP(Component parent,String sHost, int nType) throws IOException,
+	public SHGridFTP(Component parent,String sHost, FileProtocolType nType) throws IOException,
 			ServerException {
 		this(new FTPSettings(sHost, nType));
 		ftpServer.parent = parent;
 	}
 
-	public SHGridFTP(Component parent,String sHost, int nPort, int nType) throws IOException,
+	public SHGridFTP(Component parent,String sHost, int nPort, FileProtocolType nType) throws IOException,
 			ServerException {
 		this(new FTPSettings(sHost, nPort, nType));
 		ftpServer.parent = parent;
@@ -185,7 +188,7 @@ public class SHGridFTP {
 	}
 
 	public String setDirHome() throws IOException, ServerException {
-		if (FTPType.FILE == this.ftpServer.type) {
+		if (FileProtocolType.FILE == this.ftpServer.protocol) {
 			return setDir("~");
 		} else {
 			return setDir(this.sRemoteHome);
@@ -231,9 +234,9 @@ public class SHGridFTP {
 			return ((Irods)ftpClient).getAllPermissions(path);
 		} else {
 			throw new IOException("Direct file permission queries not supported for " + 
-					FTPType.FTP_PROTOCOL[ftpServer.type] + " resources.");
+					ftpServer.protocol.name() + " resources.");
 //			throw new NotSupportedException("Direct file permission queries not supported for " + 
-//					FTPType.FTP_PROTOCOL[ftpServer.type] + " resources.");
+//					FileProtocolType.FTP_PROTOCOL[ftpServer.type] + " resources.");
 		}
 	}
 	
@@ -276,14 +279,16 @@ public class SHGridFTP {
 
 	public void setType(int nType) throws IOException, ServerException {
 		// if(this.nType!=nType) ftpClient.setType(this.nType=nType);
-		this.ftpClient.setType(this.nType = nType);
+//		this.nType = nType;
+		this.sessionType = nType;
+		this.ftpClient.setType(nType);
 	}
 
 	public void connect() throws IOException, ServerException {
 		
-		switch (this.ftpServer.type) {
-		case FTPType.GRIDFTP:
-			this.ftpClient = new GridFTP(this.ftpServer.host, this.ftpServer.port, AppMain.defaultCredential);
+		switch (this.ftpServer.protocol) {
+		case GRIDFTP:
+			this.ftpClient = new GridFTP(this.ftpServer.host, this.ftpServer.filePort, AppMain.defaultCredential);
 			
 			switch (this.ftpServer.loginMode) {
 				case FTPLogin.LOGIN_USEPROXYINIT:
@@ -309,37 +314,37 @@ public class SHGridFTP {
 			 ((GridFTP) this.ftpClient).setClientWaitParams(20000, 100);
 			this.sRemote = this.sRemoteHome = this.ftpClient.getCurrentDir();
 			break;
-		case FTPType.BBFTP:
-			this.ftpClient = new BBFTP(this.ftpServer.host, this.ftpServer.port);
+		case BBFTP:
+			this.ftpClient = new BBFTP(this.ftpServer.host, this.ftpServer.filePort);
 			this.ftpClient.authorize(this.ftpServer.userName, this.ftpServer.password);
 			this.sRemote = this.sRemoteHome = this.ftpClient.getCurrentDir();
 			break;
-		case FTPType.SFTP:
-			this.ftpClient = new SFTP(this.ftpServer.host, this.ftpServer.port);
+		case SFTP:
+			this.ftpClient = new SFTP(this.ftpServer.host, this.ftpServer.filePort);
 			this.ftpClient.authorize(this.ftpServer.userName, this.ftpServer.password);
 			this.sRemote = this.sRemoteHome = this.ftpClient.getCurrentDir();
 			break;
-		case FTPType.FTP:
-			this.ftpClient = new FTP(this.ftpServer.parent,this.ftpServer.host, this.ftpServer.port);
+		case FTP:
+			this.ftpClient = new FTP(this.ftpServer.parent,this.ftpServer.host, this.ftpServer.filePort);
 			this.ftpClient.authorize(this.ftpServer.userName, this.ftpServer.password);
 			this.sRemote = this.sRemoteHome = this.ftpClient.getCurrentDir();
 			break;
-		case FTPType.HTTP:
-			this.ftpClient = new HTTP(this.ftpServer.host, this.ftpServer.port);
+		case HTTP:
+			this.ftpClient = new HTTP(this.ftpServer.host, this.ftpServer.filePort);
 			((HTTP) this.ftpClient).openSocket();
 			break;
-		case FTPType.S3:
+		case S3:
 		    this.ftpClient = new S3(this.ftpServer.userName,this.ftpServer.password);
 		    this.sRemote = this.sRemoteHome = this.ftpClient.getCurrentDir();
 		    break;
 		 // uncomment when adding share support
-//		case FTPType.XSHARE:
+//		case XSHARE:
 //		    this.ftpClient = new TGShare(this.ftpServer.userName,this.ftpServer.password);
 //		    this.sRemote = this.sRemoteHome = this.ftpClient.getCurrentDir();
 //		    break;
-		case FTPType.IRODS:
+		case IRODS:
             this.ftpClient = new Irods(this.ftpServer.host,
-            							this.ftpServer.port,
+            							this.ftpServer.filePort,
             							this.ftpServer.userName,
             							this.ftpServer.password,
             							this.ftpServer.zone,
@@ -348,9 +353,9 @@ public class SHGridFTP {
 										this.ftpServer.password);
             this.sRemote = this.sRemoteHome = this.ftpClient.getCurrentDir();
             break;
-		case FTPType.FILE:
+		case FILE:
 		default:
-			this.ftpClient = new FileSys(this.ftpServer.host, this.ftpServer.port);
+			this.ftpClient = new FileSys(this.ftpServer.host, this.ftpServer.filePort);
 			this.sRemote = this.sRemoteHome = setDirHome();
 			break;
 		}
@@ -630,7 +635,7 @@ public class SHGridFTP {
 		} else {
 			return null;
 ////			throw new IOException("Direct user queries not supported for " + 
-////					FTPType.FTP_PROTOCOL[ftpServer.type] + " resources.");
+////					FileProtocolType.FTP_PROTOCOL[ftpServer.type] + " resources.");
 //		}
 		}
 	}

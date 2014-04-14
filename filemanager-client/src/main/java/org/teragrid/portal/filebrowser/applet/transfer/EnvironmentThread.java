@@ -15,9 +15,14 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.ui.PnlBrowse;
+import org.teragrid.portal.filebrowser.applet.util.LogManager;
 import org.teragrid.service.profile.wsclients.model.EnvironmentVariable;
+
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.SystemType;
 
 
 /**
@@ -36,36 +41,52 @@ public class EnvironmentThread extends Thread{
         this.pnlBrowse=pnlBrowse;
     }
     
-    public void run(){
+    public void run()
+    {
         this.app = TextAppender.getInstance();
         this.threadName = Thread.currentThread().getName();
 
         this.app.addTextBox(this.pnlBrowse.getTxtLog(), this.threadName);
 
-        if (pnlBrowse.getFtpServer().isLocal()) {
-        	pnlBrowse.tBrowse.setEnvProperties(new ArrayList<EnvironmentVariable>());
-        } else {
-	        
+//        if () {
+//        	pnlBrowse.tBrowse.setEnvProperties(new ArrayList<EnvironmentVariable>());
+//        } else {
+//	        
 //	        ProfileServiceClient client = 
 //	        	new ProfileServiceClient(ConfigSettings.SERVICE_TG_USER_PROFILE, 
 //										AppMain.ssoUsername, 
 //										AppMain.ssoPassword);
-	        GsiSshClient client = new GsiSshClient(pnlBrowse.getFtpServer().host, AppMain.defaultCredential);
-	        
-	        Properties props = client.env();
-	        List<EnvironmentVariable> environment = new ArrayList<EnvironmentVariable>();
-	        for(Iterator<Object> iter = (Iterator<Object>)props.keySet().iterator(); iter.hasNext();) {
-	        	String prop = (String)iter.next();
-	        	environment.add(new EnvironmentVariable(prop, props.getProperty(prop)));
-	        }
-	        
-	        // add the env to the browsing thread for use in goto path requests
-	        pnlBrowse.tBrowse.setEnvProperties(environment);
-	        
-	        pnlBrowse.enableEnvironmentButton();
-        }
-        
-        close();
+        	
+    	List<EnvironmentVariable> environment = new ArrayList<EnvironmentVariable>();
+    	
+    	GsiSshClient client = null;
+    	if (!pnlBrowse.getFtpServer().isLocal() && 
+    			!pnlBrowse.getFtpServer().hostType.equals(SystemType.ARCHIVE) &&
+    			!StringUtils.isEmpty(pnlBrowse.getFtpServer().sshHost) && 
+    			pnlBrowse.getFtpServer().protocol.equals(FileProtocolType.GRIDFTP)) 
+    	{
+    		try 
+    		{
+        		client = new GsiSshClient( pnlBrowse.getFtpServer().sshHost, pnlBrowse.getFtpServer().sshPort, AppMain.defaultCredential);
+        		
+        		Properties props = client.env();
+    	        
+    	        for(Iterator<Object> iter = (Iterator<Object>)props.keySet().iterator(); iter.hasNext();) 
+    	        {
+    	        	String prop = (String)iter.next();
+    	        	environment.add(new EnvironmentVariable(prop, props.getProperty(prop)));
+    	        	
+    	        	// add the env to the browsing thread for use in goto path requests
+    		        pnlBrowse.tBrowse.setEnvProperties(environment);
+    		        
+    		        pnlBrowse.enableEnvironmentButton();
+    	        }
+    		} catch (Throwable t) {
+    			LogManager.error("Failed to retrieve user environment", t);
+    		}
+    	}
+    	
+    	close();
     }
 
     public boolean isConnected() {

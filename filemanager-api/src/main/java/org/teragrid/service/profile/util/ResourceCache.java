@@ -1,38 +1,33 @@
 package org.teragrid.service.profile.util;
 
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.restlet.Context;
+import org.teragrid.service.profile.wsclients.KitRdrClient;
 import org.teragrid.service.profile.wsclients.KitServicesClient;
 import org.teragrid.service.profile.wsclients.TGOutageClient;
-import org.teragrid.service.profile.wsclients.TGResourceClient;
+import org.teragrid.service.profile.wsclients.CtssClient;
 import org.teragrid.service.profile.wsclients.model.ComputeDTO;
 import org.teragrid.service.profile.wsclients.model.Service;
 
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.SystemType;
 import edu.utexas.tacc.wcs.filemanager.service.Settings;
 
 
 public class ResourceCache {
 	private static final Logger log = Logger.getLogger(ResourceCache.class);
 	
-	private static Set<ComputeDTO> resourceCache = new HashSet<ComputeDTO>();
+	private static Map<String, ComputeDTO> resourceCache = new HashMap<String, ComputeDTO>();
 	private static long lastUpdated = System.currentTimeMillis();
-	
-//	private static String ctssUrl;
-//	private static String incaUrl;
-//	private static int timeout;
-	
-	public static void init(Context context) {
-//		ctssUrl = context.getParameters().getValues("ctss-resources-v1.source");
-//		incaUrl = context.getParameters().getValues("inca.source");
-//		timeout = Integer.valueOf(context.getParameters().getValues("refresh.interval"))*3600;
-	}
-	
-	
-	public static Set<ComputeDTO> getResources() {
+
+	public static void init(Context context) {}
+		
+	public static Map<String, ComputeDTO> getResources() {
 		
 		checkCache();
 		
@@ -43,7 +38,7 @@ public class ResourceCache {
 		
 		checkCache();
 		
-		for(ComputeDTO system: resourceCache) {
+		for(ComputeDTO system: resourceCache.values()) {
 			if (system.getTgcdbName().equalsIgnoreCase(tgcdbName)) {
 				return system;
 			}
@@ -56,20 +51,14 @@ public class ResourceCache {
 		
 		checkCache();
 		
-		for(ComputeDTO system: resourceCache) {
-			if (system.getResourceId().equalsIgnoreCase(resourceId)) {
-				return system;
-			}
-		}
-		
-		return null;
+		return resourceCache.get(resourceId);
 	}
 	
 	public static ComputeDTO getResourceByName(String name) {
 		
 		checkCache();
 		
-		for(ComputeDTO system: resourceCache) {
+		for(ComputeDTO system: resourceCache.values()) {
 			if (system.getName().equalsIgnoreCase(name)) {
 				return system;
 			}
@@ -81,8 +70,7 @@ public class ResourceCache {
 	private static void checkCache() {
 		
 		 // check to see if the cache has expired
-    	if (lastUpdated + Settings.REFRESH_INTERVAL <= System.currentTimeMillis() || resourceCache.isEmpty()) {
-//    	if (true) {	
+		if (lastUpdated + Settings.REFRESH_INTERVAL <= System.currentTimeMillis() || resourceCache.isEmpty()) {
     		log.debug("Updating entire resource cache...");
     		
     		try {
@@ -108,58 +96,66 @@ public class ResourceCache {
 	}
 	
 	/**
-	 * Calls the ctss-resource-v1 iis service for a listing of 
+	 * Calls the ctss service to get a listing of resources with their tgcdb id
+	 * mappings and filters it by the list of currently available and active
+	 * resources from the rdr service.
+	 * 
 	 * @throws IOException
 	 */
 	private static void refreshResources() throws IOException {
-//		CtssResourceClient client = new CtssResourceClient(Settings.CTSS_SERVER);
-		TGResourceClient client = new TGResourceClient(Settings.TG_RESOURCES_SERVER);
-		resourceCache = client.getResources();
+		KitRdrClient rdrClient = new KitRdrClient(Settings.RDR_SERVICES_SERVER);
+		CtssClient ctssClient = new CtssClient(Settings.CTSS_SERVER);
+		Map<String, ComputeDTO> rdrResources = rdrClient.getResources();
+		Map<String, ComputeDTO> ctssResources = ctssClient.getResources();
+		for(String resourceId: ctssResources.keySet())
+		{
+			if (rdrResources.containsKey(resourceId)) {
+				ComputeDTO ctssResource = ctssResources.get(resourceId);
+				ComputeDTO rdrResource = rdrResources.get(resourceId);
+				ctssResource.setName(rdrResource.getName());
+				ctssResource.setType(rdrResource.getType());
+				resourceCache.put(resourceId, ctssResource);
+			}
+		}
 	}
 	
-	
-	private static void refreshEndpoints() throws IOException {
+	/**
+	 * Adds the gsissh and gsi open ssh endpoints to each resource.
+	 * 
+	 * @throws IOException
+	 */
+	private static void refreshEndpoints() throws IOException 
+	{
 		KitServicesClient client = new KitServicesClient(Settings.KIT_SERVICES_SERVER);
-		for(ComputeDTO system: resourceCache) {
-			for(ComputeDTO kitSystem: client.getResources()) {
-				// patch for the renaming of lonestar4 to lonestar-westmere in IIS and the tgcdb
-				if (kitSystem.getResourceId().startsWith("lonestar")) {
-					log.debug("found lonestar in kit services as " + kitSystem.getResourceId());
-					kitSystem.setResourceId("lonestar.tacc.teragrid.org");
-				}
-				if (system.getResourceId().equals(kitSystem.getResourceId())) {
-					try {
-						system.setGridftpHostname(kitSystem.getGridftpHostname());
-					} catch (Exception e) {
-						log.error(e);
-					}
-					try {
-						system.setLoginHostname(kitSystem.getLoginHostname());
-					} catch (Exception e) {
-						log.error(e);
-					}
-					break;
+		Map<String, ComputeDTO> kitSystems = client.getResources();
+		for(String resourceId: kitSystems.keySet())
+		{
+			if (resourceCache.containsKey(resourceId)) 
+			{
+				ComputeDTO kitSystem = kitSystems.get(resourceId);
+				ComputeDTO cachedSystem = resourceCache.get(resourceId);
+				cachedSystem.setGridftpHostname(kitSystem.getGridftpHostname());
+				cachedSystem.setGridftpPort(kitSystem.getGridftpPort());
+				if (!StringUtils.equalsIgnoreCase(cachedSystem.getType(), SystemType.ARCHIVE.name())) 
+				{
+					cachedSystem.setLoginHostname(kitSystem.getLoginHostname());
+					cachedSystem.setLoginPort(kitSystem.getLoginPort());
 				}
 			}
 		}
 	}
 	
 	/**
-	 * Sets the status on resources found in the published Inca
-	 * downtime-iis.txt file.
+	 * Updates the availability of each resource using the status from iis.
 	 * 
 	 * @throws IOException
 	 */
 	private static void updateDowntimes() throws IOException {
 		TGOutageClient client = new TGOutageClient(Settings.IIS_OUTAGE_SERVER);
 		
-		for(ComputeDTO system: resourceCache) {
-			for(ComputeDTO downSystem: client.getResources()) {
-				if (system.getResourceId().equals(downSystem.getResourceId())) {
-					system.setStatus(Service.DOWN);
-					break;
-				}
-			}
+		Map<String, ComputeDTO> downtimeResources = client.getResources();
+		for(String resourceId: downtimeResources.keySet()) {
+			resourceCache.get(resourceId).setStatus(resourceCache.containsKey(resourceId) ? Service.DOWN : Service.UP);
 		}
 	}
 	

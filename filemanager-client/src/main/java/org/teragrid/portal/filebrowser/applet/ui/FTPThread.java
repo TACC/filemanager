@@ -29,7 +29,6 @@ import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.ConfigOperation;
 import org.teragrid.portal.filebrowser.applet.exception.ResourceException;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
 import org.teragrid.portal.filebrowser.applet.transfer.SHGridFTP;
 import org.teragrid.portal.filebrowser.applet.transfer.SearchListener;
 import org.teragrid.portal.filebrowser.applet.transfer.TextAppender;
@@ -40,6 +39,7 @@ import org.teragrid.service.profile.wsclients.model.EnvironmentVariable;
 
 import edu.utexas.tacc.wcs.filemanager.common.exception.PermissionException;
 import edu.utexas.tacc.wcs.filemanager.common.model.User;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
 
 @SuppressWarnings("unchecked")
 public class FTPThread extends Thread{
@@ -560,13 +560,13 @@ public class FTPThread extends Thread{
     }
 
     protected void list() throws IOException,ServerException,ClientException{
-        List fileList = new ArrayList();
+        List<FileInfo> fileList = new ArrayList<FileInfo>();
         
-        if (ftpServer.type == FTPType.GRIDFTP) {
+        if (ftpServer.protocol.equals(FileProtocolType.GRIDFTP)) {
 	        this.ftpSrvConn.setType(Session.TYPE_ASCII);
 	        this.ftpSrvConn.setDTP(this.ftpServer.passiveMode);
         }
-        Vector vl = this.ftpSrvConn.list("*", this.ftpServer.showHidden);
+        Vector<FileInfo> vl = this.ftpSrvConn.list("*", this.ftpServer.showHidden);
 
         //load the parent node
         FileInfo paraentFolder = new FileInfo();
@@ -575,7 +575,7 @@ public class FTPThread extends Thread{
         paraentFolder.setFileType(FileInfo.DIRECTORY_TYPE);
         fileList.add(paraentFolder);
 
-        for(ListIterator i=vl.listIterator();i.hasNext();){
+        for(ListIterator<FileInfo> i=vl.listIterator();i.hasNext();){
             FileInfo f=(FileInfo)i.next();
             if(ListModel.getFileName(f).equals(".") || ListModel.getFileName(f).equals("..")) {
             	continue;
@@ -590,12 +590,12 @@ public class FTPThread extends Thread{
     }
     
     public List list(String newDir) throws IOException,ServerException,ClientException{
-        List fileList = new ArrayList();
+        List<FileInfo> fileList = new ArrayList<FileInfo>();
 
         this.ftpSrvConn.setType(Session.TYPE_ASCII);
         this.ftpSrvConn.setDTP(this.ftpServer.passiveMode);
         this.sDir = this.ftpSrvConn.setDir(newDir);
-        Vector vl = this.ftpSrvConn.list("*", this.ftpServer.showHidden);
+        Vector<FileInfo> vl = this.ftpSrvConn.list("*", this.ftpServer.showHidden);
 
         //load the parent node
         FileInfo paraentFolder = new FileInfo();
@@ -604,7 +604,7 @@ public class FTPThread extends Thread{
         paraentFolder.setFileType(FileInfo.DIRECTORY_TYPE);
         fileList.add(paraentFolder);
 
-        for(ListIterator i=vl.listIterator();i.hasNext();){
+        for(ListIterator<FileInfo> i=vl.listIterator();i.hasNext();){
             FileInfo f=(FileInfo)i.next();
             if(ListModel.getFileName(f).equals(".") || ListModel.getFileName(f).equals("..")) {
                 continue;

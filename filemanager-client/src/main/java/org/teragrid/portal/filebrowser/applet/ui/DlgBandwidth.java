@@ -20,10 +20,11 @@ import org.globus.ftp.FileInfo;
 import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.ConfigSettings;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
 import org.teragrid.portal.filebrowser.applet.util.LogManager;
 import org.teragrid.service.profile.wsclients.SpeedpageClient;
 
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.SystemType;
 import edu.utexas.tacc.wcs.filemanager.common.util.DBUtil;
 
 
@@ -163,13 +164,13 @@ public class DlgBandwidth extends DlgEscape {
 	private double getPrediction(FTPSettings from, FTPSettings to) {
 
 		// query the middleware for the bandwidth prediction
-		if (from.type == to.type && from.type == FTPType.GRIDFTP) {
+		if (from.protocol.equals(to.protocol) && from.protocol.equals(FileProtocolType.GRIDFTP)) {
 		
 			return queryService(from,to);
 			
 		// we default internal copies to 100mb, which is pretty close
 		// for most hpc systems.
-		} else if (from.type == to.type) {
+		} else if (from.protocol == to.protocol) {
 		
 			return Double.MAX_VALUE; 
 		
@@ -194,13 +195,13 @@ public class DlgBandwidth extends DlgEscape {
 
 		if (from.name.equalsIgnoreCase(ConfigSettings.RESOURCE_NAME_LOCAL) ||
 				from.name.equalsIgnoreCase(ConfigSettings.RESOURCE_NAME_AMAZONS3) ||
-				from.name.equalsIgnoreCase(ConfigSettings.RESOURCE_NAME_TGSHARE) ||
+//				from.name.equalsIgnoreCase(ConfigSettings.RESOURCE_NAME_TGSHARE) ||
 				from.name.equalsIgnoreCase(ConfigSettings.RESOURCE_NAME_SRB) ||
 				to.name.equalsIgnoreCase(ConfigSettings.RESOURCE_NAME_LOCAL) ||
 				to.name.equalsIgnoreCase(ConfigSettings.RESOURCE_NAME_AMAZONS3) ||
-				to.name.equalsIgnoreCase(ConfigSettings.RESOURCE_NAME_TGSHARE) ||
+//				to.name.equalsIgnoreCase(ConfigSettings.RESOURCE_NAME_TGSHARE) ||
 				to.name.equalsIgnoreCase(ConfigSettings.RESOURCE_NAME_SRB) || 
-				from.hostType == DBUtil.ARCHIVE || to.hostType == DBUtil.ARCHIVE) {
+				from.hostType.equals(SystemType.ARCHIVE) || to.hostType.equals(SystemType.ARCHIVE)) {
 			return -1;
 		}
 		
@@ -215,7 +216,6 @@ public class DlgBandwidth extends DlgEscape {
 		if (measurement <= 0) {
 			return -1; 
 		} else {
-			//TODO: figure in striping, buffer size, and parallelism
 			return (long)(size / (measurement*1000000));
 		}
 	}
@@ -249,9 +249,9 @@ public class DlgBandwidth extends DlgEscape {
 	
 	private ImageIcon getIconForResource(FTPSettings site) {
 		ImageIcon ico = null;
-		if (site.type == FTPType.FILE) {
+		if (site.protocol.equals(FileProtocolType.FILE)) {
 			ico = AppMain.icoResourceLocal;
-		} else if (site.type == FTPType.S3) {
+		} else if (site.protocol.equals(FileProtocolType.S3)) {
 			ico = AppMain.icoResourceAmazon;
 //		} else if (site.type == FTPType.XSHARE) {
 //			ico = AppMain.icoResourceTeraGridShare;

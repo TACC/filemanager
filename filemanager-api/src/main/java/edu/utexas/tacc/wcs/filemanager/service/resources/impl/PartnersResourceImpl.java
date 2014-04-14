@@ -37,7 +37,7 @@ public class PartnersResourceImpl extends AbstractApiResource implements Partner
 	@Get
 	public List<User> findProjectPartners()
 	{
-		if (!StringUtils.isEmpty(dn))
+		if (StringUtils.isEmpty(dn))
             throw new AuthenticationException("Please supply a valid DN " + dn);
         
 		try

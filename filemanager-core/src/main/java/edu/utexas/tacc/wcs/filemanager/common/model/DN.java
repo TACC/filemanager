@@ -19,7 +19,7 @@ import java.io.Serializable;
  *
  */
 
-public class DN {
+public class DN implements Comparable<DN>{
     
  // ******************* Begin Inner composite Id class ******************* //
     @SuppressWarnings("serial")
@@ -71,6 +71,7 @@ public class DN {
     private String dn = "";
     private User user = null;
     private String username = "";
+    private String state;
     
     public DN() {}
 
@@ -130,15 +131,20 @@ public class DN {
         this.username = username;
     }
 
-    public int hashCode() {
+    public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public int hashCode() {
         return (dn.hashCode() + user.hashCode());
     }
     
-    public int compareTo(Object o) {
-        // CategorizedUsers are sorted by date
-        if (o instanceof DN)
-            return getId().compareTo(((DN)o).getId());
-        return 0;
+    public int compareTo(DN o) {
+    	return getId().compareTo(o.getId());
     }
     
     public boolean equals(Object o) {

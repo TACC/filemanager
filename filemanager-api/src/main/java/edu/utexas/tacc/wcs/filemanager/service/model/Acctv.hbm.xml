@@ -3,7 +3,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Oct 16, 2008 2:59:30 PM by Hibernate Tools 3.2.1.GA -->
 <hibernate-mapping>
-    <class name="edu.utexas.tacc.wcs.filemanager.service.model.Acctv" table="acctv" schema="portal">
+    <class name="edu.utexas.tacc.wcs.filemanager.common.model.Acctv" table="acctv" schema="portal">
         <id name="requestId" column="request_id" type="int">
 			 <generator class="native"/>
 		 </id>

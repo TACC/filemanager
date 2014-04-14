@@ -1,6 +1,9 @@
 package edu.utexas.tacc.wcs.filemanager.common.model;
 
+import org.apache.commons.lang3.StringUtils;
 
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.SystemType;
 
 /**
  * @author Rion Dooley < dooley [at] tacc [dot] utexas [dot] edu >
@@ -8,18 +11,21 @@ package edu.utexas.tacc.wcs.filemanager.common.model;
  * Class to handle the system account information 
  *
  */
-public class System implements Comparable<System>{
-
+public class System implements Comparable<System>
+{
     private Long id;
     private String resourceName ;
     private String userName;
     private String resourceId;
     private String status;
     private String ftpHostname;
+    private Integer ftpPort;
     private String sshHostname;
+    private Integer sshPort;
     private String institution;
     private String userState;
-    private String type;
+    private SystemType systemType = SystemType.HPC;
+    private FileProtocolType protocol = FileProtocolType.GRIDFTP;
     private Long userId;
     
     public System(){}
@@ -91,18 +97,28 @@ public class System implements Comparable<System>{
     /**
      * @return the ftpHostname
      */
-    public String getSSHHostname() {
+    public String getSshHostname() {
         return sshHostname;
     }
     
     /**
      * @param ftpHostname the ftpHostname to set
      */
-    public void setSSHHostname(String sshHostname) {
+    public void setSshHostname(String sshHostname) {
         this.sshHostname = sshHostname;
     }
     
-    /**
+    public Integer getSshPort() {
+		return sshPort;
+	}
+
+
+	public void setSshPort(Integer sshPort) {
+		this.sshPort = sshPort;
+	}
+
+
+	/**
 	 * @param resourceId the resourceId to set
 	 */
 	public void setResourceId(String resourceId) {
@@ -133,18 +149,28 @@ public class System implements Comparable<System>{
 	/**
      * @return the hostname
      */
-	public String getFTPHostname() {
+	public String getFtpHostname() {
         return ftpHostname;
     }
     
     /**
      * @param hostname the hostname to set
      */
-    public void setFTPHostname(String ftpHostname) {
+    public void setFtpHostname(String ftpHostname) {
         this.ftpHostname = ftpHostname;
     }
     
-    /**
+    public Integer getFtpPort() {
+		return ftpPort;
+	}
+
+
+	public void setFtpPort(Integer ftpPort) {
+		this.ftpPort = ftpPort;
+	}
+
+
+	/**
      * @return the institution
      */
     public String getInstitution() {
@@ -168,55 +194,39 @@ public class System implements Comparable<System>{
     /**
      * @return the type
      */
-    public String getType() {
-        return type;
+    public SystemType getSystemType() {
+        return systemType;
     }
     
     /**
      * @param type the type to set
      */
-    public void setType(String type) {
-        this.type = type;
+    public void setSystemType(SystemType systemType) {
+        this.systemType = systemType;
     }
     
-    public int compareTo(System o) {
+    public FileProtocolType getProtocol() {
+		return protocol;
+	}
+
+
+	public void setProtocol(FileProtocolType protocol) {
+		this.protocol = protocol;
+	}
+
+
+	public int compareTo(System o) {
         return resourceName.compareTo(o.resourceName);
     }
     
-    public boolean equals(Object o) {
-        if (o instanceof System) {
-            return resourceName.equals(((System)o).resourceName) &&
-                userName.equals(((System)o).userName) &&
-                userId.equals(((System)o).userId);
-        }
-        
-        return false;
+    public boolean equals(System o) {
+        return resourceId.equals(o.resourceId) &&
+                userName.equals(o.userName) &&
+                userId.equals(o.userId);
     }
     
     public String toString() {
-        return "[" + this.resourceName + ", " + userName + ", " + ftpHostname + ", " + sshHostname + ", " + type + ", " + institution + ", " + userState + "]";
-    }
-//    
-//    public FTPSettings toFtpSetting() {
-//        FTPSettings ftpSetting = new FTPSettings(this.resourceName);
-//        ftpSetting.name = this.resourceName;
-//        ftpSetting.host = this.ftpHostname;
-//        ftpSetting.sshHost = this.sshHostname;
-//        ftpSetting.resourceId = this.resourceId;
-//        ftpSetting.port = 2811;
-//        ftpSetting.type = FTPType.GRIDFTP;
-//        ftpSetting.passiveMode = true;
-//        ftpSetting.connRetry = 2;
-//        ftpSetting.connDelay = 0;
-//        ftpSetting.connParallel = 1;
-//        ftpSetting.connMaxNum = 2;
-//        ftpSetting.loginMode = FTPLogin.LOGIN_USEPROXYINIT;
-//        ftpSetting.hostType = this.type;
-//        ftpSetting.listed = true;
-//        ftpSetting.userName = "";
-//        ftpSetting.password = "";
-//        
-//        return ftpSetting;
-//    }
-        
+        return String.format("%s (%s)", StringUtils.isEmpty(this.resourceName) ? this.resourceId : this.resourceName,  this.systemType.name());
+//        "[" + this.resourceName + ", " + userName + ", " + ftpHostname + ", " + sshHostname + ", " + type + ", " + institution + ", " + userState + "]";
+    }       
 }

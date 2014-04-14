@@ -83,6 +83,24 @@
 		<force.check.update>true</force.check.update>
 		<force.check.version>true</force.check.version>
 		<jglobus.version>2.0.6.1-SNAPSHOT</jglobus.version>
+		
+		<!-- ********************** Email Properties ************************* -->
+		<filemanager.smtp.user>${user.name}</filemanager.smtp.user>
+		<filemanager.smtp.password></filemanager.smtp.password>
+		<filemanager.smtp.host>localhost</filemanager.smtp.host>
+		<filemanager.smtp.port></filemanager.smtp.port>
+		<filemanager.smtp.auth>false</filemanager.smtp.auth>
+		<filemanager.smtp.from.name>XSEDE Filemanager Support</filemanager.smtp.from.name>
+		<filemanager.smtp.from.address>help@xsede.org</filemanager.smtp.from.address>
+		
+		<!--  ********************** XSEDE API Properties ************************* -->
+		<filemanager.xsede.ctss>http://info.teragrid.org/web-apps/json/ctss-resources-v1/</filemanager.xsede.ctss>
+		<filemanager.xsede.outage>http://info1.dyn.teragrid.org/web-apps/csv/tg-outages-v1/current/</filemanager.xsede.outage>
+		<filemanager.xsede.inca>http://sapa.sdsc.edu:8080/inca/html/downtimes-iis.txt</filemanager.xsede.inca>
+		<filemanager.xsede.kitservices>http://info.teragrid.org/web-apps/json/kit-services-v1/</filemanager.xsede.kitservices>
+		<filemanager.xsede.rdr>http://info.teragrid.org/web-apps/json/kit-rdr-v3/</filemanager.xsede.rdr>
+		<filemanager.xsede.speedpage>http://info.teragrid.org/web-apps/json/speedpage-v1/</filemanager.xsede.speedpage>
+		<filemanager.xsede.resources>http://info.teragrid.org/web-apps/json/tg-resources-v1/</filemanager.xsede.resources>
 	</properties>
 
 	<build>

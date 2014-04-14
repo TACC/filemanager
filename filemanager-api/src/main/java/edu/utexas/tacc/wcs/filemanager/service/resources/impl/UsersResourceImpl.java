@@ -13,11 +13,13 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.restlet.data.Status;
+import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
 
 import edu.utexas.tacc.wcs.filemanager.common.model.User;
 import edu.utexas.tacc.wcs.filemanager.common.model.UserQuery;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumerations.UserQueryType;
 import edu.utexas.tacc.wcs.filemanager.common.restlet.resource.AbstractApiResource;
 import edu.utexas.tacc.wcs.filemanager.service.dao.UserDAO;
 import edu.utexas.tacc.wcs.filemanager.service.exception.AuthenticationException;
@@ -43,7 +45,7 @@ public class UsersResourceImpl extends AbstractApiResource implements UsersResou
 	@Post
 	public List<User> findUsers(UserQuery userQuery)
 	{
-		if (!StringUtils.isEmpty(dn))
+		if (StringUtils.isEmpty(dn))
             throw new AuthenticationException("Please supply a valid DN");
         
 		if (userQuery.getUserQueryType() == null) {
@@ -57,7 +59,7 @@ public class UsersResourceImpl extends AbstractApiResource implements UsersResou
 			if (userQuery.getUserQueryType().equals(USERNAME)) {
 				users = UserDAO.findByUsername(userQuery.getSearchTerm());
 			} else if (userQuery.getUserQueryType().equals(EMAIL)) {
-				users = UserDAO.findByUsername(userQuery.getSearchTerm());
+				users = UserDAO.findByEmail(userQuery.getSearchTerm());
 			} else if (userQuery.getUserQueryType().equals(NAME)) {
 				users = UserDAO.findByName(userQuery.getSearchTerm());
 			}
@@ -76,5 +78,11 @@ public class UsersResourceImpl extends AbstractApiResource implements UsersResou
 		   throw new ResourceException(Status.SERVER_ERROR_INTERNAL,
 					"Failed to retrieve user resources", e);
 	   } 
+	}
+	
+	@Get
+	public UserQuery getSampleQuery() {
+		
+		return new UserQuery(UserQueryType.EMAIL, "dooley@tacc.utexas.edu");
 	}
 }

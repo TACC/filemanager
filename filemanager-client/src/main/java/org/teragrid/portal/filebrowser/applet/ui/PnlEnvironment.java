@@ -26,8 +26,10 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
@@ -39,14 +41,19 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.lang3.StringUtils;
 import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.ConfigSettings;
+import org.teragrid.portal.filebrowser.applet.transfer.GsiSshClient;
 import org.teragrid.portal.filebrowser.applet.ui.permissions.StripedTable;
 import org.teragrid.portal.filebrowser.applet.util.LogManager;
 import org.teragrid.service.profile.wsclients.ProfileServiceClient;
 import org.teragrid.service.profile.wsclients.model.EnvironmentVariable;
 
 import com.explodingpixels.macwidgets.IAppWidgetFactory;
+
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.SystemType;
 
 /**
  * Panel to hold user environment variables on a per-resource basis.
@@ -81,35 +88,48 @@ public class PnlEnvironment extends JPanel implements ClipboardOwner {
         
         List<EnvironmentVariable> environment = new ArrayList<EnvironmentVariable>();
         
-        if (pnlBrowse.ftpServer.isLocal()) {
-        	environment = new ArrayList<EnvironmentVariable>();
-        	// user environment is more or less meaningless on their local system since the 
-        	// code below gives the application env, which is a vanilla env, and using a
-        	// ProcessBuilder would give a default env, without sourcing their login script.
-//        	Map<String, String> env = System.getenv();
-//        	for(String name: env.keySet()) {
-//        		environment.add(new EnvironmentVariable(name, env.get(name)));
-//        	}
-        	
-        } else {
-	        ProfileServiceClient client = 
-	        	new ProfileServiceClient(ConfigSettings.SERVICE_TG_USER_PROFILE, 
-										AppMain.ssoUsername, 
-										AppMain.ssoPassword);
-	        List<EnvironmentVariable> env = client.getEnvironment(pnlBrowse.ftpServer.resourceId);
-	        
-	        for(EnvironmentVariable var: env) {
-	        	if (var.getValue().startsWith("/")) {
-	        		environment.add(var);
-	        	}
-	        }
-	        //Collections.sort(environment);
-        }
-        
-        // add the env to the browsing thread for use in goto path requests
-        pnlBrowse.tBrowse.setEnvProperties(environment);
-    	
-        pbInit(environment);
+//        if () {
+//        	environment = new ArrayList<EnvironmentVariable>();
+//        	// user environment is more or less meaningless on their local system since the 
+//        	// code below gives the application env, which is a vanilla env, and using a
+//        	// ProcessBuilder would give a default env, without sourcing their login script.
+////        	Map<String, String> env = System.getenv();
+////        	for(String name: env.keySet()) {
+////        		environment.add(new EnvironmentVariable(name, env.get(name)));
+////        	}
+//        	
+//        } 
+//        else
+        if (!pnlBrowse.ftpServer.isLocal() && 
+        			!pnlBrowse.getFtpServer().hostType.equals(SystemType.ARCHIVE) &&
+        			!StringUtils.isEmpty(pnlBrowse.getFtpServer().sshHost) && 
+        			pnlBrowse.getFtpServer().protocol.equals(FileProtocolType.GRIDFTP))
+        {
+        	try 
+        	{
+	        	GsiSshClient client = new GsiSshClient(pnlBrowse.getFtpServer().sshHost, 
+	        			pnlBrowse.getFtpServer().sshPort, AppMain.defaultCredential);
+		        
+		        Properties props = client.env();	       
+		        for(Iterator<Object> iter = (Iterator<Object>)props.keySet().iterator(); iter.hasNext();) {
+		        	String prop = (String)iter.next();
+		        	environment.add(new EnvironmentVariable(prop, props.getProperty(prop)));
+		        }
+		        
+		        // add the env to the browsing thread for use in goto path requests
+		        pnlBrowse.tBrowse.setEnvProperties(environment);
+		    	
+		        pbInit(environment);
+		        
+        	} catch (Throwable t) {
+    			LogManager.error("Failed to retrieve user environment", t);
+    		}
+    	}
+    	else
+    	{
+    		AppMain.Error(pnlBrowse.getParent(), "Environment variable detection is not supported on this system.");
+    		
+    	}
         
     }
     

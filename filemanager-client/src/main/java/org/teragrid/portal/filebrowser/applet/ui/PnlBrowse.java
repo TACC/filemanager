@@ -78,6 +78,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import org.apache.commons.lang3.StringUtils;
 import org.globus.ftp.FileInfo;
 import org.globus.ftp.exception.ClientException;
 import org.globus.ftp.exception.ServerException;
@@ -87,7 +88,6 @@ import org.teragrid.portal.filebrowser.applet.ConfigSettings;
 import org.teragrid.portal.filebrowser.applet.file.IRODSFileInfo;
 import org.teragrid.portal.filebrowser.applet.transfer.EnvironmentThread;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
 import org.teragrid.portal.filebrowser.applet.transfer.Irods;
 import org.teragrid.portal.filebrowser.applet.ui.table.CTable;
 import org.teragrid.portal.filebrowser.applet.ui.table.DetailListModel;
@@ -100,6 +100,8 @@ import org.teragrid.service.profile.wsclients.model.EnvironmentVariable;
 
 import com.explodingpixels.macwidgets.IAppWidgetFactory;
 
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.SystemType;
 import edu.utexas.tacc.wcs.filemanager.common.util.DBUtil;
 
 /**
@@ -189,8 +191,8 @@ public class PnlBrowse extends JPanel {
 	protected PnlEnvironment pnlEnvironment;
 	public PnlSites pnlSites;
 	
-	private ArrayList<FileInfo> fileList = new ArrayList<FileInfo>();
-	private ArrayList<FTPSettings> siteList = new ArrayList<FTPSettings>();
+	private List<FileInfo> fileList = new ArrayList<FileInfo>();
+	private List<FTPSettings> siteList = new ArrayList<FTPSettings>();
 	private boolean listingChanging = false;
 	private boolean sitesChanging = false;
 	private String shareFolderNonce;
@@ -627,7 +629,7 @@ public class PnlBrowse extends JPanel {
 		if (tBrowse.close()) {
 			tBrowse = null;
 
-			this.list(new ArrayList());
+			this.list(new ArrayList<FileInfo>());
 			this.currentDir = "";
 			
 			cmbPath.setModel(new DefaultComboBoxModel());
@@ -722,7 +724,7 @@ public class PnlBrowse extends JPanel {
 			}
 			catch (IOException e)
 			{
-				frmParent.Error(this, "Failed to retrieve metadata for " + irodsPath);
+				AppMain.Error(this, "Failed to retrieve metadata for " + irodsPath);
 				scrollPane.getViewport().remove(pnlIrodsMetadata);
 				scrollPane.getViewport().add(tblListing);
 				enableNavigationButtons(true);
@@ -889,7 +891,15 @@ public class PnlBrowse extends JPanel {
 		// only the search button should be visible when the search
 		// panel is visible
 		enableNavigationButtons(!visible);
-		btnEnvironment.setEnabled(true);
+		if (!ftpServer.isLocal() && 
+    			!ftpServer.hostType.equals(SystemType.ARCHIVE) &&
+    			!StringUtils.isEmpty(ftpServer.sshHost) && 
+    			ftpServer.protocol.equals(FileProtocolType.GRIDFTP))
+    	{
+			btnEnvironment.setEnabled(true);
+    	} else {
+    		btnEnvironment.setEnabled(false);
+    	}
 
 		// disable the shortcut paths since they don't mean anything
 		// during a search
@@ -1175,10 +1185,10 @@ public class PnlBrowse extends JPanel {
 		}
 	}
 
-	public void list(List files) {
+	public void list(List<FileInfo> files) {
 		suspendLayout();
 
-		fileList = (ArrayList<FileInfo>) files;
+		fileList = files;
 
 		//currentDir = tBrowse.ftpSrvConn.getDir();
 		
@@ -1242,11 +1252,11 @@ public class PnlBrowse extends JPanel {
 		return this.ftpServer;
 	}
 
-	public ArrayList<FileInfo> getFileList() {
+	public List<FileInfo> getFileList() {
 		return this.fileList;
 	}
 
-	public void setFileList(ArrayList<FileInfo> list) {
+	public void setFileList(List<FileInfo> list) {
 		this.fileList = list;
 	}
 
@@ -1310,8 +1320,15 @@ public class PnlBrowse extends JPanel {
 		btnPrediction.setEnabled(enabled);
 		btnSearch.setEnabled(enabled);
 		btnBookmarks.setEnabled(enabled);
-		if (tEnv != null && !tEnv.isAlive())
+		if (tEnv != null && !tEnv.isAlive() && !ftpServer.isLocal() && 
+    			!ftpServer.hostType.equals(SystemType.ARCHIVE) &&
+    			!StringUtils.isEmpty(ftpServer.sshHost) && 
+    			ftpServer.protocol.equals(FileProtocolType.GRIDFTP))
+    	{
 			btnEnvironment.setEnabled(enabled);
+    	} else {
+    		btnEnvironment.setEnabled(false);
+    	}
 	}
 
 	public void enableShortcutButtons(final boolean enabled) {
@@ -1346,8 +1363,19 @@ public class PnlBrowse extends JPanel {
         }
         
         if (btnEnvironment==e.getSource()) {
-            showEnvironmentPanel(btnEnvironment.isSelected());
-            return;
+        	if (!ftpServer.isLocal() && 
+        			!ftpServer.hostType.equals(SystemType.ARCHIVE) &&
+        			!StringUtils.isEmpty(ftpServer.sshHost) && 
+        			ftpServer.protocol.equals(FileProtocolType.GRIDFTP))
+        	{
+        		showEnvironmentPanel(btnEnvironment.isSelected());
+        	}
+        	else
+        	{
+        		btnEnvironment.setSelected(false);
+        	}
+        	
+        	return;
         }
         
         if (btnGoTo==e.getSource() || e.getActionCommand().compareTo("goto")==0 ) {
@@ -1399,7 +1427,7 @@ public class PnlBrowse extends JPanel {
             String s=(String)AppMain.Prompt(this,
                     SGGCResourceBundle.getResourceString(ResourceName.KEY_MSG_PNLBROWSE_NEWDIR),
                     SGGCResourceBundle.getResourceString(ResourceName.KEY_DISPLAY_PNLBROWSE_NEWDIRDLG_TITLE),
-                    ((tBrowse.ftpServer.type == FTPType.S3)?tBrowse.ftpServer.userName+".bucket1":null));
+                    ((tBrowse.ftpServer.protocol.equals(FileProtocolType.S3)) ? tBrowse.ftpServer.userName+".bucket1" : null));
             if(null!=s && !s.equals("")) {
                 tBrowse.cmdAdd("FileAdd",s,new Integer(FileInfo.DIRECTORY_TYPE));
             }
@@ -1608,7 +1636,7 @@ public class PnlBrowse extends JPanel {
         //Download
         else if(mnuFileDown==e.getSource()){
             for (String dir: (Set<String>)selectedTable.keySet()) {
-              TransferProxy.transfer(scrollPane,(List)selectedTable.get(dir), this.ftpServer, FTPSettings.Local.clone(scrollPane), dir, frmParent.getLocalBrowser().getCurrentDir(), frmParent.getLocalBrowser().getFileList());
+              TransferProxy.transfer(scrollPane,(List<FileInfo>)selectedTable.get(dir), this.ftpServer, FTPSettings.Local.clone(scrollPane), dir, frmParent.getLocalBrowser().getCurrentDir(), frmParent.getLocalBrowser().getFileList());
             }
           
         }
@@ -1672,7 +1700,6 @@ public class PnlBrowse extends JPanel {
                   
                   List<FileInfo> files = (List<FileInfo>)selectedTable.get(dir);
                   for (FileInfo fileInfo: files) {
-                      // TODO: this probably won't work with the table view.  let's see
                       tBrowse.cmdAdd("FileDel", ListModel.getFileName(fileInfo), new Integer(ListModel.getType(fileInfo)));
                   }
               }
@@ -1729,7 +1756,7 @@ public class PnlBrowse extends JPanel {
 //					}
 //					mnuFileMetadataShow.setVisible(false);
 //				} else 
-				if (tBrowse.ftpServer.type == FTPType.IRODS) { 
+				if (tBrowse.ftpServer.protocol.equals(FileProtocolType.IRODS)) { 
 					mnuFilePublish.setVisible(false);
 					mnuFileMetadataShow.setVisible(true);
 				} else {
@@ -1880,16 +1907,6 @@ public class PnlBrowse extends JPanel {
 				pathElements = Arrays.asList(path.split("\\\\"));
 			}
 			
-			// TODO: how do we resolve the nonce to share in the path?
-//			if (ftpServer.type == FTPType.XSHARE) {
-//				if (pathElements.size() == 3 && pathElements.get(1).equals("shared")) {
-//					String nonce = pathElements.get(2);
-//					if (nonce.equals(shareFolderNonce)) {
-//						pathElements.set(2, shareFolderName);
-//					} 
-//				}
-//			}
-	
 			for (int i = pathElements.size() - 1; i >= 0; i--) {
 				addElement(pathElements.get(i));
 			}
@@ -2064,7 +2081,7 @@ class FileTableModel extends AbstractTableModel {
 		return TABLE_COLUMN_NAMES.length;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Class getColumnClass(int c) {
 		return getValueAt(0, c).getClass();
 	}

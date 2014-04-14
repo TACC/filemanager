@@ -58,6 +58,7 @@ public class Notification
     private NotificationType type = NotificationType.EMAIL;
     private String message = "You are receiving this message in response to your notification request."; 
     private String address = "";
+    private String subject = "";
     private Calendar created = Calendar.getInstance();
     private Calendar deliveryDate = Calendar.getInstance();
     private String username = null;;
@@ -119,6 +120,14 @@ public class Notification
 	 */
 	public void setType(NotificationType type) {
 		this.type = type;
+	}
+
+	public String getSubject() {
+		return subject;
+	}
+
+	public void setSubject(String subject) {
+		this.subject = subject;
 	}
 
 	/**
@@ -200,32 +209,33 @@ public class Notification
 
     //  ********************** Common Methods ********************** //
 
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Notification)) return false;
-        final Notification n = (Notification) o;
-        if (!this.transferId.equals(n.getTransferId())) return false;
-        if (!this.message.equals(n.getMessage())) return false;
-        if (!this.type.equals(n.getType())) return false;
-        if (!this.created.equals(n.getCreated())) return false;
-        if (this.deliveryDate != n.deliveryDate) return false;
-        if (this.username != n.username) return false;
-        return true;
-    }
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (!(o instanceof Notification)) return false;
+//        final Notification n = (Notification) o;
+//        if (!this.transferId.equals(n.getTransferId())) return false;
+//        if (!this.subject.equals(n.getMessage())) return false;
+//        if (!this.message.equals(n.getMessage())) return false;
+//        if (!this.type.equals(n.getType())) return false;
+//        if (!this.created.equals(n.getCreated())) return false;
+//        if (this.deliveryDate != n.deliveryDate) return false;
+//        if (this.username != n.username) return false;
+//        return true;
+//    }
     
     public String toString() {
         return  getType() + " notification for transfer[" + getTransferId() + "] ";
     }
     
-    public int compareTo(Object o) {
-        if (o instanceof Notification) {
-            if (this.getTransferId().compareTo(((Notification)o).getTransferId()) > 0||  
-                   this.getType().compareTo(((Notification)o).getType()) > 0 ||
-                   this.deliveryDate != ((Notification)o).deliveryDate ||
-                   this.getCreated().compareTo(((Notification)o).getCreated()) > 0) {
-                return 1;
-            }
-        }
-        return 0;
-    }
+//    public int compareTo(Object o) {
+//        if (o instanceof Notification) {
+//            if (this.getTransferId().compareTo(((Notification)o).getTransferId()) > 0||  
+//                   this.getType().compareTo(((Notification)o).getType()) > 0 ||
+//                   this.deliveryDate != ((Notification)o).deliveryDate ||
+//                   this.getCreated().compareTo(((Notification)o).getCreated()) > 0) {
+//                return 1;
+//            }
+//        }
+//        return 0;
+//    }
 }

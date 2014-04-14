@@ -23,7 +23,6 @@ import org.globus.ftp.FileInfo;
 import org.globus.io.streams.GlobusFileInputStream;
 import org.globus.io.streams.GlobusInputStream;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
 import org.teragrid.portal.filebrowser.applet.transfer.streams.BBFtpInputStream;
 import org.teragrid.portal.filebrowser.applet.transfer.streams.FTPInputStream;
 import org.teragrid.portal.filebrowser.applet.transfer.streams.GridFTPInputStream;
@@ -32,7 +31,9 @@ import org.teragrid.portal.filebrowser.applet.transfer.streams.IRODSInputStream;
 import org.teragrid.portal.filebrowser.applet.transfer.streams.S3InputStream;
 import org.teragrid.portal.filebrowser.applet.transfer.streams.SFTPInputStream;
 
-@SuppressWarnings("unchecked")
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
+
+@SuppressWarnings({"rawtypes","unchecked"})
 public class FileTransferable implements Transferable
 {
     // The type of DnD object being dragged...
@@ -97,7 +98,7 @@ public class FileTransferable implements Transferable
         _flavors.add(INPUTSTREAM_FLAVOR);
         _flavors.add(FILELIST_FLAVOR);
         
-        if (ftpSite.type == FTPType.FILE) {
+        if (ftpSite.protocol.equals(FileProtocolType.FILE)) {
             // create a list of local uri's and file objects
             for (FileInfo f: (List<FileInfo>)_lstFileInfo ) {
                 if (f.getName().equals(".") || f.getName().equals("..")) {
@@ -187,32 +188,32 @@ public class FileTransferable implements Transferable
 
 	   GlobusInputStream in = null;
 
-       switch(_ftpSite.type) {
-       case FTPType.GRIDFTP:
+       switch(_ftpSite.protocol) {
+       case GRIDFTP:
             in = new GridFTPInputStream(client, _directory, _ftpSite.passiveMode);
             break;
-        case FTPType.BBFTP:
+        case BBFTP:
             in = new BBFtpInputStream();
             break;
-        case FTPType.SFTP:
+        case SFTP:
             in = new SFTPInputStream();
             break;
-        case FTPType.FTP:
+        case FTP:
             in = new FTPInputStream(client, _directory, _ftpSite.passiveMode);
             break;
-        case FTPType.FILE:
+        case FILE:
             in = new GlobusFileInputStream(_directory);
             break;
-        case FTPType.HTTP:
+        case HTTP:
             in = new HTTPInputStream(client,_directory);
             break;
-        case FTPType.S3:
+        case S3:
             in = new S3InputStream(client,_directory);
             break;
-//        case FTPType.TGSHARE:
+//        case TGSHARE:
 //            in = new TGShareInputStream(client,_directory);
 //            break;
-        case FTPType.IRODS:
+        case IRODS:
             in = new IRODSInputStream(client,_directory);
             break;
         default:

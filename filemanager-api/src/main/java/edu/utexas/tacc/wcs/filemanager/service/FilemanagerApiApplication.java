@@ -37,6 +37,7 @@ import org.restlet.Application;
 import org.restlet.Component;
 import org.restlet.Restlet;
 import org.restlet.Server;
+import org.restlet.data.MediaType;
 import org.restlet.data.Protocol;
 import org.restlet.ext.jetty.AjpServerHelper;
 import org.restlet.ext.jetty.HttpServerHelper;
@@ -60,17 +61,22 @@ public class FilemanagerApiApplication extends Application {
 
 	private boolean standaloneMode = false;
 	
+	public FilemanagerApiApplication() {
+		super();
+		getMetadataService().setDefaultMediaType(MediaType.APPLICATION_JSON);
+	}
+	
 	@Override
     public Restlet createInboundRoot() 
 	{
         Router router = new Router(getContext());
 
-        router.attach(getStandalonePrefix() + "/bandwidth", BandwidthResourceImpl.class);
+        router.attach(getStandalonePrefix() + "/bandwidth", BandwidthResourceImpl.class); //done
         router.attach(getStandalonePrefix() + "/notifications/add", BulkAddNotificationsResourceImpl.class);
         router.attach(getStandalonePrefix() + "/notifications/delete", BulkDeleteNotificationsResourceImpl.class);
-        router.attach(getStandalonePrefix() + "/users", UsersResourceImpl.class);
-        router.attach(getStandalonePrefix() + "/colleagues", ColleaguesResourceImpl.class);
-        router.attach(getStandalonePrefix() + "/partners", PartnersResourceImpl.class);
+        router.attach(getStandalonePrefix() + "/users", UsersResourceImpl.class); //done
+        router.attach(getStandalonePrefix() + "/colleagues", ColleaguesResourceImpl.class); //done
+        router.attach(getStandalonePrefix() + "/partners", PartnersResourceImpl.class); //done
         router.attach(getStandalonePrefix() + "/systems", SystemsResourceImpl.class);
         router.attach(getStandalonePrefix() + "/transfers", BulkTransfersResourceImpl.class);
         router.attach(getStandalonePrefix() + "/transfers/{transferId}", TransfersResourceImpl.class);
@@ -113,7 +119,7 @@ public class FilemanagerApiApplication extends Application {
 
         //create embedding AJP Server
         Server embedingJettyAJPServer=new Server(
-            component.getContext(),
+            component.getContext().createChildContext(),
             Protocol.HTTP,
             9191,
             component

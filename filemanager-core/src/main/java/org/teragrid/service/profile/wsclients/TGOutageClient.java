@@ -1,7 +1,7 @@
 package org.teragrid.service.profile.wsclients;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.teragrid.service.profile.wsclients.model.ComputeDTO;
@@ -10,10 +10,16 @@ import org.teragrid.service.profile.wsclients.model.Service;
 public class TGOutageClient extends AbstractHttpClient 
 {
 	private static Logger log = Logger.getLogger(TGOutageClient.class);
+	private String endpoint;
+	private Map<String, ComputeDTO> downSystems = new HashMap<String, ComputeDTO>();
 	
-	private Set<ComputeDTO> downSystems = new HashSet<ComputeDTO>();
+	public TGOutageClient(String endpoint) 
+	{
+		this.endpoint = endpoint;
+	}
 	
-	public TGOutageClient(String endpoint) {
+	private void init()
+	{
 		try {
 			String resources = doGet(endpoint);
 			if (resources != null && !resources.equals("")) {
@@ -30,7 +36,7 @@ public class TGOutageClient extends AbstractHttpClient
 					sysDto.setResourceId(values[1].replaceAll("\"", ""));
 					sysDto.setStatus(Service.DOWN);
 
-					downSystems.add(sysDto);
+					downSystems.put(sysDto.getResourceId(), sysDto);
 				}
 			}
 		} catch (Exception e) {
@@ -38,7 +44,10 @@ public class TGOutageClient extends AbstractHttpClient
 		} 
 	}
 
-	public Set<ComputeDTO> getResources() {
+	public Map<String, ComputeDTO> getResources() {
+		if (downSystems.isEmpty()) {
+			init();
+		}
 		return downSystems;
 	}
 }

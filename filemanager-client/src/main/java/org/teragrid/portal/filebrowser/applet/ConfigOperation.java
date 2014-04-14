@@ -17,7 +17,6 @@ import static org.teragrid.portal.filebrowser.applet.ConfigSettings.FILE_NAME_US
 import static org.teragrid.portal.filebrowser.applet.ConfigSettings.RESOURCE_NAME_LOCAL;
 import static org.teragrid.portal.filebrowser.applet.ConfigSettings.SERVICE_MYPROXY_PORT;
 import static org.teragrid.portal.filebrowser.applet.ConfigSettings.SERVICE_MYPROXY_SERVER;
-import static org.teragrid.portal.filebrowser.applet.ConfigSettings.TRUSTED_CA_TARBALLS;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -31,11 +30,10 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
-import java.util.Vector;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -51,10 +49,9 @@ import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
 import org.globus.myproxy.MyProxy;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
+import org.restlet.resource.ClientResource;
 import org.teragrid.portal.filebrowser.applet.exception.ResourceException;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPPort;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
 import org.teragrid.portal.filebrowser.applet.transfer.GridFTP;
 import org.teragrid.portal.filebrowser.applet.ui.Bookmark;
 import org.teragrid.portal.filebrowser.applet.util.FileUtils;
@@ -69,6 +66,9 @@ import org.teragrid.service.profile.wsclients.model.ComputeDTO;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.basic.DateConverter;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
+import edu.utexas.tacc.wcs.filemanager.service.resources.SystemsResource;
 
 public class ConfigOperation {
 
@@ -209,9 +209,9 @@ public class ConfigOperation {
 			// delete the old certs directory
 			FileUtils.deleteRecursive(getCertificateDir());
 			
-			for (String caURL: TRUSTED_CA_TARBALLS) {
-				deployRemoteCATarball(caURL);
-			}
+//			for (String caURL: TRUSTED_CA_TARBALLS) {
+//				deployRemoteCATarball(caURL);
+//			}
 
 			if (jarname.getProtocol().startsWith("jar")
 					|| jarname.getProtocol().startsWith("htt")) {
@@ -230,8 +230,8 @@ public class ConfigOperation {
 				// unpack keystore
 				try {
 					JarEntry keystoreEntry = new JarEntry(tgfmJar.getEntry("security/keystore"));
-					FileUtils.extractJarEntry(tgfmJar, keystoreEntry,
-							new File(getCertificateDir() + File.separator + "keystore"));
+					File destKeystore = new File(getKeystoreDir() + File.separator + "keystore");
+					FileUtils.extractJarEntry(tgfmJar, keystoreEntry, destKeystore);
 				} catch (Exception e) {
 					LogManager.error("Failed to unpack keystore.", e);
 				}
@@ -261,24 +261,27 @@ public class ConfigOperation {
 				}
 				
 				try {
-					File destKeystore = new File(getCertificateDir() + File.separator + "keystore");
+					File destKeystore = new File(getKeystoreDir() + File.separator + "keystore");
 					org.apache.commons.io.FileUtils.copyFile(srcKeystore,destKeystore);
-					System.out.println("length of copied keystore is " + destKeystore.length());
+					
+					System.setProperty("javax.net.ssl.trustStore", destKeystore.getAbsolutePath());
+			        System.setProperty("javax.net.ssl.trustStorePassword", "changeit");
+			        System.setProperty("javax.net.ssl.trustStoreType", "JKS");
+		        
 				} catch (Exception e) {
 					LogManager.error("Failed to copy keystore.", e);
 				}
 				
 			}
 			
-
-			configureCoGProperties();
+//			rebuildCoGProperties();
 
 		} catch (Exception e) {
 			LogManager.error("Failed to set up user environment.", e);
 		}
 	}
 
-	private void configureCoGProperties() {
+	public void rebuildCoGProperties() {
 		String calist = "";
 
 		File certDir = new File(getCertificateDir());
@@ -297,13 +300,12 @@ public class ConfigOperation {
 				+ "cog.properties");
 		String s = System.getProperty("GLOBUS_LOCATION");
 		if (null == s) {
-			LogManager
-					.warn(SGGCResourceBundle
-							.getResourceString(ResourceName.KEY_WARN_APPMAIN_ENVVARNOTFOUND));
+			LogManager.warn(SGGCResourceBundle.getResourceString(ResourceName.KEY_WARN_APPMAIN_ENVVARNOTFOUND));
 			s = "";
 		}
 		System.setProperty("globus.location", s);
-
+		System.setProperty("X509_CERT_DIR", getCertificateDir());
+		
 		// set the default ca directory to the one we create
 		try {
 			File cogPropertiesFile = new File(getDataDir() + FILE_NAME_COG_PROPERTIES);
@@ -318,6 +320,7 @@ public class ConfigOperation {
 					+ "cog.properties");
 			props.store(new FileOutputStream(cogPropertiesFile), "");
 			CoGProperties.setDefault(props);
+			
 		} catch (Exception e) {
 			LogManager.error("something happened",e);
 			CoGProperties props = CoGProperties.getDefault();
@@ -367,7 +370,7 @@ public class ConfigOperation {
 	private void retrieveResources() throws IOException {
 
 		// Always add the local site by default;
-		addSite(new FTPSettings(RESOURCE_NAME_LOCAL, FTPPort.PORT_NONE, FTPType.FILE));
+		addSite(new FTPSettings(RESOURCE_NAME_LOCAL, FileProtocolType.FILE.getDefaultPort(), FileProtocolType.FILE));
 		
 		// next check to see if they provided a static list of resources
 		try {
@@ -379,8 +382,8 @@ public class ConfigOperation {
 
 				FTPSettings site = null;
 				for (String resource : resources) {
-					site = new FTPSettings(resource, FTPPort.PORT_GRIDFTP,
-							FTPType.GRIDFTP);
+					site = new FTPSettings(resource, FileProtocolType.GRIDFTP.getDefaultPort(),
+							FileProtocolType.GRIDFTP);
 					site.sshHost = resource;
 					addSite(site);
 				}
@@ -403,16 +406,16 @@ public class ConfigOperation {
 				}
 			} 
 			
-			// this is running in standalone or out of the TGUP, so add TeraGrid Share support
-			if (AppMain.ssoUsername != null && AppMain.ssoUsername != null &&
-					AppMain.ssoPassword != null && AppMain.ssoPassword != null) {
-				FTPSettings site = new FTPSettings(ConfigSettings.RESOURCE_NAME_TGSHARE, 
-						FTPPort.PORT_TGSHARE, FTPType.XSHARE);
-				site.userName = AppMain.ssoUsername;
-				site.password = AppMain.ssoPassword;
-				site.host = ConfigSettings.SERVICE_TGSHARE_SERVICE;
-				addSite(site);
-			}
+//			// this is running in standalone or out of the TGUP, so add TeraGrid Share support
+//			if (AppMain.ssoUsername != null && AppMain.ssoUsername != null &&
+//					AppMain.ssoPassword != null && AppMain.ssoPassword != null) {
+//				FTPSettings site = new FTPSettings(ConfigSettings.RESOURCE_NAME_TGSHARE, 
+//						FTPPort.PORT_TGSHARE, FTPType.XSHARE);
+//				site.userName = AppMain.ssoUsername;
+//				site.password = AppMain.ssoPassword;
+//				site.host = ConfigSettings.SERVICE_TGSHARE_SERVICE;
+//				addSite(site);
+//			}
 			
 		} catch (NullPointerException e) {
 			LogManager.debug("No SSO username/password provided for TeraGrid $SHARE");
@@ -434,25 +437,28 @@ public class ConfigOperation {
 		try {
 			LogManager.info("Querying service for available resources...");
 
-			Vector<String> params = new Vector<String>();
-			params.addElement(((GlobusGSSCredentialImpl)AppMain.defaultCredential).getX509Credential().getIdentity());
-			//params.addElement("/C=US/O=National Center for Supercomputing Applications/OU=People/CN=Nada Cagle");
+//			Vector<String> params = new Vector<String>();
+//			params.addElement(((GlobusGSSCredentialImpl)AppMain.defaultCredential).getX509Credential().getIdentity());
+//			//params.addElement("/C=US/O=National Center for Supercomputing Applications/OU=People/CN=Nada Cagle");
 			
-			Object sites = ServletUtil.getClient().execute(
-					ServletUtil.GET_RESOURCES, params);
-
-			if (((Object[]) sites).length < 1)
+			ClientResource clientResource = ServletUtil.getClient(ServletUtil.SYSTEMS_SERVICE_URL);
+					SystemsResource client = clientResource.wrap(SystemsResource.class);
+			Object response = client.retrieveResources();
+			List<edu.utexas.tacc.wcs.filemanager.common.model.System> sites = new ArrayList<edu.utexas.tacc.wcs.filemanager.common.model.System>();
+			if (response == null || ((List)response).isEmpty()) {
 				return false;
-
+			} else { 
+				sites = (List<edu.utexas.tacc.wcs.filemanager.common.model.System>)((List)response).get(0);
+			}
+		
 			// for these dynamically discovered resources, we automatically remove
 			// them from the saved resource list if they are not returned from the
 			// middleware. This keeps the core TeraGrid resources always in the
 			// user's listing.
 			List<FTPSettings> deleteList = new ArrayList<FTPSettings>();
 			List<FTPSettings> deserializedSites = new ArrayList<FTPSettings>();
-			for(Object serializedSite: Arrays.asList((Object[]) sites)) {
-				FTPSettings site = (FTPSettings) xstream.fromXML((String) serializedSite);
-				deserializedSites.add(site);
+			for(edu.utexas.tacc.wcs.filemanager.common.model.System site: sites) {
+				deserializedSites.add(new FTPSettings(site));
 				LogManager.debug(site.toString());
 			}
 			
@@ -478,8 +484,8 @@ public class ConfigOperation {
 			
 			siteList.removeAll(deleteList);
 			
-			for (Object site : (Object[])sites) {
-				FTPSettings dynamicSite = (FTPSettings) xstream.fromXML((String) site);
+			for (edu.utexas.tacc.wcs.filemanager.common.model.System site: sites) {
+				FTPSettings dynamicSite = new FTPSettings(site);
 				if (dynamicSite.host == null) {
 					LogManager.info("Skipping " + dynamicSite.name + " due to null hostname.");
 					continue;
@@ -487,7 +493,7 @@ public class ConfigOperation {
 				addSite(dynamicSite);
 			}
 
-			LogManager.info("Retrieved " + ((Object[]) sites).length
+			LogManager.info("Retrieved " + sites.size()
 					+ " resources from the TeraGrid File Manager service");
 
 		} catch (Exception e) {
@@ -562,12 +568,12 @@ public class ConfigOperation {
 		}
 		
 		for (FTPSettings savedSite: siteList) {
-			if (savedSite.name.equals(ConfigSettings.RESOURCE_NAME_TGSHARE)) {
-				savedSite.host = ConfigSettings.SERVICE_TGSHARE_SERVICE;
-				savedSite.userName = AppMain.ssoUsername;
-				savedSite.password = AppMain.ssoPassword;
-				addSite(savedSite);
-			}
+//			if (savedSite.name.equals(ConfigSettings.RESOURCE_NAME_TGSHARE)) {
+//				savedSite.host = ConfigSettings.SERVICE_TGSHARE_SERVICE;
+//				savedSite.userName = AppMain.ssoUsername;
+//				savedSite.password = AppMain.ssoPassword;
+//				addSite(savedSite);
+//			}
 			// will only update the retrieved sites. 
 			modifySite(savedSite);
 		}
@@ -961,7 +967,7 @@ public class ConfigOperation {
 		if (siteList.contains(modifiedSite)) {
 			int index = siteList.indexOf(modifiedSite);
 			
-			siteList.get(index).type = modifiedSite.type;
+			siteList.get(index).protocol = modifiedSite.protocol;
 			siteList.get(index).passiveMode = modifiedSite.passiveMode;
 			siteList.get(index).connRetry = modifiedSite.connRetry;
 			siteList.get(index).connDelay = modifiedSite.connDelay;
@@ -1005,10 +1011,10 @@ public class ConfigOperation {
 		if (!originalSite.sshHost.equals(modifiedSite.sshHost)) {
 			return true;
 		}
-		if (originalSite.port != modifiedSite.port) {
+		if (originalSite.filePort != modifiedSite.filePort) {
 			return true;
 		}
-		if (originalSite.type != modifiedSite.type) {
+		if (originalSite.protocol != modifiedSite.protocol) {
 			return true;
 		}
 		if (originalSite.available != modifiedSite.available) {
@@ -1167,34 +1173,24 @@ public class ConfigOperation {
 	@SuppressWarnings({ "unchecked" })
 	private List<FTPSettings> loadSites() {
 		File sitesFile = new File(getDataDir() + SITES_FILE);
+		List<FTPSettings> sites = new ArrayList<FTPSettings>();
 		if (sitesFile.exists()) {
-			FileInputStream in = null;
 			try {
-				in = new FileInputStream(sitesFile);
-				if (sitesFile.length() != 0) {
-					return (ArrayList)xstream.fromXML(in);
-				} 
-				return new ArrayList<FTPSettings>();
+				sites = (ArrayList<FTPSettings>)xstream.fromXML(org.apache.commons.io.FileUtils.readFileToString(sitesFile));
 			} catch (Exception e) {				
 				LogManager.error("Failed to load sites file",e);
-				return new ArrayList<FTPSettings>();
-			} finally {
-				if (in != null) {
-					try {
-						in.close();
-					} catch (IOException e) {}
-				}
-			}
-			
-		} else {
+			} 
+		} 
+		else 
+		{
 			try {
 				sitesFile.createNewFile();
 			} catch (IOException e) {
 				LogManager.error("Failed to create sites file",e);
 			}
-			return new ArrayList<FTPSettings>();
 		}
-
+		
+		return sites;
 	}
 	
 	private boolean saveSites() {
@@ -1214,11 +1210,8 @@ public class ConfigOperation {
 			out.close();
 			
 		} catch (Exception e) {
-			AppMain
-					.getLogger()
-					.error(
-							SGGCResourceBundle
-									.getResourceString(ResourceName.KEY_ERROR_CONFIGOPERATION_WRITEFILE),e);
+			AppMain.getLogger().error(
+				SGGCResourceBundle.getResourceString(ResourceName.KEY_ERROR_CONFIGOPERATION_WRITEFILE),e);
 			return false;
 		}
 
@@ -1236,10 +1229,10 @@ public class ConfigOperation {
 		ArrayList<FTPSettings> dereferencedSites = new ArrayList<FTPSettings>();
 		
 		for(FTPSettings site: siteList) {
-			FTPSettings dereferencedSite = new FTPSettings(site.name,site.port,site.type);
+			FTPSettings dereferencedSite = new FTPSettings(site.name,site.filePort,site.protocol);
 			dereferencedSite.host = site.host;
 			dereferencedSite.sshHost = site.sshHost;
-			dereferencedSite.type = site.type;
+			dereferencedSite.protocol = site.protocol;
 			dereferencedSite.available = site.available;
 			dereferencedSite.passiveMode = site.passiveMode;
 			dereferencedSite.connRetry = site.connRetry;
@@ -1334,22 +1327,21 @@ public class ConfigOperation {
 	}
 
 	public static String getApplicationHome() {
+		
 		if (appHome != null) {
 			return appHome;
 		}
 
-		try {
+		try 
+		{
 			String home = System.getProperty("tgfm.home");
 			if (home == null) {
-				URL url = Class
-						.forName(
-								"org.teragrid.portal.filebrowser.applet.ConfigOperation")
-						.getResource("ConfigOperation.class");
+				URL url = ClassLoader.getSystemResource("sggc.properties");
 				if (url.getProtocol().startsWith("htt")
 						|| url.getProtocol().startsWith("jar")) {
 					home = System.getProperty("user.home");
 					return home;
-				}
+				} 
 				if (os().equals("windows")) {
 					home = url.getFile();
 					if (home.indexOf("file") != -1)
@@ -1396,6 +1388,18 @@ public class ConfigOperation {
 
 	public static String getUserHome() {
 		return System.getProperty("user.home") + File.separator;
+	}
+	
+	public static String getKeystoreDir() {
+		String certDir = getUserHome() + "tgup_filemanager"
+				+ File.separator + "security";
+		
+		File dir = new File(certDir);
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+
+		return certDir + File.separator;
 	}
 
 	/**
@@ -1623,32 +1627,46 @@ public class ConfigOperation {
 		}
 	}
 	
-	private void readVersionInformation() {
+	private void readVersionInformation() 
+	{
 		InputStream stream = null;
-		try {
+		try 
+		{
 			JarFile tgfmJar = null;
 			URL jarname = Class.forName(
 				"org.teragrid.portal.filebrowser.applet.ConfigOperation")
 				.getResource("ConfigOperation.class");
-			JarURLConnection c = (JarURLConnection) jarname.openConnection();
-			tgfmJar = c.getJarFile();
-			stream = tgfmJar.getInputStream(tgfmJar.getEntry("META-INF/MANIFEST.MF"));
-			Manifest manifest = new Manifest(stream);
-			Attributes attributes = manifest.getMainAttributes();
-			for(Object attributeName: attributes.keySet()) {
-				if (((Attributes.Name)attributeName).toString().equals(("Implementation-Version"))) {
-					ConfigSettings.SOFTWARE_VERSION = attributes.getValue("Implementation-Version");
-				} else if (((Attributes.Name)attributeName).toString().equals(("Built-Date"))) {
-					ConfigSettings.SOFTWARE_BUILD_DATE = attributes.getValue("Built-Date");
-				} 
-				
-				LogManager.debug(attributeName + ": " + attributes.getValue((Attributes.Name)attributeName) + "\n");
+			if (jarname.getProtocol().startsWith("jar")
+					|| jarname.getProtocol().startsWith("htt")) 
+			{
+				JarURLConnection c = (JarURLConnection) jarname.openConnection();
+				tgfmJar = c.getJarFile();
+				stream = tgfmJar.getInputStream(tgfmJar.getEntry("META-INF/MANIFEST.MF"));
+				Manifest manifest = new Manifest(stream);
+				Attributes attributes = manifest.getMainAttributes();
+				for(Object attributeName: attributes.keySet()) 
+				{
+					if (((Attributes.Name)attributeName).toString().equals(("Implementation-Version"))) {
+						ConfigSettings.SOFTWARE_VERSION = attributes.getValue("Implementation-Version");
+					} else if (((Attributes.Name)attributeName).toString().equals(("Built-Date"))) {
+						ConfigSettings.SOFTWARE_BUILD_DATE = attributes.getValue("Built-Date");
+					} 
+					
+					LogManager.debug(attributeName + ": " + attributes.getValue((Attributes.Name)attributeName) + "\n");
+				}
 			}
-			
-			stream.close();
-		} catch (Exception e) {
-			LogManager.error("Failed to retreive version information.", e);
-		} finally {
+			else
+			{
+				ConfigSettings.SOFTWARE_VERSION = "dev";
+				ConfigSettings.SOFTWARE_BUILD_DATE = new Date().toString();
+			}
+		} 
+		catch (Exception e) 
+		{
+			LogManager.error("Failed to retrieve version information.", e);
+		} 
+		finally 
+		{
 			try { stream.close(); } catch (Exception e) {}
 		}
 	}

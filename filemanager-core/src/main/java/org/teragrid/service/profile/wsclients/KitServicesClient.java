@@ -1,7 +1,8 @@
 package org.teragrid.service.profile.wsclients;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -10,22 +11,28 @@ import org.teragrid.service.profile.wsclients.model.ComputeDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
+
 public class KitServicesClient extends AbstractHttpClient 
 {
 	private static Logger log = Logger.getLogger(KitServicesClient.class);
+	private String endpoint;
 	
-	private Set<ComputeDTO> ctssSystems = new HashSet<ComputeDTO>();
+	private Map<String, ComputeDTO> ctssSystems = new HashMap<String, ComputeDTO>();
 	
-	public KitServicesClient(String endpoint) {
-		String gridftpUrl = "http://info.xsede.org/web-apps/json/kit-services-v1/type/gridftp/name/gridftp-default-server/";
-		String loginUrl = "http://info.xsede.org/web-apps/json/kit-services-v1/type/gsi-openssh/name/gsi-openssh/";
-		
-		retrieveGridFTPEndpoints(gridftpUrl);
-		
-		retrieveGsiSshEndpoints(loginUrl);
+	public KitServicesClient(String endpoint) 
+	{
+		this.endpoint = endpoint;
 	}
 	
-	private void retrieveGridFTPEndpoints(String endpoint) {
+	private void init() 
+	{
+		retrieveGridFTPEndpoints(endpoint + "type/gridftp/name/gridftp-default-server/");
+		retrieveGsiSshEndpoints(endpoint + "type/gsi-openssh");
+	}
+	
+	private void retrieveGridFTPEndpoints(String endpoint) 
+	{
 		try 
 		{
 			String response = doGet(endpoint);
@@ -42,23 +49,28 @@ public class KitServicesClient extends AbstractHttpClient
 					{
 						JsonNode system = array.get(i);
 						
-						log.debug("Processing system " + system.get("ResourceID").asText());
+						String resourceID = system.get("ResourceID").asText();
+						log.debug("Processing system " + resourceID);
+						if (!StringUtils.isEmpty(resourceID))
+						{	
+							ComputeDTO sysDto = new ComputeDTO();
+							sysDto.setSite(system.get("SiteID").asText());
 						
-						ComputeDTO sysDto = new ComputeDTO();
-						sysDto.setSite(system.get("SiteID").asText());
-						String id = system.get("ResourceID").asText();
-						if (id.equals("teradre.purdue.teragrid.org")) {
-							id = "condor.purdue.teragrid.org";
-						}
-						sysDto.setResourceId(id);
-						String host = system.get("Endpoint").asText();
-						if (host != null) {
-							host = host.substring(9);
-							host = host.substring(0,host.lastIndexOf(":"));
-						}
-						sysDto.setGridftpHostname(host);
-						
-						ctssSystems.add(sysDto);
+							sysDto.setResourceId(resourceID);
+							String host = system.get("Endpoint").asText();
+							try
+							{
+								URI uri = URI.create(host);
+								sysDto.setGridftpHostname(uri.getHost());
+								sysDto.setGridftpPort(uri.getPort() == -1 ? FileProtocolType.GRIDFTP.getDefaultPort() : uri.getPort());
+							}
+							catch (Exception e) {
+								log.error("Failed to parse gridftp url for " + resourceID + " => " + host, e);
+								continue;
+							}
+							
+							ctssSystems.put(sysDto.getResourceId(), sysDto);
+						}	
 					}
 				}
 			}
@@ -86,17 +98,29 @@ public class KitServicesClient extends AbstractHttpClient
 					for (int i=0;i<array.size(); i++) 
 					{
 						JsonNode resource = array.get(i);
-					
-						log.debug("Processing system " + resource.get("ResourceID").asText());
-						for (ComputeDTO system: ctssSystems) {
-							String id = resource.get("ResourceID").asText();
-							if (id.equals("teradre.purdue.teragrid.org")) {
-								id = "condor.purdue.teragrid.org";
-							}
-							if (system.getResourceId().equals(id)) {
-								String login = resource.get("Endpoint").asText();
-								if (login == null) continue;
-								system.setLoginHostname(login.contains(":")?login.substring(0,login.indexOf(":")):login);
+						String resourceID = resource.get("ResourceID").asText();
+						log.debug("Processing system " + resourceID);
+						
+						if (!StringUtils.isEmpty(resourceID))
+						{
+							ComputeDTO system = ctssSystems.get(resourceID);
+							if (system != null)
+							{
+								String loginEndpoint = resource.get("Endpoint").textValue();
+								if (!StringUtils.isEmpty(loginEndpoint))
+								{
+									if (loginEndpoint.contains(":")) {
+										String[] tokens = loginEndpoint.split(":");
+										system.setLoginHostname(tokens[0]);
+										system.setLoginPort(Integer.valueOf(tokens[1]));
+									} 
+									else
+									{
+										system.setLoginHostname(loginEndpoint);
+										system.setLoginPort(FileProtocolType.SFTP.getDefaultPort());
+									}
+									ctssSystems.put(resourceID, system);
+								}	
 							}
 						}	
 					}
@@ -108,7 +132,10 @@ public class KitServicesClient extends AbstractHttpClient
 		
 	}
 
-	public Set<ComputeDTO> getResources() {
+	public Map<String, ComputeDTO> getResources() {
+		if (ctssSystems.isEmpty()) {
+			init();
+		}
 		return ctssSystems;
 	}
 

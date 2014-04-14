@@ -12,7 +12,7 @@ package edu.utexas.tacc.wcs.filemanager.service.dao;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.teragrid.service.profile.util.TeraGridSystemResolver;
+import org.teragrid.service.profile.util.XsedeSystemResolver;
 
 import edu.utexas.tacc.wcs.filemanager.common.model.Notification;
 import edu.utexas.tacc.wcs.filemanager.common.model.Transfer;
@@ -79,7 +79,7 @@ public class TestDAO {
         
         List<System> systems = SystemDAO.findSystemAccounts(user);
         
-        systems = TeraGridSystemResolver.resolveResources(systems);
+        systems = XsedeSystemResolver.resolveResources(systems);
         
         if (systems != null) {
             logger.debug("Found " + systems.size() + " resources for user " + 

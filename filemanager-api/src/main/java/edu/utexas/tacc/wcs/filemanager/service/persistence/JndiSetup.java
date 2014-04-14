@@ -39,7 +39,7 @@ public class JndiSetup
             // Construct DataSource
             PGSimpleDataSource ds = new PGSimpleDataSource();
             ds.setServerName(props.getProperty("servername"));
-            ds.setPortNumber(Integer.valueOf(props.getProperty("port"), 5432));
+            ds.setPortNumber(Integer.valueOf(props.getProperty("port","5243")));
             ds.setDatabaseName(props.getProperty("dbname"));
             ds.setUser(props.getProperty("user"));
             ds.setPassword(props.getProperty("password"));

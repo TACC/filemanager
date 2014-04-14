@@ -13,7 +13,6 @@ package org.teragrid.portal.filebrowser.applet.transfer;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.Vector;
 
@@ -21,9 +20,12 @@ import org.globus.ftp.exception.ServerException;
 import org.ietf.jgss.GSSCredential;
 import org.teragrid.portal.filebrowser.applet.ConfigSettings;
 
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.SystemType;
 
-@SuppressWarnings("unchecked")
-public class FTPSettings implements Comparable/* implements Cloneable*/{
+
+public class FTPSettings implements Comparable<FTPSettings>/* implements Cloneable*/
+{
     /*Used for global settings*/
     public static String DefaultLogfile="";
     public static boolean DefaultStripeTransfers = true;
@@ -39,15 +41,16 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
     public static boolean DefaultPassiveMode=false;
     public static String DefaultCertificate="";
     
-    public static FTPSettings Local = new FTPSettings(ConfigSettings.RESOURCE_NAME_LOCAL,FTPPort.PORT_NONE,FTPType.FILE);
+    public static FTPSettings Local = new FTPSettings(ConfigSettings.RESOURCE_NAME_LOCAL, FileProtocolType.FILE.getDefaultPort(), FileProtocolType.FILE);
 
     /*Server's ID, Name, Hostname/IP, Port, Type, Position, inPassiveMode, AdjecentTable*/
 
     public String name;//Server's ID
     public String host;//Server's host
     public String sshHost; //Server's ftp server
-    public int port;//Server's port
-    public int type;//protocol type(FILE, FTP, GridFTP, BBFTP, SFTP)
+    public Integer sshPort;//Server's port
+    public Integer filePort;//Server's port
+    public FileProtocolType protocol;//protocol type(FILE, FTP, GridFTP, BBFTP, SFTP)
     public String zone; // irods specific
     public String resource; // irods specific
     public boolean passiveMode;//passive mode
@@ -68,98 +71,70 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
     public boolean available = true; // is this resource available or in a maintenance period
     private GSSCredential globusCred = null;//globus credit
 
-    private Vector connPool = new Vector(connMaxNum);//connection pool
-    private Vector tunnelPool = new Vector(connMaxNum);//gsissh tunnel pool
-    @SuppressWarnings("unused")
-	private ArrayList trans=new ArrayList();
-    public String hostType = "hpc";
+    private Vector<SHGridFTP> connPool = new Vector<SHGridFTP>(connMaxNum);//connection pool
+    private Vector<GsiSSH> tunnelPool = new Vector<GsiSSH>(connMaxNum);//gsissh tunnel pool
+//    @SuppressWarnings("unused")
+//	private ArrayList trans = new ArrayList();
+    public SystemType hostType = SystemType.HPC;
     public boolean listed = true;
     public Component parent = null;
 	public String resourceId;
     
+    public FTPSettings(edu.utexas.tacc.wcs.filemanager.common.model.System system) 
+    {
+    	this(system.getFtpHostname(), system.getFtpPort(), system.getProtocol());
+    	
+    	this.name = system.getResourceName();
+    	this.hostType = system.getSystemType();
+    	this.resourceId = system.getResourceId();
+    	
+    	this.sshHost = system.getSshHostname();
+    	this.sshPort = system.getSshPort() == null ? system.getProtocol().getDefaultPort() : system.getSshPort();
+    	
+    	this.userName = system.getUserName();
+    	
+//    	this.protocol = system.getProtocol();
+//    	this.host = system.getFtpHostname();
+//    	this.filePort = system.getFtpPort();
+    }
     
     public FTPSettings(String sHost){
-        this(sHost, FTPPort.PORT_NONE, FTPType.GRIDFTP);
+        this(sHost, FileProtocolType.GRIDFTP.getDefaultPort(), FileProtocolType.GRIDFTP);
     }
 
-    public FTPSettings(String sHost, int nType){
-        this(sHost, FTPPort.PORT_NONE, nType);
+    public FTPSettings(String sHost, FileProtocolType nType){
+        this(sHost, FileProtocolType.FILE.getDefaultPort(), nType);
     }
 
-    public FTPSettings(String sHost, int nPort, int nType){
+    public FTPSettings(String sHost, Integer nPort, FileProtocolType nType){
         this.name=sHost;
         this.sshHost=sHost;
         this.host=sHost;
-        this.port=nPort;
-        this.type=nType;
+        this.filePort= nPort == null ? nType.getDefaultPort() : nPort;
+        this.protocol=nType;
         this.loginMode = FTPLogin.LOGIN_USEPROXYINIT;
-        
-        if(FTPPort.PORT_NONE == this.port){
-            switch(this.type){
-            case FTPType.GRIDFTP:
-                this.port=FTPPort.PORT_GRIDFTP;
-                break;
-            case FTPType.BBFTP:
-                this.port=FTPPort.PORT_BBFTP;
-                break;
-            case FTPType.SFTP:
-                this.port=FTPPort.PORT_SFTP;
-                break;
-            case FTPType.FTP:
-                this.port=FTPPort.PORT_FTP;
-                break;
-            case FTPType.HTTP:
-                this.port=FTPPort.PORT_HTTP;
-            case FTPType.S3:
-                this.port=FTPPort.PORT_S3;
-            default:
-                break;
-            }
-        }
         
         this.passiveMode = FTPSettings.DefaultPassiveMode;
         this.connRetry = FTPSettings.DefaultConnRetry;
         this.connDelay = FTPSettings.DefaultConnDelay;
-        this.connParallel = nType == FTPType.FILE ? 1 : FTPSettings.DefaultConnPara;
+        this.connParallel = nType == FileProtocolType.FILE ? 1 : FTPSettings.DefaultConnPara;
         this.connMaxNum = FTPSettings.DefaultConnMaxNum;
         this.connKeepAlive = FTPSettings.DefaultConnKeep;
         this.showHidden = FTPSettings.DefaultShowHidden;
         this.stripeTransfers = FTPSettings.DefaultStripeTransfers;
-        this.bufferSize = nType == FTPType.FILE ? FTPSettings.DefaultBufferSize : 33000;
+        this.bufferSize = nType == FileProtocolType.FILE ? FTPSettings.DefaultBufferSize : 33000;
         this.maxSearchDepth = FTPSettings.DefaultSearchDepth;
         this.maxSearchResults = FTPSettings.DefaultMaxSearchResults;
     }
 
-    public FTPSettings(String sHost, int nPort, int nType, Component parent){
+    public FTPSettings(String sHost, int nPort, FileProtocolType nType, Component parent){
     	this(sHost, nPort, nType);
     	this.parent = parent;
     }
     
-    public String getPrefix(){
-        String sPrefix = "";
-        switch(type){
-        case FTPType.GRIDFTP:
-            sPrefix = GridFTP.Prefix;
-            break;
-        case FTPType.BBFTP:
-            sPrefix = BBFTP.Prefix;
-            break;
-        case FTPType.SFTP:
-            sPrefix = SFTP.Prefix;
-            break;
-        case FTPType.FTP:
-            sPrefix = FTP.Prefix;
-            break;
-        case FTPType.HTTP:
-            sPrefix = HTTP.Prefix;
-        case FTPType.S3:
-            sPrefix = S3.Prefix;
-        case FTPType.IRODS:
-            sPrefix = Irods.Prefix;
-        default:
-            break;
-        }
-        return sPrefix;
+    public String getPrefix()
+    {
+        return protocol.getSchema();
     }
 
 //    @SuppressWarnings("unused")
@@ -215,7 +190,7 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
      */
     public SHGridFTP getFreeConnection(){
     	
-    	if (this.type == FTPType.FILE) {
+    	if (this.protocol.equals(FileProtocolType.FILE)) {
     		SHGridFTP conn;
     		try {
     			conn = new SHGridFTP(this);
@@ -225,8 +200,9 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
             return conn;
     	}
     	
-        for (ListIterator i = connPool.listIterator(); i.hasNext(); ) {
-            SHGridFTP conn = (SHGridFTP)i.next();
+        for (ListIterator<SHGridFTP> i = connPool.listIterator(); i.hasNext(); ) 
+        {
+            SHGridFTP conn = i.next();
             if(conn.isIdle()) {
             	return conn;
             }
@@ -240,7 +216,7 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
      */
     public GsiSSH getFreeTunnel(){
         
-        if (this.type == FTPType.FILE) {
+        if (this.protocol.equals(FileProtocolType.FILE)) {
             GsiSSH tunnel;
             try {
                 tunnel = new GsiSSH(this);
@@ -250,8 +226,8 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
             return tunnel;
         }
         
-        for (ListIterator i = tunnelPool.listIterator(); i.hasNext(); ) {
-            GsiSSH tunnel = (GsiSSH)i.next();
+        for (ListIterator<GsiSSH> i = tunnelPool.listIterator(); i.hasNext(); ) {
+            GsiSSH tunnel = i.next();
             if(tunnel.isIdle()) {
                 return tunnel;
             }
@@ -266,7 +242,7 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
     public SHGridFTP getNewConnection() throws IOException, ServerException{
         SHGridFTP conn = null;
         
-        if (this.type == FTPType.FILE) {
+        if (this.protocol.equals(FileProtocolType.FILE)) {
     		try {
     			conn = new SHGridFTP(this);
             } catch (Exception e) {
@@ -301,7 +277,7 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
     public GsiSSH getNewTunnel(){
         GsiSSH tunnel = null;
         
-        if (this.type == FTPType.FILE) {
+        if (this.protocol.equals(FileProtocolType.FILE)) {
             try {
                 tunnel = new GsiSSH(this);
             } catch (Exception e) {
@@ -342,7 +318,7 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
 
     public boolean hasFreeConnection(){
     	
-    	if (this.type == FTPType.FILE) {
+    	if (this.protocol.equals(FileProtocolType.FILE)) {
     		return true;
     	}
     	
@@ -350,8 +326,8 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
     		return true;
     	}
     	
-        for (ListIterator i = connPool.listIterator(); i.hasNext(); ) {
-            SHGridFTP conn = (SHGridFTP)i.next();
+        for (ListIterator<SHGridFTP> i = connPool.listIterator(); i.hasNext(); ) {
+            SHGridFTP conn = i.next();
             if(conn.isIdle()) {
             	return true;
             }
@@ -390,11 +366,7 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
     }
     
     public String getURLString() {
-        if (this.name.toLowerCase().indexOf("local") > -1) {
-            return "file://localhost";
-        } else {
-            return FTPType.FTP_PROTOCOL[this.type].toLowerCase() + "://" + this.name + ":" + this.port;
-        }
+    	return String.format("%s%s:%d", protocol.getSchema(), this.host, this.filePort);
     }
 
 	public GSSCredential getGSSCred() {
@@ -406,7 +378,7 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
 	}
 	
 	public FTPSettings clone(Component parent) {
-	    FTPSettings clone = new FTPSettings(this.name,this.port,this.type);
+	    FTPSettings clone = new FTPSettings(this.name,this.filePort,this.protocol);
 	    clone.host=this.host;
 	    clone.sshHost = this.sshHost;
         clone.loginMode = this.loginMode;
@@ -423,7 +395,7 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
         clone.stripeTransfers = this.stripeTransfers;
         clone.userName = this.userName;
         clone.password = this.password;
-        clone.type = this.type;
+        clone.protocol = this.protocol;
         clone.hostType = this.hostType;
         clone.maxSearchDepth = this.maxSearchDepth;
         clone.maxSearchResults = this.maxSearchResults;
@@ -431,20 +403,16 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
         return clone;
 	}
 	
-	public int compareTo(Object o) {
-	    if (o instanceof FTPSettings) {
-	        if (this.name.compareTo(((FTPSettings)o).name) == 0) {
-	        	return this.host.compareTo(((FTPSettings)o).host);
-	        } else {
-	        	return this.name.compareTo(((FTPSettings)o).name);
-	        }
-	    } else {
-	        return 1;
-	    }
+	public int compareTo(FTPSettings o) {
+		if (this.name.compareTo(((FTPSettings)o).name) == 0) {
+        	return this.host.compareTo(((FTPSettings)o).host);
+        } else {
+        	return this.name.compareTo(((FTPSettings)o).name);
+        }
 	}
 	
 	public String getSeparator() {
-	    if (type == FTPType.FILE) {
+	    if (this.protocol.equals(FileProtocolType.FILE)) {
 	        return File.separator;
 	    } else {
 	        return "/";
@@ -456,7 +424,7 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
 	}
 	
 	public boolean isLocal() {
-	    return (this.type == FTPType.FILE);
+	    return (this.protocol.equals(FileProtocolType.FILE));
 	}
 	
 	public boolean equals(Object o) {
@@ -485,6 +453,6 @@ public class FTPSettings implements Comparable/* implements Cloneable*/{
 	}
 
 	public boolean isTeraGridResource() {
-		return (FTPType.GRIDFTP == this.type) && !this.userDefined;
+		return (this.protocol.equals(FileProtocolType.GRIDFTP)) && !this.userDefined;
 	}
 }

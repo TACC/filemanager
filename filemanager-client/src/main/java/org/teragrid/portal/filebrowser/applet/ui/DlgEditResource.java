@@ -32,12 +32,12 @@ import javax.swing.event.ChangeListener;
 import org.apache.commons.lang.StringUtils;
 import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.ConfigOperation;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPPort;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
 import org.teragrid.portal.filebrowser.applet.util.ResourceName;
 import org.teragrid.portal.filebrowser.applet.util.SGGCResourceBundle;
 
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.SystemType;
 import edu.utexas.tacc.wcs.filemanager.common.util.DBUtil;
 
 /**
@@ -103,12 +103,12 @@ public class DlgEditResource extends DlgEscape implements ActionListener {
 	
 	private JLabel lblType = new JLabel("Type");
 	private JComboBox cmbType = new JComboBox(new String[]{ 
-			FTPType.FTP_PROTOCOL[FTPType.GRIDFTP], 
-			FTPType.FTP_PROTOCOL[FTPType.IRODS],
-			FTPType.FTP_PROTOCOL[FTPType.S3]});
+			FileProtocolType.GRIDFTP.name(), 
+			FileProtocolType.IRODS.name(),
+			FileProtocolType.S3.name()});
 	
 	private JLabel lblCategory = new JLabel("Category");
-	private JComboBox cmbCategory = new JComboBox(new String[]{DBUtil.HPC,DBUtil.VIZ,DBUtil.ARCHIVE});
+	private JComboBox cmbCategory = new JComboBox(new String[]{SystemType.HPC.name(), SystemType.ARCHIVE.name(), SystemType.VIZ.name()});
 	
 	private FTPSettings resource = null;
 	private Component parent;
@@ -128,7 +128,7 @@ public class DlgEditResource extends DlgEscape implements ActionListener {
 	public DlgEditResource(Component parent) {
 		super();
 		
-		this.resource = new FTPSettings("gridftp.example.com",FTPPort.PORT_GRIDFTP,FTPType.GRIDFTP);
+		this.resource = new FTPSettings("gridftp.example.com",FileProtocolType.GRIDFTP.getDefaultPort(),FileProtocolType.GRIDFTP);
 		this.resource.name = "My Resource";
 		this.resource.userDefined = true;
 		this.parent = parent;
@@ -172,14 +172,14 @@ public class DlgEditResource extends DlgEscape implements ActionListener {
 		JPanel pnlType = new JPanel();
 		pnlType.setLayout(new BoxLayout(pnlType,BoxLayout.X_AXIS));
 		lblType.setPreferredSize(new Dimension(70,25));
-		cmbType.setSelectedItem(FTPType.FTP_PROTOCOL[this.resource.type]);
+		cmbType.setSelectedItem(this.resource.protocol.name());
 		cmbType.setEnabled(resource.userDefined);
 		cmbType.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent event)
 			{
-				if (((JComboBox)event.getSource()).getSelectedItem() == FTPType.FTP_PROTOCOL[FTPType.IRODS]) {
+				if (((JComboBox)event.getSource()).getSelectedItem() == FileProtocolType.IRODS.name()) {
 					pnlConnection.setVisible(false);
 					lblResource.setVisible(true);
 					txtResource.setVisible(true);
@@ -206,9 +206,9 @@ public class DlgEditResource extends DlgEscape implements ActionListener {
 					pnlLogin.updateUI();
 					
 					if (StringUtils.isEmpty(txtPort.getText()) 
-							|| txtPort.getText().equals(String.valueOf(FTPPort.PORT_S3))
-							|| txtPort.getText().equals(String.valueOf(FTPPort.PORT_GRIDFTP))) {
-						txtPort.setText(String.valueOf(String.valueOf(FTPPort.PORT_IRODS)));
+							|| txtPort.getText().equals(String.valueOf(FileProtocolType.S3.getDefaultPort()))
+							|| txtPort.getText().equals(String.valueOf(FileProtocolType.GRIDFTP.getDefaultPort()))) {
+						txtPort.setText(String.valueOf(String.valueOf(FileProtocolType.IRODS.getDefaultPort())));
 					}
 					if (txtHostname.getText().equals(net.spy.s3.Utils.DEFAULT_HOST) || 
 							txtHostname.getText().equals("gridftp.example.com")) {
@@ -218,11 +218,11 @@ public class DlgEditResource extends DlgEscape implements ActionListener {
 					txtPort.setEnabled(true);
 					
 					pnlLogin.setVisible(true);
-				} else if(((JComboBox)event.getSource()).getSelectedItem() == FTPType.FTP_PROTOCOL[FTPType.S3]) {
+				} else if(((JComboBox)event.getSource()).getSelectedItem() == FileProtocolType.S3.name()) {
 					pnlConnection.setVisible(false);
 					txtHostname.setText(net.spy.s3.Utils.DEFAULT_HOST);
 					txtHostname.setEnabled(false);
-					txtPort.setText(String.valueOf(FTPPort.PORT_S3));
+					txtPort.setText(String.valueOf(FileProtocolType.S3.getDefaultPort()));
 					txtPort.setEnabled(false);
 					lblResource.setVisible(false);
 					txtResource.setVisible(false);
@@ -244,9 +244,9 @@ public class DlgEditResource extends DlgEscape implements ActionListener {
 					pnlLogin.setVisible(true);
 				} else {
 					if (StringUtils.isEmpty(txtPort.getText()) 
-							|| txtPort.getText().equals(String.valueOf(FTPPort.PORT_S3))
-							|| txtPort.getText().equals(String.valueOf(FTPPort.PORT_IRODS))) {
-						txtPort.setText(String.valueOf(FTPPort.PORT_GRIDFTP));
+							|| txtPort.getText().equals(String.valueOf(FileProtocolType.S3.getDefaultPort()))
+							|| txtPort.getText().equals(String.valueOf(FileProtocolType.IRODS.getDefaultPort()))) {
+						txtPort.setText(String.valueOf(FileProtocolType.GRIDFTP.getDefaultPort()));
 					}
 					if (txtHostname.getText().equals(net.spy.s3.Utils.DEFAULT_HOST)  || 
 							txtHostname.getText().equals("irods.example.com")) {
@@ -312,7 +312,7 @@ public class DlgEditResource extends DlgEscape implements ActionListener {
 		JPanel pnlPort = new JPanel();
 		pnlPort.setLayout(new BoxLayout(pnlPort,BoxLayout.X_AXIS));
 		lblPort.setPreferredSize(new Dimension(70,25));
-		txtPort.setText(String.valueOf(resource.port));
+		txtPort.setText(String.valueOf(resource.filePort));
 		txtPort.setEnabled(resource.userDefined);
 		pnlPort.add(lblPort);
 		pnlPort.add(txtPort);
@@ -393,7 +393,7 @@ public class DlgEditResource extends DlgEscape implements ActionListener {
 		pnlLogin.add(pnlResource);
 		pnlLogin.add(pnlIrodsGridAuth);
 		
-		if (resource.type == FTPType.IRODS) {
+		if (resource.protocol.equals(FileProtocolType.IRODS)) {
 			lblPassword.setText("Password:");
 			lblUsername.setText("Username:");
 			
@@ -404,7 +404,7 @@ public class DlgEditResource extends DlgEscape implements ActionListener {
 				
 			pnlConnection.setVisible(false);
 			
-		} else if (resource.type == FTPType.S3) {
+		} else if (resource.protocol.equals(FileProtocolType.S3)) {
 			lblPassword.setText("AWS Secret Key:");
 			lblUsername.setText("AWS Key Id:");
 			pnlConnection.setVisible(false);
@@ -519,7 +519,7 @@ public class DlgEditResource extends DlgEscape implements ActionListener {
 	@SuppressWarnings("unchecked")
 	public void optimizeBuffer() {
         int bufferVal = 0;
-        if (resource.type == FTPType.GRIDFTP) {
+        if (resource.protocol.equals(FileProtocolType.GRIDFTP)) {
            bufferVal = 33000;
         } else {
            bufferVal = 1000;
@@ -555,18 +555,18 @@ public class DlgEditResource extends DlgEscape implements ActionListener {
 		resource.host = txtHostname.getText();
 		
 		try {
-			resource.port = Integer.parseInt(txtPort.getText());
+			resource.filePort = Integer.parseInt(txtPort.getText());
 		} catch (Exception e) {
 			AppMain.Error(this, "Please specify a valid port number. The default GridFTP port is 2811.");
 			txtPort.selectAll();
 			txtPort.requestFocus();
 			return;
 		}
-		resource.type = FTPType.getType((String)cmbType.getSelectedItem());
-		resource.hostType = (String)cmbCategory.getSelectedItem();
+		resource.protocol = FileProtocolType.valueOf((String)cmbType.getSelectedItem());
+		resource.hostType = SystemType.valueOf((String)cmbCategory.getSelectedItem());
         resource.stripeTransfers = chkStripeTransfer.isSelected();
         resource.showHidden = chkShowHidden.isSelected();
-        if ( resource.type == FTPType.IRODS ) {
+        if ( resource.protocol.equals(FileProtocolType.IRODS) ) {
         	if (chkIrodsGridAuth.isSelected()) {
         		resource.userName = "";
         		resource.password = "";
@@ -576,7 +576,7 @@ public class DlgEditResource extends DlgEscape implements ActionListener {
         	}
         	resource.resource = txtResource.getText();
         	resource.zone = txtZone.getText();
-        } else if ( resource.type == FTPType.S3 ) {
+        } else if ( resource.protocol.equals(FileProtocolType.S3) ) {
         	resource.userName = txtUsername.getText();
         	resource.password = new String(pwdPassword.getPassword());
         }

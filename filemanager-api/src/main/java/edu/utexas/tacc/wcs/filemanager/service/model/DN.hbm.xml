@@ -11,9 +11,9 @@ done via 3rd party transfer.
 @author Rion Dooley < dooley [at] tacc [dot] utexas [dot] edu >
 
 -->
-<hibernate-mapping package="edu.utexas.tacc.wcs.filemanager.service.model">
+<hibernate-mapping package="edu.utexas.tacc.wcs.filemanager.common.model">
 
-<class name="edu.utexas.tacc.wcs.filemanager.service.model.DN" 
+<class name="edu.utexas.tacc.wcs.filemanager.common.model.DN" 
 	   table="portal.dns" 
 	   lazy="true">
 
@@ -34,7 +34,7 @@ done via 3rd party transfer.
 	</composite-id>
 	
 	<many-to-one name="user" 
-				class="edu.utexas.tacc.wcs.filemanager.service.model.User" 
+				class="edu.utexas.tacc.wcs.filemanager.common.model.User" 
 				insert="false" 
 				update="false">
 		<column name="person_id"/>	

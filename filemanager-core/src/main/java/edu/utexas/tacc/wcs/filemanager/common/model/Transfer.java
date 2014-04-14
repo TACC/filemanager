@@ -2,6 +2,8 @@ package edu.utexas.tacc.wcs.filemanager.common.model;
 
 import java.util.Calendar;
 
+import org.globus.ftp.FileInfo;
+
 public class Transfer implements Comparable<Transfer>
 {
 	protected Long id = null;
@@ -17,7 +19,8 @@ public class Transfer implements Comparable<Transfer>
 	protected int progress;
 	
 	// FileInfo fields
-	protected String fileName;
+	protected FileInfo file; //the file to transfer
+    protected String fileName;
 	protected String fileDate;
 	protected byte fileType;
 	protected long fileSize;
@@ -183,8 +186,24 @@ public class Transfer implements Comparable<Transfer>
 	public void setProgress(int progress) {
 		this.progress = progress;
 	}
-
+	
 	/**
+     * Return the Fileinfo
+     * @return FileInfo
+     */
+    public FileInfo getFile(){
+        return this.file;
+    }
+
+    /**
+     * Set the Fileinfo
+     * @param file FileInfo
+     */
+    public void setFile(FileInfo file){
+        this.file = file;
+    }
+
+  	/**
 	 * @return the fileName
 	 */
 	public String getFileName() {
@@ -328,7 +347,7 @@ public class Transfer implements Comparable<Transfer>
 	 * @param status
 	 * @return
 	 */
-	public String getStatusString(int status){
+	public static String getStatusString(int status){
         String statusString = "";
 
         switch(status){

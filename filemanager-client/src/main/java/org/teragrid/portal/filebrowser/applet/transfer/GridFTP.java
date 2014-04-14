@@ -15,6 +15,7 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +27,7 @@ import java.util.Vector;
 
 import javax.swing.JFrame;
 
+import org.globus.common.CoGProperties;
 import org.globus.ftp.DataSink;
 import org.globus.ftp.DataSinkStream;
 import org.globus.ftp.DataSource;
@@ -42,6 +44,7 @@ import org.globus.ftp.vanilla.Reply;
 import org.globus.gsi.CredentialException;
 import org.globus.gsi.X509Credential;
 import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
+import org.globus.myproxy.MyProxyException;
 import org.gridforum.jgss.ExtendedGSSCredential;
 import org.gridforum.jgss.ExtendedGSSManager;
 import org.ietf.jgss.GSSCredential;
@@ -51,6 +54,7 @@ import org.teragrid.portal.filebrowser.applet.ConfigOperation;
 import org.teragrid.portal.filebrowser.applet.file.GlobusFileInfo;
 import org.teragrid.portal.filebrowser.applet.util.LogManager;
 import org.teragrid.portal.filebrowser.applet.util.proxy.MyProxyDialog;
+import org.teragrid.portal.filebrowser.applet.util.proxy.MyProxyLogon;
 
 public class GridFTP extends GridFTPClient {
 	public static String Prefix = "gsiftp://";
@@ -63,7 +67,7 @@ public class GridFTP extends GridFTPClient {
 			throws IOException, ServerException {
 		super(sHost, nPort);
 		LogManager.debug("Starting session with " + sHost + ":" + nPort);
-		this.gssCred = cred;
+		this.gssCred = cred;		
 	}
 
 	public static GSSCredential authorize() throws IOException, CredentialException, GSSException 
@@ -153,8 +157,8 @@ public class GridFTP extends GridFTPClient {
 	}
 	
 	private static X509Credential readCredential(String path)
-			throws IOException, GSSException {
-
+	throws IOException, GSSException 
+	{
 		X509Credential cred = null;
 
 		java.io.File certFile = new java.io.File(path);
@@ -180,13 +184,13 @@ public class GridFTP extends GridFTPClient {
 	}
 
 	private static GSSCredential retrieveCredential() 
-	throws IOException, GSSException, CertificateEncodingException
+	throws MyProxyException
 	{
 		return showMyProxyDialog();
 	}
 
 	private static GSSCredential showMyProxyDialog() 
-	throws IOException, GSSException, CertificateEncodingException 
+	throws MyProxyException 
 	{
 		MyProxyDialog dlgGrid = new MyProxyDialog(AppMain.getFrame(),"MyProxy Authentication");
 		dlgGrid.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -233,8 +237,8 @@ public class GridFTP extends GridFTPClient {
 //		return proxy;
 //	}
 
-	public void authenticate(X509Credential cred) throws IOException,
-			ServerException {
+	public void authenticate(X509Credential cred) throws IOException, ServerException 
+	{
 		try {
 			LogManager.debug("Authenticating with remote resource.");
 			// convert a GlobusCredentail to a GSSCredntial required byFTP

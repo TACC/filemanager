@@ -10,7 +10,7 @@
 package edu.utexas.tacc.wcs.filemanager.common.model;
 
 import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FTPLogin;
-import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FTPType;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
 
 
 /**

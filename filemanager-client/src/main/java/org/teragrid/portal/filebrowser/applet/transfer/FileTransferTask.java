@@ -175,37 +175,6 @@ public class FileTransferTask extends Transfer implements Task {
     }
     
     /**
-     * Return the transfer status string
-     * @return String
-     */
-    public String getStatusString(){
-        String statusString = "";
-
-        switch(this.status){
-        case Task.DONE:
-            statusString = "Done";
-            break;
-            case Task.FAILED:
-                statusString = "Failed";
-            break;
-            case Task.ONGOING:
-                statusString = "Ongoing";
-                break;
-            case Task.RESTARTABLE:
-                statusString = "Restartable";
-                break;
-            case Task.WAITING:
-                statusString = "Waiting";
-                break;
-            case Task.STOPPED:
-                statusString = "Stopped";
-                break;
-        }
-
-        return statusString;
-    }
-    
-    /**
      * Set the transfer status
      * @param status int
      * @throws IllegalArgumentException

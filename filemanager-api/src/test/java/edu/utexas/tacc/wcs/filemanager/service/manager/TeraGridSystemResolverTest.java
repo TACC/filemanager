@@ -14,7 +14,7 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.apache.log4j.Logger;
-import org.teragrid.service.profile.util.TeraGridSystemResolver;
+import org.teragrid.service.profile.util.XsedeSystemResolver;
 import org.testng.annotations.Test;
 
 import edu.utexas.tacc.wcs.filemanager.service.dao.SystemDAO;
@@ -33,14 +33,14 @@ public class TeraGridSystemResolverTest extends TestCaseWithData
         
         List<System> systems = SystemDAO.findSystemAccounts(user);
         
-        systems = TeraGridSystemResolver.resolveResources(systems);
+        systems = XsedeSystemResolver.resolveResources(systems);
         
         Assert.assertNotNull(systems);
         
         for (System system: systems) {
-            if (system.getFTPHostname()== null || system.getFTPHostname().equals("")) {
+            if (system.getFtpHostname()== null || system.getFtpHostname().equals("")) {
                 logger.debug("Failed to resolve system " + system.toString());
-                Assert.assertNotNull(system.getFTPHostname());
+                Assert.assertNotNull(system.getFtpHostname());
                 
             }
         }

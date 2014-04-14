@@ -28,10 +28,11 @@ import org.teragrid.portal.filebrowser.applet.util.ResourceName;
 import org.teragrid.portal.filebrowser.applet.util.SGGCResourceBundle;
 
 import edu.utexas.tacc.wcs.filemanager.common.model.Task;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
 
-@SuppressWarnings("unchecked")
-public class BatchTransfer extends Thread{
-    private List fileTaskList = null;
+public class BatchTransfer extends Thread
+{
+    private List<FileTransferTask> fileTaskList = null;
     private FTPSettings sourceFTPSite = null;
     private FTPSettings destFTPSite = null;
 
@@ -41,7 +42,7 @@ public class BatchTransfer extends Thread{
     private int delay;//The time delay between 2 connection attempt
     private Component parent;
     
-    public BatchTransfer(Component parent,List fileTaskList, FTPSettings sourceFTPSite, FTPSettings destFTPSite, Scheduler scheduler) {
+    public BatchTransfer(Component parent,List<FileTransferTask> fileTaskList, FTPSettings sourceFTPSite, FTPSettings destFTPSite, Scheduler scheduler) {
         this.fileTaskList = fileTaskList;
         this.sourceFTPSite = sourceFTPSite;
         this.destFTPSite = destFTPSite;
@@ -275,7 +276,7 @@ public class BatchTransfer extends Thread{
             srcConnection.setDir(srcDir);
             srcConnection.setType(Session.TYPE_ASCII);
             srcConnection.setDTP(srcConnection.getFtpServer().passiveMode);
-            Vector files = srcConnection.list("*");
+            Vector<FileInfo> files = srcConnection.list("*");
 
             for (int i = 0; i < files.size(); i++) {
                 FileInfo file = (FileInfo) files.get(i);
@@ -284,7 +285,7 @@ public class BatchTransfer extends Thread{
                 }
 
             	int para = sourceFTPSite.connParallel < destFTPSite.connParallel ? sourceFTPSite.connParallel : destFTPSite.connParallel;
-                List fileTaskList = new ArrayList();
+                List<FileTransferTask> fileTaskList = new ArrayList<FileTransferTask>();
                 BatchTransfer.addTask(fileTaskList, file, fileTask.getSrcSite(), 
                 		fileTask.getDestSite(), srcDir, destDir, para, null);
                 this.scheduler.addTasks(fileTaskList);
@@ -337,14 +338,14 @@ public class BatchTransfer extends Thread{
 //		return sourceFTPSite;
 //	}
     
-    public static void addTask(java.util.List taskList, FileInfo file, FTPSettings srcSite, 
+    public static void addTask(List<FileTransferTask> taskList, FileInfo file, FTPSettings srcSite, 
     		FTPSettings destSite, String srcDir, String destDir, int parallism, String newName) {
     	if (taskList == null || file == null || srcSite == null
     			|| destSite == null || srcDir == null || destDir == null || parallism <= 0) {
     		return;
     	}
     	
-    	if (destSite.type != FTPType.FILE || file.isDirectory() || parallism == 1) {
+    	if (destSite.protocol.equals(FileProtocolType.FILE) || file.isDirectory() || parallism == 1) {
     		FileTransferTask newtask = new FileTransferTask(file, srcSite, destSite, srcDir, destDir);
     		if (newName != null) {
     			newtask.setNewName(newName);
@@ -371,7 +372,7 @@ public class BatchTransfer extends Thread{
 					newtask.setDisplayName(newtask.getNewName() + "[" + (j + 1)
 						+ "]");
 				}
-				newtask.setParaID(j + 1);
+				newtask.setParaId(j + 1);
 				newtask.setPara(parallism);
 				taskList.add(newtask);
 				if (j%1000 == 0) {
@@ -383,6 +384,6 @@ public class BatchTransfer extends Thread{
     }
     
     private String separator(FTPSettings site) {
-        return (site.type == 0)?File.separator:"/";
+        return (site.protocol.equals(FileProtocolType.FILE)) ? File.separator : "/";
     }
 }

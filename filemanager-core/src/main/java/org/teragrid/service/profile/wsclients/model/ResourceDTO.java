@@ -5,7 +5,7 @@ public abstract class ResourceDTO {
 	protected String name;
 	protected String resourceId;
 	protected String site;
-	protected String type;
+	protected String type = "HPC";
     
 	/**
 	 * @return the name

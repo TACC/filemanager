@@ -39,7 +39,7 @@ public class IRODSFileInfo extends FileInfo implements GenericFileInfo{
     private String userName = "";
     private String resource = "";
     private Irods client = null;
-    private List<UserFilePermission> permissions;
+    private List<UserFilePermission> permissions = new ArrayList<UserFilePermission>();
     private String absolutePath = "";
     private String queryUsername = "";
     

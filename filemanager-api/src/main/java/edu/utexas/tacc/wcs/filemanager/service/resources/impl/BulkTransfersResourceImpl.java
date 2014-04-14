@@ -12,6 +12,7 @@ package edu.utexas.tacc.wcs.filemanager.service.resources.impl;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.restlet.Request;
 import org.restlet.data.Status;
@@ -24,6 +25,7 @@ import org.restlet.resource.ResourceException;
 import edu.utexas.tacc.wcs.filemanager.common.model.BulkTransferRequest;
 import edu.utexas.tacc.wcs.filemanager.common.model.Transfer;
 import edu.utexas.tacc.wcs.filemanager.common.restlet.resource.AbstractApiResource;
+import edu.utexas.tacc.wcs.filemanager.service.Settings;
 import edu.utexas.tacc.wcs.filemanager.service.exception.AuthenticationException;
 import edu.utexas.tacc.wcs.filemanager.service.manager.HistoryManager;
 import edu.utexas.tacc.wcs.filemanager.service.resources.BulkTransfersResource;
@@ -48,8 +50,8 @@ public class BulkTransfersResourceImpl extends AbstractApiResource implements Bu
 	@Get
 	public List<Transfer> getAllTransfers() 
     {
-    	int page = Integer.valueOf((String)Request.getCurrent().getAttributes().get("page"), 1);
-    	int pageSize = Integer.valueOf((String)Request.getCurrent().getAttributes().get("pageSize"), 100);
+    	int page = NumberUtils.toInt((String)Request.getCurrent().getAttributes().get("page"), 1);
+    	int pageSize = NumberUtils.toInt((String)Request.getCurrent().getAttributes().get("pageSize"), Settings.DEFAULT_PAGE_SIZE);
     	
     	
         // retrieve the user's history in the paging manner requested.
@@ -134,7 +136,7 @@ public class BulkTransfersResourceImpl extends AbstractApiResource implements Bu
 	            			"Please supply a valid file transfer ID.");
 	        
 	            logger.debug("Updating status of file transfer " + transfer.getId() + 
-	                    " to " + transfer.getStatusString(transfer.getStatus()) + 
+	                    " to " + Transfer.getStatusString(transfer.getStatus()) + 
 	                    " with " + transfer.getProgress() + "% completed.");
 	            
 	            history.update(transfer);

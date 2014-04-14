@@ -30,8 +30,11 @@ import org.globus.ftp.exception.ClientException;
 import org.globus.ftp.exception.FTPException;
 import org.globus.ftp.exception.ServerException;
 import org.ietf.jgss.GSSCredential;
+import org.teragrid.portal.filebrowser.applet.ConfigOperation;
 import org.teragrid.portal.filebrowser.applet.exception.RemoteExecutionException;
 import org.teragrid.portal.filebrowser.applet.util.LogManager;
+
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
 
 
 @SuppressWarnings({"unused"})
@@ -55,7 +58,7 @@ public class GsiSshClient {
         
         this.hostname = hostname;
         this.cred = cred;
-        this.port = port;
+        this.port = (Integer.valueOf(port) == null ? FileProtocolType.GRIDFTP.getDefaultPort() : port);
     }
 
     public String find(String sRootDir, String sFilter, int depth) 
@@ -80,7 +83,7 @@ public class GsiSshClient {
 	{
 		LogManager.debug("Forking command " + command + " on " + hostname + ":" + port);
 		
-		PropertyAuthenticationInfo authenticationInfo = new PropertyAuthenticationInfo(cred, CoGProperties.getDefault().getCaCertLocations());
+		PropertyAuthenticationInfo authenticationInfo = new PropertyAuthenticationInfo(cred, ConfigOperation.getCertificateDir());
         // Create command
         CommandInfo commandInfo = new RawCommandInfo(command);
 

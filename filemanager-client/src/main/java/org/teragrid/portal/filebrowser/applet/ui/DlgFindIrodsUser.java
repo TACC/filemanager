@@ -38,9 +38,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.jdesktop.swingx.JXBusyLabel;
 import org.teragrid.portal.filebrowser.applet.AppMain;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPPort;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
 import org.teragrid.portal.filebrowser.applet.ui.permissions.StripedTable;
 import org.teragrid.portal.filebrowser.applet.util.LogManager;
 import org.teragrid.portal.filebrowser.applet.util.SwingWorker;
@@ -48,6 +46,7 @@ import org.teragrid.portal.filebrowser.applet.util.SwingWorker;
 import com.explodingpixels.macwidgets.IAppWidgetFactory;
 
 import edu.utexas.tacc.wcs.filemanager.common.model.User;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
 
 /**
  * Dialog box to make interactive queries to the middeware service to find users.
@@ -427,7 +426,7 @@ public class DlgFindIrodsUser extends DlgEscape {
 	
 	public static void main(String[] args) 
 	{
-		FTPSettings server = new FTPSettings("data.iplantcollaborative.org",FTPPort.PORT_IRODS,FTPType.IRODS);
+		FTPSettings server = new FTPSettings("data.iplantcollaborative.org",FileProtocolType.IRODS.getDefaultPort(),FileProtocolType.IRODS);
 		FTPThread tBrowse = new FTPThread(server,true,null);
 		DlgFindIrodsUser dlgFindUser = new DlgFindIrodsUser(null, tBrowse);
 		

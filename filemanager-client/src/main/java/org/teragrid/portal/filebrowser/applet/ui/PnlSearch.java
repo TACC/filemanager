@@ -54,7 +54,6 @@ import org.jdesktop.swingx.painter.BusyPainter;
 import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.ConfigOperation;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
 import org.teragrid.portal.filebrowser.applet.transfer.SearchResult;
 import org.teragrid.portal.filebrowser.applet.transfer.UrlSearch;
 import org.teragrid.portal.filebrowser.applet.ui.permissions.StripedTable;
@@ -64,6 +63,8 @@ import org.teragrid.portal.filebrowser.applet.util.ResourceName;
 import org.teragrid.portal.filebrowser.applet.util.SGGCResourceBundle;
 
 import com.explodingpixels.macwidgets.IAppWidgetFactory;
+
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
 
 /**
  * Search panel to replace the browsing panel when looking for folders and
@@ -329,7 +330,7 @@ public class PnlSearch extends JPanel {
 
 		// disable bookmark specific actions if no
 		// bookmark is selected.
-		mnuFileACL.setVisible(parent.ftpServer.type == FTPType.S3);
+		mnuFileACL.setVisible(parent.ftpServer.protocol.equals(FileProtocolType.S3));
 
 		mnuFileBookmark.setVisible(result.getFile().isDirectory());
 

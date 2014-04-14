@@ -9,26 +9,19 @@
 
 package edu.utexas.tacc.wcs.filemanager.service.dao;
 
-import java.io.DataInputStream;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.utexas.tacc.wcs.filemanager.common.model.BandwidthMeasurement;
-import edu.utexas.tacc.wcs.filemanager.common.model.TeraGridSystem;
 
 /**
  * Simple utility for finding today's measured bandwith between two resources through 
@@ -44,60 +37,31 @@ import edu.utexas.tacc.wcs.filemanager.common.model.TeraGridSystem;
  */
 public class BandwidthDAO {
 	
+	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(BandwidthDAO.class);
 	
-    private static Map<String,List<BandwidthMeasurement>> measurementCache = 
-    	new HashMap<String,List<BandwidthMeasurement>>();
-    
     private String endpoint;
     
     public BandwidthDAO(String endpoint) {
     	this.endpoint = endpoint;
     }
     
-    public BandwidthMeasurement getMeasuredBandwidth(String source, String dest) throws Exception {
-    	String src = getSpeedpageResourceName(source);
-    	String dst = getSpeedpageResourceName(dest);
+    public BandwidthMeasurement getMeasuredBandwidth(String source, String dest) 
+    throws Exception 
+    {
+//    	String src = getSpeedpageResourceName(source);
+//    	String dst = getSpeedpageResourceName(dest);
+    	String url = String.format("%s/source/%s/destination/%s/range/today", endpoint, source, dest);
     	
-        if (measurementCache.containsKey(src)
-        		&& !measurementCache.isEmpty()) {
-        	if (!measurementCache.get(src).contains(dst)) {
-        		cacheMeasurements(src);
-        	}
-        } else { 
-        	cacheMeasurements(src);
-        }
-        List<BandwidthMeasurement> measurements = measurementCache.get(src);
-        for (BandwidthMeasurement bm: measurements) {
-        	if (bm.getToHostname().equals(dst)) {
-        		return bm;
-        	}
-        }
-        return null;
+    	JsonNode measurement = getMeasurement(url);
+    	return new BandwidthMeasurement(source, 
+    									dest, 
+    									new Date(measurement.get("tstamp").asInt()), 
+    									measurement.get("xfer_rate").asDouble());
     }
     
-    public List<BandwidthMeasurement> getMeasuredBandwidthsFromSite(TeraGridSystem source) throws Exception {
-    	String src = getSpeedpageResourceName(source.getResourceName());
-    	
-        if (!measurementCache.containsKey(src) 
-        		|| measurementCache.isEmpty()) {
-        	cacheMeasurements(src);
-        }
-        
-        return measurementCache.get(src);
-        
-    }
-    
-    public Map<String,List<BandwidthMeasurement>> getAllMeasuredBandwidths() throws Exception {
-    	
-    	if (measurementCache.isEmpty()){
-    		cacheAllMeasurements();
-    	}
-    	
-    	return measurementCache;
-    }
-    
-    public static String getSpeedpageResourceName(String name) throws IOException{
+    public static String getSpeedpageResourceName(String name) throws IOException
+    {
     	if (name.equalsIgnoreCase("bigred.iu.teragrid.org")) return "IU BigRed";
     	if (name.equalsIgnoreCase("queenbee.loni-lsu.teragrid.org")) return "LONI Queenbee";
     	if (name.equalsIgnoreCase("frost.ncar.teragrid.org")) return "NCAR frost";
@@ -116,10 +80,12 @@ public class BandwidthDAO {
     	if (name.equalsIgnoreCase("frost.ncar.teragrid.org")) return "frost.ncar.teragrid.org";
     	if (name.equalsIgnoreCase("dtf.ncsa.teragrid.org")) return "dtf.ncsa.teragrid.org";
     	if (name.equalsIgnoreCase("lonestar.tacc.teragrid.org")) return "TACC Lonestar";
+    	if (name.equalsIgnoreCase("lonestar4.tacc.teragrid.org")) return "TACC Lonestar";
     	if (name.equalsIgnoreCase("maverick.tacc.teragrid.org")) return "TACC Maverick";
+    	if (name.equalsIgnoreCase("stampede.tacc.teragrid.org")) return "TACC Maverick";
     	if (name.equalsIgnoreCase("spur.tacc.teragrid.org")) return "TACC Spur";
     	if (name.equalsIgnoreCase("ranger.tacc.teragrid.org")) return "TACC Ranger";
-    	if (name.equalsIgnoreCase("ranch.tacc.teragrid.org")) return "TACC Ranch";
+    	if (name.equalsIgnoreCase("stampede.tacc.xsede.org")) return "TACC Stampede";
     	if (name.equalsIgnoreCase("dtf.uc.teragrid.org")) return "UC/ANL DTF";
     	if (name.equalsIgnoreCase("dtf.sdsc.teragrid.org")) return "SDSC DTF";
     	
@@ -143,52 +109,10 @@ public class BandwidthDAO {
     	if (name.equalsIgnoreCase("Maverick")) return "TACC Maverick";
     	if (name.equalsIgnoreCase("Ranger")) return "TACC Ranger";
     	if (name.equalsIgnoreCase("Ranch")) return "TACC Ranch";
+    	if (name.equalsIgnoreCase("Stampede")) return "TACC Stampede";
     	if (name.equalsIgnoreCase("UC/ANL TeraGrid Cluster")) return "UC/ANL DTF";
            
     	throw new IOException("Failed to map resource " + name);
-    }
-    
-    /**
-     * Query speedpage for all bandwidth measurement from the source resource. 
-     * 
-     * @param source
-     * @param dest
-     * @throws Exception
-     */
-    private void cacheMeasurements(String source) throws Exception {
-    	
-    	String date = new SimpleDateFormat("MM/dd/yyyy").format(new Date());
-        
-        String arguments = "?list=" + source.replaceAll(" ", "+") + "&" +
-            "begin=" + date;
-        
-        URL url = new URL(endpoint + arguments);
-        
-    	SpeedpageParser parser = new SpeedpageParser(getWebpage(url));
-    	
-    	measurementCache.put(source, parser.getBandwidthMeasurementsAtResource(source));
-    	
-    	logger.debug("Key entered was " + measurementCache.keySet().iterator().next());
-    }
-    
-    /**
-     * Query speedpage for all to all bandwidth measurements.
-     * 
-     * @throws Exception
-     */
-    private void cacheAllMeasurements() throws Exception {
-    	String date = new SimpleDateFormat("MM/dd/yyyy").format(new Date());
-        
-        String arguments = "?begin="+date;
-        	
-    	URL url = new URL(endpoint + arguments);
-        
-    	SpeedpageParser parser = new SpeedpageParser(getWebpage(url));
-    	
-    	measurementCache.clear();
-    	
-    	measurementCache.putAll(parser.getAllBandwidthMeasurements());
-    	
     }
     
     /**
@@ -198,157 +122,30 @@ public class BandwidthDAO {
      * @return
      * @throws IOException
      */
-    public static InputStream getWebpage(URL url) throws IOException {
-    	
-    	// get page
-        URLConnection conn = url.openConnection();
-        return new DataInputStream ( conn.getInputStream (  )  ) ;
-    }
-    
-    public static void main(String[] args) {
-        try {
-        	BandwidthDAO speedpage = new BandwidthDAO("http://quipu.psc.teragrid.org/speedpage/www/speedpage.php");
-        	
-//        	for(String key: speedpage.getAllMeasuredBandwidths().keySet()) {
-//        		for(BandwidthMeasurement bm: speedpage.getAllMeasuredBandwidths().get(key)) {
-//        			System.out.println(bm.toCsv());
-//        		}
-//        	}
-        	
-//        	TeraGridSystem source = new TeraGridSystem();
-//        	source.setResourceName("bigred.iu.teragrid.org");
-//        	TeraGridSystem dest = new TeraGridSystem();
-//        	dest.setResourceName("dtf.sdsc.teragrid.org");
-        	
-			System.out.println("Bandwidth is: " + speedpage.getMeasuredBandwidth("bigred.iu.teragrid.org","dtf.sdsc.teragrid.org").getMeasurement());
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error("Failed to retrieve measurement.",e);
-		}
-    }
-
-}
-
-class SpeedpageParser {
-	private static final Logger logger = Logger.getLogger(SpeedpageParser.class);
-	
-    private Map<String,List<BandwidthMeasurement>> measurements = new HashMap<String,List<BandwidthMeasurement>>();
-    private Document doc;
-    
-    @SuppressWarnings("unchecked")
-	public SpeedpageParser(InputStream in) throws Exception {
-        doc = new SAXBuilder(true).build(in);
-        
-        Element root = doc.getRootElement();
-        Element body = root.getChild("body",root.getNamespace());
-        Element table = body.getChild("table",root.getNamespace());
-        Element siteTable = null;
-        
-        try {
-        	siteTable = table.getChild("tr",root.getNamespace())
-			.getChild("td",root.getNamespace())
-			.getChild("table",root.getNamespace());
-        } catch (Exception e) {}
-        
-        if (siteTable != null) {
-        	for (Element t: (List<Element>)table.getChild("tr",root.getNamespace())
-        			.getChild("td",root.getNamespace())
-        			.getChildren("table",root.getNamespace())) {
-        		parseFullTable(t);
-        	}
-        } else {
-        	parseListingTable(table);
-        	
-        }
-    }
-        
-    @SuppressWarnings("unchecked")
-	private void parseListingTable(Element e) throws ParseException {
-        List<Element> rows = e.getChildren();
-        List<BandwidthMeasurement> bms = new ArrayList<BandwidthMeasurement>();
-        
-        for(int i=1;i<rows.size();i++) {
-        	Element row = rows.get(i);
-        	List<Element> columns = row.getChildren();
-        	String sDate = columns.get(0).getTextTrim();
-        	String source = columns.get(1).getTextTrim();
-        	String dest = columns.get(2).getTextTrim();
-        	String tput = columns.get(3).getTextTrim();
-//        	logger.debug("Table entries: " + sDate + ", " + source + ", " + dest + ", " + tput);
-        	
-        	Date date = new SimpleDateFormat("HH:mm:ss MM/dd/yyyy").parse(sDate);
-        	
-        	BandwidthMeasurement bm = new BandwidthMeasurement(source,dest,date,formatThruput(tput));
-        	
-        	// only keep the most recent measurement
-        	if (bms.contains(bm)) {
-        		bms.remove(bm);
-        	}
-        	
-        	bms.add(bm);
-        	
-        }
-        
-        measurements.put(bms.get(0).getFromHostname(), bms);
-        
-        logger.debug("Parsed " + bms.size() + " measurements");
-    }
-    
-    @SuppressWarnings("unchecked")
-	private void parseFullTable(Element eTable) throws ParseException {
-        List<Element> rows = eTable.getChildren();
-        List<BandwidthMeasurement> bms = new ArrayList<BandwidthMeasurement>();
-        
-        // get from hostname
-        String from = rows.get(0).getChild("td",eTable.getNamespace()).getChildText("a",eTable.getNamespace());
-    	
-    	// get measurement date
-    	List<Element> columns = rows.get(1).getChildren();
-    	String sDate = columns.get(1).getTextTrim();
-    	Date date = new SimpleDateFormat("MM/dd/yyyy").parse(sDate);
-    	
-    	logger.debug("Full table entries for " + from + " on " + date);
-    	
-        for(int i=3;i<rows.size();i++) {
-        	columns = rows.get(i).getChildren();
-        	String dest = columns.get(0).getTextTrim();
-        	String tput = columns.get(3).getChildTextTrim("a", eTable.getNamespace());
-        	logger.debug("Table entries: " + from + ", " + dest + ", " + date + ", " + tput);
-        	
-        	BandwidthMeasurement bm = new BandwidthMeasurement(from,dest,date,formatThruput((tput)));
-        	
-        	// only keep the most recent measurement
-        	if (bms.contains(bm)) {
-        		bms.remove(bm);
-        	}
-        	
-        	bms.add(bm);
-        	
-        }
-        
-        measurements.put(from, bms);
-        
-        logger.debug("Parsed " + bms.size() + " measurements");
-    }
-    
-    private Double formatThruput(String tput) {
-    	if (tput == null || tput.equals("") || tput.equals("N/A")) {
-    		return Double.valueOf(0.0);
-    	} else {
-    		return Double.valueOf(tput.replaceAll(",", ""));
+    public static JsonNode getMeasurement(String url)
+    {	
+    	ObjectMapper mapper = new ObjectMapper();
+        InputStream in = null;
+    	URLConnection conn = null;
+    	try {
+	    	// get page
+	        conn = new URL(url).openConnection();
+	        in = new BufferedInputStream( conn.getInputStream ());
+	        JsonNode json = mapper.readTree(in);
+	        if (json.has("Speedpage") && json.get("Speedpage").size() != 0)
+	        {
+	        	return json.get("Speedpage").get(json.get("Speedpage").size() - 1);
+	        }
+	        else
+	        {
+	        	return mapper.createObjectNode().put("xfer_rate", "0").put("tstamp", String.valueOf(new Date().getTime()));
+	        }
+    	} 
+    	catch (Exception e) {
+    		return mapper.createObjectNode().put("xfer_rate", "0").put("tstamp", String.valueOf(new Date().getTime()));
+    	}
+    	finally {
+    		try { in.close(); } catch (Exception e) {}
     	}
     }
-    
-    public Map<String,List<BandwidthMeasurement>> getAllBandwidthMeasurements() {
-    	return measurements;
-    }
-    
-    public List<BandwidthMeasurement> getBandwidthMeasurementsAtResource(String source) {
-    	return measurements.get(source);
-    }
-    
-    public BandwidthMeasurement getBandwidthMeasurementBetweenResources(String source, String dest) {
-    	return measurements.get(source).get(measurements.get(source).indexOf(dest));
-    }
-    
 }

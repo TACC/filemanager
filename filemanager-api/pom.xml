@@ -1,39 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-    Copyright (c) 2014, Texas Advanced Computing Center
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright notice, this
-      list of conditions and the following disclaimer.
-
-    * Redistributions in binary form must reproduce the above copyright notice,
-      this list of conditions and the following disclaimer in the documentation
-      and/or other materials provided with the distribution.
-
-    * Neither the name of the University of Texas at Austin nor the names of its
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS
-    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-    The views and conclusions contained in the software and documentation are those
-    of the authors and should not be interpreted as representing official policies,
-    either expressed or implied, of the FreeBSD Project.
-
--->
+<!-- Copyright (c) 2014, Texas Advanced Computing Center All rights reserved. 
+	Redistribution and use in source and binary forms, with or without modification, 
+	are permitted provided that the following conditions are met: * Redistributions 
+	of source code must retain the above copyright notice, this list of conditions 
+	and the following disclaimer. * Redistributions in binary form must reproduce 
+	the above copyright notice, this list of conditions and the following disclaimer 
+	in the documentation and/or other materials provided with the distribution. 
+	* Neither the name of the University of Texas at Austin nor the names of 
+	its contributors may be used to endorse or promote products derived from 
+	this software without specific prior written permission. THIS SOFTWARE IS 
+	PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY EXPRESS 
+	OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+	OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN 
+	NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+	INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF 
+	USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+	THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+	NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+	EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. The views and conclusions 
+	contained in the software and documentation are those of the authors and 
+	should not be interpreted as representing official policies, either expressed 
+	or implied, of the FreeBSD Project. -->
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -57,16 +45,18 @@
 	<properties>
 		<force.check.version>false</force.check.version>
 		<service.war.name>filemanager</service.war.name>
-		
+
 		<filemanager.api.db.test.password></filemanager.api.db.test.password>
 		<filemanager.api.db.test.username>${user.name}</filemanager.api.db.test.username>
-		<filemanager.api.db.test.url>jdbc:postgresql://localhost:5432/filemanager?sslfactory=org.postgresql.ssl.NonValidatingFactory&amp;ssl=true</filemanager.api.db.test.url>
-		
+		<filemanager.api.db.test.driver>org.postgresql.Driver</filemanager.api.db.test.driver>
+		<filemanager.api.db.test.url>jdbc:postgresql://localhost:5432/teragrid</filemanager.api.db.test.url>
+
 		<filemanager.api.db.host>localhost</filemanager.api.db.host>
 		<filemanager.api.db.port>5432</filemanager.api.db.port>
 		<filemanager.api.db.password></filemanager.api.db.password>
 		<filemanager.api.db.username>${user.name}</filemanager.api.db.username>
-		<filemanager.api.db.url>jdbc:postgresql://localhost:5432/filemanager?sslfactory=org.postgresql.ssl.NonValidatingFactory&amp;ssl=true</filemanager.api.db.url>
+		<filemanager.api.db.driver>org.postgresql.Driver</filemanager.api.db.driver>
+		<filemanager.api.db.url>jdbc:postgresql://localhost:5432/teragrid</filemanager.api.db.url>
 		<filemanager.api.db.jndi.connection>java:comp/env/jdbc/TGCDB-portal</filemanager.api.db.jndi.connection>
 	</properties>
 
@@ -80,12 +70,24 @@
 				<filtering>true</filtering>
 				<directory>src/main/resources</directory>
 			</resource>
+			<resource>
+				<directory>src/main/java</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
 		</resources>
 
 		<testResources>
 			<testResource>
 				<filtering>true</filtering>
 				<directory>src/test/resources</directory>
+			</testResource>
+			<testResource>
+				<directory>src/main/java</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
 			</testResource>
 		</testResources>
 
@@ -100,7 +102,7 @@
 					</suiteXmlFiles>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<executions>
@@ -213,7 +215,7 @@
 	</build>
 
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>edu.utexas.tacc.wcs</groupId>
 			<artifactId>filemanager-core</artifactId>
@@ -238,26 +240,23 @@
 			<version>${restlet.version}</version>
 		</dependency>
 
-		<!-- <dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>javax.ws.rs-api</artifactId>
-			<version>2.0-m10</version> 
-		</dependency> -->
+		<!-- <dependency> <groupId>javax.ws.rs</groupId> <artifactId>javax.ws.rs-api</artifactId> 
+			<version>2.0-m10</version> </dependency> -->
 
 		<dependency>
 			<groupId>org.restlet.jse</groupId>
 			<artifactId>org.restlet.ext.jetty</artifactId>
 			<version>${restlet.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.6.1</version>
 		</dependency>
-		
-		
-		
+
+
+
 		<!-- Hibernate -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -270,11 +269,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>8.1-408.jdbc3</version>
-		</dependency>
+		
 		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
@@ -286,21 +281,15 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
 			<version>1.4.7</version>
 		</dependency>
-		
-		<!-- 
 
-		<dependency>
-			<groupId>com.thoughtworks.xstream</groupId>
-			<artifactId>xstream</artifactId>
-			<version>1.4.5</version>
-		</dependency>
- -->
+		<!-- <dependency> <groupId>com.thoughtworks.xstream</groupId> <artifactId>xstream</artifactId> 
+			<version>1.4.5</version> </dependency> -->
 		<dependency>
 			<groupId>simple-jndi</groupId>
 			<artifactId>simple-jndi</artifactId>
@@ -339,6 +328,11 @@
 					<artifactId>testng</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>8.4-701.jdbc4</version>
 		</dependency>
 	</dependencies>
 </project>

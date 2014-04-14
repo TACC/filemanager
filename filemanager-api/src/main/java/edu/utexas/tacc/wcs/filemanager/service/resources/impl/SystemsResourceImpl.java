@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 import org.restlet.data.Status;
 import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;
-import org.teragrid.service.profile.util.TeraGridSystemResolver;
+import org.teragrid.service.profile.util.XsedeSystemResolver;
 
 import edu.utexas.tacc.wcs.filemanager.common.model.System;
 import edu.utexas.tacc.wcs.filemanager.common.model.User;
@@ -59,8 +59,7 @@ public class SystemsResourceImpl extends AbstractApiResource implements SystemsR
 	        
 	        // Get the resources on which the user has a valid account and resolve
 	        // the hostname issues caused by inaccuracies in the TGCDB
-	        List<System> systems = 
-	            TeraGridSystemResolver.resolveResources(
+	        List<System> systems = XsedeSystemResolver.resolveResources(
 	                    SystemDAO.findSystemAccounts(user));
 	        
 	        logger.info("Found " + systems.size() + " resources for user " + user.getUsername());

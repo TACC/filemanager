@@ -11,13 +11,13 @@ done via 3rd party transfer.
 @author Rion Dooley < dooley [at] tacc [dot] utexas [dot] edu >
 
 -->
-<hibernate-mapping package="edu.utexas.tacc.wcs.filemanager.service.model">
+<hibernate-mapping package="edu.utexas.tacc.wcs.filemanager.common.model">
 
 <typedef class="EnumUserType" name="transfer_status">
-    <param name="enumClassname">edu.utexas.tacc.wcs.filemanager.service.model.enumeration.TransferStatus</param>
+    <param name="enumClassname">edu.utexas.tacc.wcs.filemanager.common.model.enumeration.TransferStatus</param>
 </typedef>
 
-<class name="edu.utexas.tacc.wcs.filemanager.service.model.Transfer" 
+<class name="edu.utexas.tacc.wcs.filemanager.common.model.Transfer" 
 	   table="portal.filemgr_transfers" 
 	   lazy="true">
 

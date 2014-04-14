@@ -37,8 +37,6 @@ public class HibernateUtil
 			configuration = new Configuration().configure(
 					HibernateUtil.class.getClassLoader().getResource("hibernate.cfg.xml"));
 			
-			configuration.setNamingStrategy(new ImprovedNamingStrategy());
-			
 			// uncomment to see hql of all schema export statments.
 			// new SchemaExport(configuration).create(true, false);
 			sessionFactory = configuration.buildSessionFactory();

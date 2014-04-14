@@ -12,7 +12,7 @@ package edu.utexas.tacc.wcs.filemanager.service.resources.impl;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.restlet.data.Status;
-import org.restlet.resource.Get;
+import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
@@ -37,7 +37,7 @@ public class BandwidthResourceImpl extends ServerResource implements BandwidthRe
 	 * @see edu.utexas.tacc.wcs.filemanager.service.resources.impl.BandwidthResource#getBandwidth(java.lang.String, java.lang.String)
 	 */
     @Override
-	@Get
+	@Post
     public Double getBandwidth(BandwidthQuery query) 
     {
     	if (StringUtils.isEmpty(query.getSource()))
@@ -49,7 +49,7 @@ public class BandwidthResourceImpl extends ServerResource implements BandwidthRe
         			"Please supply a valid destination system");
 		try 
 		{	
-			BandwidthDAO speedpage = new BandwidthDAO(Settings.SPEEDPAGE_SERVER);
+			BandwidthDAO speedpage = new BandwidthDAO(Settings.IIS_SPEEDPAGE_SERVICE);
 			Double result = speedpage.getMeasuredBandwidth(query.getSource(), query.getDest()).getMeasurement();
 			
 			return result;

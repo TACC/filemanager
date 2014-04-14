@@ -23,6 +23,8 @@ import org.globus.ftp.exception.ServerException;
 import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.exception.RemoteExecutionException;
 
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
+
 class SSHCommand {
     public static final int NONE = 0;
 
@@ -33,8 +35,8 @@ class SSHCommand {
 }
 
 @SuppressWarnings("unused")
-public class GsiSSH {
-    
+public class GsiSSH 
+{   
     private boolean used = false;
 
     private boolean bIdle = true;
@@ -67,13 +69,13 @@ public class GsiSSH {
         ftpServer.parent = parent;
     }
 
-    public GsiSSH(Component parent,String sHost, int nType) throws IOException,
+    public GsiSSH(Component parent, String sHost, FileProtocolType nType) throws IOException,
             ServerException {
         this(new FTPSettings(sHost, nType));
         ftpServer.parent = parent;
     }
 
-    public GsiSSH(Component parent,String sHost, int nPort, int nType) throws IOException,
+    public GsiSSH(Component parent,String sHost, int nPort, FileProtocolType nType) throws IOException,
             ServerException {
         this(new FTPSettings(sHost, nPort, nType));
         ftpServer.parent = parent;
@@ -90,7 +92,7 @@ public class GsiSSH {
     
     public void connect() throws IOException, ServerException {
         
-        this.gsisshClient = new GsiSshClient(this.ftpServer.sshHost, AppMain.defaultCredential);
+        this.gsisshClient = new GsiSshClient(this.ftpServer.sshHost, this.ftpServer.sshPort, AppMain.defaultCredential);
         
         this.bConnected = true;
     }

@@ -55,11 +55,10 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.ietf.jgss.GSSCredential;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPPort;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
 import org.teragrid.portal.filebrowser.applet.transfer.FileTransferTask;
 import org.teragrid.portal.filebrowser.applet.transfer.GridFTP;
 import org.teragrid.portal.filebrowser.applet.transfer.HistoryManager;
@@ -79,6 +78,7 @@ import org.teragrid.portal.filebrowser.applet.util.SwingWorker;
 import com.explodingpixels.macwidgets.IAppWidgetFactory;
 
 import edu.utexas.tacc.wcs.filemanager.common.model.Task;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
 import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.NotificationType;
 
 /**
@@ -92,128 +92,128 @@ public class AppMain extends JApplet {
 //public class AppMain extends JFrame {
     
     // Clipboard icons
-    public static final ImageIcon icoCopy = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/copy.gif"));
-    public static final ImageIcon icoCut = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/cut.gif"));
-    public static final ImageIcon icoPaste = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/paste.gif"));
+    public static final ImageIcon icoCopy = new ImageIcon(ClassLoader.getSystemResource("images/copy.gif"));
+    public static final ImageIcon icoCut = new ImageIcon(ClassLoader.getSystemResource("images/cut.gif"));
+    public static final ImageIcon icoPaste = new ImageIcon(ClassLoader.getSystemResource("images/paste.gif"));
     
     // UI views icons
-    public static final ImageIcon icoPreferences = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/preferences.png"));
-    public static final ImageIcon icoSearch = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/search.png"));
-    public static final ImageIcon icoSearchPressed = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/search_pressed.png"));
-    public static final ImageIcon icoBook = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/bookmarks.png"));
-    public static final ImageIcon icoBookPressed = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/bookmarks_pressed.png"));
-    public static final ImageIcon icoBandwidth=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/bandwidth.png"));
-    public static final ImageIcon icoBandwidthPressed=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/bandwidth_pressed.png"));
-    public static final ImageIcon icoFavorite = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/favorite.gif"));
-    public static final ImageIcon icoHelp = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/help.png"));
-    public static final ImageIcon icoAboutbox = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/about.png"));
-    public static final ImageIcon icoProperties = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/gear.jpg"));
+    public static final ImageIcon icoPreferences = new ImageIcon(ClassLoader.getSystemResource("images/preferences.png"));
+    public static final ImageIcon icoSearch = new ImageIcon(ClassLoader.getSystemResource("images/search.png"));
+    public static final ImageIcon icoSearchPressed = new ImageIcon(ClassLoader.getSystemResource("images/search_pressed.png"));
+    public static final ImageIcon icoBook = new ImageIcon(ClassLoader.getSystemResource("images/bookmarks.png"));
+    public static final ImageIcon icoBookPressed = new ImageIcon(ClassLoader.getSystemResource("images/bookmarks_pressed.png"));
+    public static final ImageIcon icoBandwidth=new ImageIcon(ClassLoader.getSystemResource("images/bandwidth.png"));
+    public static final ImageIcon icoBandwidthPressed=new ImageIcon(ClassLoader.getSystemResource("images/bandwidth_pressed.png"));
+    public static final ImageIcon icoFavorite = new ImageIcon(ClassLoader.getSystemResource("images/favorite.gif"));
+    public static final ImageIcon icoHelp = new ImageIcon(ClassLoader.getSystemResource("images/help.png"));
+    public static final ImageIcon icoAboutbox = new ImageIcon(ClassLoader.getSystemResource("images/about.png"));
+    public static final ImageIcon icoProperties = new ImageIcon(ClassLoader.getSystemResource("images/gear.jpg"));
     
     // File Listing views
-    public static final ImageIcon icoDetailView = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/detail.png"));
-    public static final ImageIcon icoIconView = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/icon.png"));
-    public static final ImageIcon icoListView = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/list.png"));
+    public static final ImageIcon icoDetailView = new ImageIcon(ClassLoader.getSystemResource("images/detail.png"));
+    public static final ImageIcon icoIconView = new ImageIcon(ClassLoader.getSystemResource("images/icon.png"));
+    public static final ImageIcon icoListView = new ImageIcon(ClassLoader.getSystemResource("images/list.png"));
     
     // Transfer control
-    public static final ImageIcon icoStop = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/rstop.gif"));
-    public static final ImageIcon icoStopConn=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/rstop.gif"));
-    public static final ImageIcon icoDisconn=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eject.png"));
-    public static final ImageIcon icoDisconnPressed=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eject_pressed.png"));
-    public static final ImageIcon icoDownload=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/download.gif"));
-    public static final ImageIcon icoConn=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/connect.jpg"));
-    public static final ImageIcon icoUpload=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/upload.gif"));
+    public static final ImageIcon icoStop = new ImageIcon(ClassLoader.getSystemResource("images/rstop.gif"));
+    public static final ImageIcon icoStopConn=new ImageIcon(ClassLoader.getSystemResource("images/rstop.gif"));
+    public static final ImageIcon icoDisconn=new ImageIcon(ClassLoader.getSystemResource("images/eject.png"));
+    public static final ImageIcon icoDisconnPressed=new ImageIcon(ClassLoader.getSystemResource("images/eject_pressed.png"));
+    public static final ImageIcon icoDownload=new ImageIcon(ClassLoader.getSystemResource("images/download.gif"));
+    public static final ImageIcon icoConn=new ImageIcon(ClassLoader.getSystemResource("images/connect.jpg"));
+    public static final ImageIcon icoUpload=new ImageIcon(ClassLoader.getSystemResource("images/upload.gif"));
     
     // Queue Status Icons
-    public static final ImageIcon icoStatusGreen=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/statusGreen.jpg"));
-    public static final ImageIcon icoStatusYellow=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/statusYellow.jpg"));
-    public static final ImageIcon icoStatusRed=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/statusRed.jpg"));
+    public static final ImageIcon icoStatusGreen=new ImageIcon(ClassLoader.getSystemResource("images/statusGreen.jpg"));
+    public static final ImageIcon icoStatusYellow=new ImageIcon(ClassLoader.getSystemResource("images/statusYellow.jpg"));
+    public static final ImageIcon icoStatusRed=new ImageIcon(ClassLoader.getSystemResource("images/statusRed.jpg"));
     
     // File Management Icons
-    public static final ImageIcon icoRefresh=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/reload.png"));
-    public static final ImageIcon icoRefreshPressed=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/reload_pressed.png"));
-    public static final ImageIcon icoRename=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/rename.png"));
-    public static final ImageIcon icoRenamePressed=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/rename_pressed.png"));
-    public static final ImageIcon icoNewFolder = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/newfolder.png"));
-    public static final ImageIcon icoNewFolderPressed = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/newfolder_pressed.png"));
-    public static final ImageIcon icoInfo=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/info.png"));
-    public static final ImageIcon icoInfoPressed=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/info_pressed.png"));
-    public static final ImageIcon icoDelete=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/trash.png"));
-    public static final ImageIcon icoDeletePressed=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/trash_pressed.png"));
+    public static final ImageIcon icoRefresh=new ImageIcon(ClassLoader.getSystemResource("images/reload.png"));
+    public static final ImageIcon icoRefreshPressed=new ImageIcon(ClassLoader.getSystemResource("images/reload_pressed.png"));
+    public static final ImageIcon icoRename=new ImageIcon(ClassLoader.getSystemResource("images/rename.png"));
+    public static final ImageIcon icoRenamePressed=new ImageIcon(ClassLoader.getSystemResource("images/rename_pressed.png"));
+    public static final ImageIcon icoNewFolder = new ImageIcon(ClassLoader.getSystemResource("images/newfolder.png"));
+    public static final ImageIcon icoNewFolderPressed = new ImageIcon(ClassLoader.getSystemResource("images/newfolder_pressed.png"));
+    public static final ImageIcon icoInfo=new ImageIcon(ClassLoader.getSystemResource("images/info.png"));
+    public static final ImageIcon icoInfoPressed=new ImageIcon(ClassLoader.getSystemResource("images/info_pressed.png"));
+    public static final ImageIcon icoDelete=new ImageIcon(ClassLoader.getSystemResource("images/trash.png"));
+    public static final ImageIcon icoDeletePressed=new ImageIcon(ClassLoader.getSystemResource("images/trash_pressed.png"));
     
     // Browsing Icons
     public static Icon icoFile = null;
-    public static final ImageIcon icoFileLarge = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/file32.png"));
+    public static final ImageIcon icoFileLarge = new ImageIcon(ClassLoader.getSystemResource("images/file32.png"));
     public static final Icon icoFolder = FileSystemView.getFileSystemView().getSystemIcon(new File(System.getProperty("user.home")));
-    public static final ImageIcon icoFolderLarge = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/folder32.png"));
-    public static final ImageIcon icoNetwork=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/network.png"));
-    public static final ImageIcon icoFolderExpanded = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/folderexpanded.gif"));
-    public static final ImageIcon icoRightArrow = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/toarrow.png"));
+    public static final ImageIcon icoFolderLarge = new ImageIcon(ClassLoader.getSystemResource("images/folder32.png"));
+    public static final ImageIcon icoNetwork=new ImageIcon(ClassLoader.getSystemResource("images/network.png"));
+    public static final ImageIcon icoFolderExpanded = new ImageIcon(ClassLoader.getSystemResource("images/folderexpanded.gif"));
+    public static final ImageIcon icoRightArrow = new ImageIcon(ClassLoader.getSystemResource("images/toarrow.png"));
     
     // Notification icons
-    public static final ImageIcon icoIM=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/chat.png"));
-    public static final ImageIcon icoEmail=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/email.png"));
-    public static final ImageIcon icoNotify=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/notify.png"));
-    public static final ImageIcon icoSMS=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/sms.png"));
+    public static final ImageIcon icoIM=new ImageIcon(ClassLoader.getSystemResource("images/chat.png"));
+    public static final ImageIcon icoEmail=new ImageIcon(ClassLoader.getSystemResource("images/email.png"));
+    public static final ImageIcon icoNotify=new ImageIcon(ClassLoader.getSystemResource("images/notify.png"));
+    public static final ImageIcon icoSMS=new ImageIcon(ClassLoader.getSystemResource("images/sms.png"));
     
     // Editing Icons
-    public static final ImageIcon icoAdd=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/add.jpg"));
-    public static final ImageIcon icoRemove=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/remove.jpg"));
-    public static final ImageIcon icoEdit=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/edit.jpg"));
-    public static final ImageIcon icoSortUp = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/sortup.gif"));
-    public static final ImageIcon icoSortDown = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/sortdown.gif"));
-    public static final ImageIcon icoLocked = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/locked.jpg"));
-    public static final ImageIcon icoUnlocked = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/unlocked.jpg"));
+    public static final ImageIcon icoAdd=new ImageIcon(ClassLoader.getSystemResource("images/add.jpg"));
+    public static final ImageIcon icoRemove=new ImageIcon(ClassLoader.getSystemResource("images/remove.jpg"));
+    public static final ImageIcon icoEdit=new ImageIcon(ClassLoader.getSystemResource("images/edit.jpg"));
+    public static final ImageIcon icoSortUp = new ImageIcon(ClassLoader.getSystemResource("images/sortup.gif"));
+    public static final ImageIcon icoSortDown = new ImageIcon(ClassLoader.getSystemResource("images/sortdown.gif"));
+    public static final ImageIcon icoLocked = new ImageIcon(ClassLoader.getSystemResource("images/locked.jpg"));
+    public static final ImageIcon icoUnlocked = new ImageIcon(ClassLoader.getSystemResource("images/unlocked.jpg"));
     
     // Identity icons
-    public static final ImageIcon icoUser = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/user.png"));
-    public static final ImageIcon icoGroup = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/group.png"));
-    public static final ImageIcon icoContact = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/contact.png"));
+    public static final ImageIcon icoUser = new ImageIcon(ClassLoader.getSystemResource("images/user.png"));
+    public static final ImageIcon icoGroup = new ImageIcon(ClassLoader.getSystemResource("images/group.png"));
+    public static final ImageIcon icoContact = new ImageIcon(ClassLoader.getSystemResource("images/contact.png"));
     
     // Navigation Icons
-    public static final ImageIcon icoBack=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/back.jpg"));
-    public static final ImageIcon icoFwd = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/forward.jpg"));
-    public static final ImageIcon icoUpDir=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/up.gif"));
-    public static final ImageIcon icoUpDirPressed=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/up_pressed.gif"));
-    public static final ImageIcon icoGoTo=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/goto.png"));
-    public static final ImageIcon icoGoToPressed=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/goto_pressed.png"));
-    public static final ImageIcon icoHome=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/home.png"));
-    public static final ImageIcon icoHomePressed=new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/home_pressed.png"));
-    public static final ImageIcon icoTGArchive = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/TG_ARCHIVE.png"));
-    public static final ImageIcon icoTGScratch = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/TG_SLASH.png"));
-    public static final ImageIcon icoTGWork = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/TG_WORK.png"));
-    public static final ImageIcon icoEnvironment = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/environment.png"));
-    public static final ImageIcon icoEnvironmentPressed = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/environment_pressed.png"));
+    public static final ImageIcon icoBack=new ImageIcon(ClassLoader.getSystemResource("images/back.jpg"));
+    public static final ImageIcon icoFwd = new ImageIcon(ClassLoader.getSystemResource("images/forward.jpg"));
+    public static final ImageIcon icoUpDir=new ImageIcon(ClassLoader.getSystemResource("images/up.gif"));
+    public static final ImageIcon icoUpDirPressed=new ImageIcon(ClassLoader.getSystemResource("images/up_pressed.gif"));
+    public static final ImageIcon icoGoTo=new ImageIcon(ClassLoader.getSystemResource("images/goto.png"));
+    public static final ImageIcon icoGoToPressed=new ImageIcon(ClassLoader.getSystemResource("images/goto_pressed.png"));
+    public static final ImageIcon icoHome=new ImageIcon(ClassLoader.getSystemResource("images/home.png"));
+    public static final ImageIcon icoHomePressed=new ImageIcon(ClassLoader.getSystemResource("images/home_pressed.png"));
+    public static final ImageIcon icoTGArchive = new ImageIcon(ClassLoader.getSystemResource("images/TG_ARCHIVE.png"));
+    public static final ImageIcon icoTGScratch = new ImageIcon(ClassLoader.getSystemResource("images/TG_SLASH.png"));
+    public static final ImageIcon icoTGWork = new ImageIcon(ClassLoader.getSystemResource("images/TG_WORK.png"));
+    public static final ImageIcon icoEnvironment = new ImageIcon(ClassLoader.getSystemResource("images/environment.png"));
+    public static final ImageIcon icoEnvironmentPressed = new ImageIcon(ClassLoader.getSystemResource("images/environment_pressed.png"));
     
     // Connection Type Icons
-    public static final ImageIcon icoResourceTeraGridShare = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/idisk.png"));
-    public static final ImageIcon icoResourceAmazon = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/amazon.png"));
-    public static final ImageIcon icoResourceCompute = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/compute_resource.png"));
-    public static final ImageIcon icoResourceArchive =new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/storage_resource.png"));
-    public static final ImageIcon icoResourceViz = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/viz-resource.png"));
-    public static final ImageIcon icoResourceLocal = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/local-resource.png"));
+    public static final ImageIcon icoResourceTeraGridShare = new ImageIcon(ClassLoader.getSystemResource("images/idisk.png"));
+    public static final ImageIcon icoResourceAmazon = new ImageIcon(ClassLoader.getSystemResource("images/amazon.png"));
+    public static final ImageIcon icoResourceCompute = new ImageIcon(ClassLoader.getSystemResource("images/compute_resource.png"));
+    public static final ImageIcon icoResourceArchive =new ImageIcon(ClassLoader.getSystemResource("images/storage_resource.png"));
+    public static final ImageIcon icoResourceViz = new ImageIcon(ClassLoader.getSystemResource("images/viz-resource.png"));
+    public static final ImageIcon icoResourceLocal = new ImageIcon(ClassLoader.getSystemResource("images/local-resource.png"));
     
     // Branding Icons
-    public static final ImageIcon icoTeraGrid = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/xsede.png"));
-    public static final ImageIcon icoTeraGridSmall = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/xsede-small.png"));
-    public static final ImageIcon imgSplash = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/xsede-splash.png"));
-    public static final ImageIcon icoError = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/error_message_icon.png"));
-    public static final ImageIcon icoWarn = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/warning_message_icon.png"));
-    public static final ImageIcon icoPrompt = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/xsede_prompt_message_icon.png"));
-    public static final Image imgBackground = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/background.jpg")).getImage();
+    public static final ImageIcon icoTeraGrid = new ImageIcon(ClassLoader.getSystemResource("images/xsede.png"));
+    public static final ImageIcon icoTeraGridSmall = new ImageIcon(ClassLoader.getSystemResource("images/xsede-small.png"));
+    public static final ImageIcon imgSplash = new ImageIcon(ClassLoader.getSystemResource("images/xsede-splash.png"));
+    public static final ImageIcon icoError = new ImageIcon(ClassLoader.getSystemResource("images/error_message_icon.png"));
+    public static final ImageIcon icoWarn = new ImageIcon(ClassLoader.getSystemResource("images/warning_message_icon.png"));
+    public static final ImageIcon icoPrompt = new ImageIcon(ClassLoader.getSystemResource("images/xsede_prompt_message_icon.png"));
+    public static final Image imgBackground = new ImageIcon(ClassLoader.getSystemResource("images/background.jpg")).getImage();
 
-//    public static final ImageIcon icoTeraGrid = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat.png"));
-//    public static final ImageIcon icoTeraGridSmall = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat-small.png"));
-//    public static final ImageIcon imgSplash = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat-splash.png"));
-//    public static final ImageIcon icoError = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat_error_message_icon.png"));
-//    public static final ImageIcon icoWarn = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat_warning_message_icon.png"));
-//    public static final ImageIcon icoPrompt = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat_prompt_message_icon.png"));
-//    public static final Image imgBackground = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/eudat-background.jpg")).getImage();
+//    public static final ImageIcon icoTeraGrid = new ImageIcon(ClassLoader.getSystemResource("images/eudat.png"));
+//    public static final ImageIcon icoTeraGridSmall = new ImageIcon(ClassLoader.getSystemResource("images/eudat-small.png"));
+//    public static final ImageIcon imgSplash = new ImageIcon(ClassLoader.getSystemResource("images/eudat-splash.png"));
+//    public static final ImageIcon icoError = new ImageIcon(ClassLoader.getSystemResource("images/eudat_error_message_icon.png"));
+//    public static final ImageIcon icoWarn = new ImageIcon(ClassLoader.getSystemResource("images/eudat_warning_message_icon.png"));
+//    public static final ImageIcon icoPrompt = new ImageIcon(ClassLoader.getSystemResource("images/eudat_prompt_message_icon.png"));
+//    public static final Image imgBackground = new ImageIcon(ClassLoader.getSystemResource("images/eudat-background.jpg")).getImage();
     
     // Share Overlay Icons
-    public static final ImageIcon icoShareItem = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/share-item.png"));
-    public static final ImageIcon icoShareItem16 = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/share-item16.png"));
-//    public static final ImageIcon icoShareChild = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/share-child.png"));
-//    public static final ImageIcon icoShareChild16 = new ImageIcon(org.teragrid.portal.filebrowser.applet.AppMain.class.getResource("resource/share-child16.png"));
+    public static final ImageIcon icoShareItem = new ImageIcon(ClassLoader.getSystemResource("images/share-item.png"));
+    public static final ImageIcon icoShareItem16 = new ImageIcon(ClassLoader.getSystemResource("images/share-item16.png"));
+//    public static final ImageIcon icoShareChild = new ImageIcon(ClassLoader.getSystemResource("images/share-child.png"));
+//    public static final ImageIcon icoShareChild16 = new ImageIcon(ClassLoader.getSystemResource("images/share-child16.png"));
     
     private static Logger logger = LogManager.getLogger();
     private static AppMain appMain = null;
@@ -404,7 +404,7 @@ public class AppMain extends JApplet {
         
         HistoryManager.refreshTaskList();
         
-        fchLocal = new PnlBrowse(this,new FTPSettings("Local",FTPPort.PORT_NONE,FTPType.FILE),configOperation.getConfigValue("download_dir"),false);
+        fchLocal = new PnlBrowse(this,new FTPSettings("Local",FileProtocolType.FILE.getDefaultPort(),FileProtocolType.FILE),configOperation.getConfigValue("download_dir"),false);
         
 //        for (File f: java.util.Arrays.asList(new File(System.getProperty("user.home")).listFiles())) {
 //            if (f.isFile()) {
@@ -487,7 +487,7 @@ public class AppMain extends JApplet {
         qpopInit();
         
         // create left panel opened to Local
-        this.pbLeft = new PnlBrowse(this,new FTPSettings("Local",FTPPort.PORT_NONE,FTPType.FILE, this.pbLeft),false);
+        this.pbLeft = new PnlBrowse(this,new FTPSettings("Local",FileProtocolType.FILE.getDefaultPort(),FileProtocolType.FILE, this.pbLeft),false);
         
         // create empty right panel
         this.pbRight = new PnlBrowse(this);
@@ -772,7 +772,8 @@ public class AppMain extends JApplet {
         mnuQueue.add(mnuQueDelAll);
     }
     
-    private JMenuItem getHelpMenuItem() {
+    @SuppressWarnings("deprecation")
+	private JMenuItem getHelpMenuItem() {
         HelpSet hs = null;
         HelpBroker hb = null;
         URL url = null;
@@ -909,9 +910,9 @@ public class AppMain extends JApplet {
     private boolean areAnyDone(int[] rows) {
         for (int i=0;i<rows.length;i++) {
             String status = (String)((QueueTableModel)tblQueue.getModel()).getValueAt(rows[i],10);
-            if (status == FileTransferTask.getStatusString(Task.STOPPED) || 
-                    status == FileTransferTask.getStatusString(Task.FAILED) || 
-                    status == FileTransferTask.getStatusString(Task.DONE)) 
+            if (StringUtils.equals(status.toUpperCase(), FileTransferTask.getStatusString(Task.STOPPED)) || 
+            		StringUtils.equals(status.toUpperCase(), FileTransferTask.getStatusString(Task.FAILED)) ||
+                    StringUtils.equals(status.toUpperCase(), FileTransferTask.getStatusString(Task.DONE))) 
                 return true;
         }
         

@@ -17,7 +17,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -37,8 +36,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
 import org.jdesktop.swingx.JXBusyLabel;
+import org.restlet.resource.ClientResource;
 import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.ui.permissions.StripedTable;
 import org.teragrid.portal.filebrowser.applet.util.LogManager;
@@ -48,7 +47,11 @@ import org.teragrid.portal.filebrowser.applet.util.SwingWorker;
 import com.explodingpixels.macwidgets.IAppWidgetFactory;
 
 import edu.utexas.tacc.wcs.filemanager.common.model.User;
+import edu.utexas.tacc.wcs.filemanager.common.model.UserQuery;
 import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.UserQueryType;
+import edu.utexas.tacc.wcs.filemanager.service.resources.ColleaguesResource;
+import edu.utexas.tacc.wcs.filemanager.service.resources.PartnersResource;
+import edu.utexas.tacc.wcs.filemanager.service.resources.UsersResource;
 
 /**
  * Dialog box to make interactive queries to the middeware service to find users.
@@ -200,7 +203,7 @@ public class DlgFindUser extends DlgEscape {
 		pnlCategory.setLayout(new BoxLayout(pnlCategory,BoxLayout.LINE_AXIS));
 		pnlCategory.setBorder(BorderFactory.createMatteBorder(0,0,0,1,Color.BLACK));
 		
-		lstCategory = new JList(new String[]{USERS,COLLEAGUES,PROJECTS});
+		lstCategory = new JList(new String[]{USERS,PROJECTS});
 		lstCategory.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		lstCategory.getSelectionModel().addListSelectionListener(new CategoryListSelectionListener(this));
 		lstCategory.setCellRenderer(new CategoryListCellRenderer());
@@ -283,31 +286,22 @@ public class DlgFindUser extends DlgEscape {
 			@Override
 			public Object construct() {
 				setBusyWaiting(true);
-				// only supporting user's first and last name searches right now
-				Vector<String> params = new Vector<String>();
-		        params.addElement(((GlobusGSSCredentialImpl)AppMain.defaultCredential).getX509Credential().getIdentity());
-		        params.addElement(UserQueryType.NAME.getValue());
-		        params.addElement(searchString);
+				
+				LogManager.debug("Querying user by name: " + searchString);
 		        
-		        LogManager.debug("Sending following query to service for logging:");
-		        for(String s: (Vector<String>)params) {
-		            LogManager.debug(ServletUtil.dewebify(s));
-		        }
-		        
-		        String result = null;
-				try {
-					result = (String)ServletUtil.getClient().execute(
-					        ServletUtil.FIND_USER,params);
-				} catch (Exception e) {
+				List<User> users = null;
+				try 
+				{
+					UserQuery userQuery = new UserQuery(UserQueryType.NAME, searchString);
+					ClientResource clientResource = ServletUtil.getClient(ServletUtil.USERS_SERVICE_URL);
+					UsersResource client = clientResource.wrap(UsersResource.class);
+					users = client.findUsers(userQuery);
+				} 
+				catch (Exception e) {
 					LogManager.error("Failed to retrieve users", e);
 				}
-		        
-				if (result != null) {
-					LogManager.debug(result);
-					return ServletUtil.getXStream().fromXML(result);
-				} else {
-					return new ArrayList<User>();
-				}
+				
+				return users;
 			}
 
 
@@ -341,26 +335,20 @@ public class DlgFindUser extends DlgEscape {
 			public Object construct() {
 				setBusyWaiting(true);
 				
-				ClientResource clientResource = new ClientResource(
-			            "http://localhost:8182/rest/test");
-				Vector<String> params = new Vector<String>();
-		        params.addElement(((GlobusGSSCredentialImpl)AppMain.defaultCredential).getX509Credential().getIdentity());
+				LogManager.debug("Querying for colleagues");
 		        
-		        
-		        String result = null;
-				try {
-					result = (String)ServletUtil.getClient().execute(
-					        ServletUtil.FIND_COLLEAGUES,params);
-				} catch (Exception e) {
+				List<User> users = null;
+				try 
+				{
+					ClientResource clientResource = ServletUtil.getClient(ServletUtil.COLLEAGUES_SERVICE_URL);
+					ColleaguesResource client = clientResource.wrap(ColleaguesResource.class);
+					users = client.findColleagues();
+				} 
+				catch (Exception e) {
 					LogManager.error("Failed to retrieve users", e);
 				}
-				  
-				if (result != null) {
-					LogManager.debug(result);
-					return ServletUtil.getXStream().fromXML(result);
-				} else {
-					return new ArrayList<User>();
-				}
+				
+				return users;
 			}
 
 			@Override
@@ -391,24 +379,20 @@ public class DlgFindUser extends DlgEscape {
 			public Object construct() {
 				setBusyWaiting(true);
 				
-				Vector<String> params = new Vector<String>();
-					
-		        params.addElement(((GlobusGSSCredentialImpl)AppMain.defaultCredential).getX509Credential().getIdentity());
-		       
-		        String result = null;
-				try {
-					result = (String)ServletUtil.getClient().execute(
-					        ServletUtil.FIND_PROJECT_PARTNERS,params);
-				} catch (Exception e) {
+				LogManager.debug("Querying for project partners");
+		        
+				List<User> users = null;
+				try 
+				{
+					ClientResource clientResource = ServletUtil.getClient(ServletUtil.PARTNERS_SERVICE_URL);
+					PartnersResource client = clientResource.wrap(PartnersResource.class);
+					users = client.findProjectPartners();
+				} 
+				catch (Exception e) {
 					LogManager.error("Failed to retrieve users", e);
 				}
 				
-				if (result != null) {
-					LogManager.debug(result);
-					return ServletUtil.getXStream().fromXML(result);
-				} else {
-					return new ArrayList<User>();
-				}
+				return users;
 			}
 
 			@Override

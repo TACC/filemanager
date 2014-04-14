@@ -378,7 +378,8 @@ public class Irods extends FTPClient {
 			}
 			
 			Vector<FileInfo> v = new Vector<FileInfo>();
-			for (CollectionAndDataObjectListingEntry entry: util.listDataObjectsAndCollectionsUnderPathWithPermissions(currentDirectory) ) {
+			
+			for (CollectionAndDataObjectListingEntry entry: util.listDataObjectsAndCollectionsUnderPath(currentDirectory) ) {
 				v.add(FileInfoFactory.getIRODSFileInfo(entry, username));
 			}
 			
@@ -820,20 +821,24 @@ public class Irods extends FTPClient {
 		try 
 		{
 			UserAO userAO = accessObjectFactory.getUserAO(irodsAccount);
+			List<org.irods.jargon.core.pub.domain.User> irodsUsers = null;
+			UserGroupAO usergroupAO = accessObjectFactory.getUserGroupAO(irodsAccount);
 			
-			final StringBuilder sb = new StringBuilder();
-			if (!StringUtils.isEmpty(searchString))
+			if (StringUtils.isEmpty(searchString))
 			{
+				irodsUsers = userAO.findAll();
+			}
+			else
+			{
+				final StringBuilder sb = new StringBuilder();
 				sb.append(RodsGenQueryEnum.COL_USER_NAME.getName());
 				sb.append(" LIKE ");
 				sb.append(" '%" + searchString + "%'");
+				
+				irodsUsers = userAO.findWhere(sb.toString());
 			}
 			
-			UserGroupAO usergroupAO = accessObjectFactory.getUserGroupAO(irodsAccount);
-			
-			List<UserGroup> ug = usergroupAO.findUserGroupsForUser(searchString);
-			
-			for(org.irods.jargon.core.pub.domain.User irodsUser : userAO.findWhere(sb.toString()))
+			for(org.irods.jargon.core.pub.domain.User irodsUser : irodsUsers)
 			{
 				User user = new User();
 				List<AvuData> userMeta = userAO.listUserMetadataForUserId(irodsUser.getId());

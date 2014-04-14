@@ -12,6 +12,7 @@ package edu.utexas.tacc.wcs.filemanager.service.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -44,7 +45,7 @@ public class UserDAO {
             
 //            users = session.getNamedQuery("findUser").setString("userDN",dn).list();
             
-            String sql = "select {u.*}, {disName.*} from user_info u, dns disName where u.person_id = disName.person_id and disName.dn = :userDN";
+            String sql = "select {u.*}, {disName.*} from portal.user_info u, portal.dns disName where u.person_id = disName.person_id and disName.dn = :userDN";
             
             users = session.createSQLQuery(sql)
                 .addEntity("u",User.class)
@@ -201,7 +202,7 @@ public class UserDAO {
         String hql = "select new User(firstName, lastName, username) from User where username like :searchString";
         try {
         	
-            users = session.createQuery(hql).setString("username", searchString+"%").setMaxResults(20).list();
+            users = session.createQuery(hql).setString("searchString", searchString+"%").setMaxResults(20).list();
         }  catch (HibernateException ex) {
             session.close();
         }  finally {
@@ -236,7 +237,8 @@ public class UserDAO {
         	List<Object[]> results = session.createSQLQuery(sql).list();
             
             for (Object[] record: results) {
-            	users.add(new User((String)record[0],(String)record[1],(String)record[2]));
+            	if (!StringUtils.equals((String)record[2], user.getUsername()))
+            		users.add(new User((String)record[0],(String)record[1],(String)record[2]));
             }
             
         }  catch (HibernateException ex) {
@@ -256,6 +258,7 @@ public class UserDAO {
         Session session = HibernateUtil.getSession();
         
         List<User> users = new ArrayList<User>();
+        User user = UserDAO.findUserByDN(dn);
         
         List<Acctv> accounts = AcctvDAO.findAcctvByDn(dn);
         
@@ -272,7 +275,8 @@ public class UserDAO {
             List<Object[]> results = session.createSQLQuery(sql).list();
             
             for (Object[] record: results) {
-            	users.add(new User((String)record[0],(String)record[1],(String)record[2]));
+            	if (!StringUtils.equals((String)record[2], user.getUsername()))
+            		users.add(new User((String)record[0],(String)record[1],(String)record[2]));
             }
             
         }  catch (HibernateException ex) {
@@ -294,8 +298,9 @@ public class UserDAO {
         List<DN> dns = null;
         
         try {
-            dns = session.createCriteria(DN.class)
-                .add(Restrictions.eq("dn",dn)).list();
+            dns = session.createQuery("from DN d where d.dn = :userdn")
+                .setString("userdn",dn)
+                .list();
                 
             if (dns == null || dns.size() == 0) {
                 throw new AuthenticationException("User for dn " + dn + " not found.");

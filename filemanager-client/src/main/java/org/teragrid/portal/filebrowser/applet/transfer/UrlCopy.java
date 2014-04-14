@@ -49,6 +49,8 @@ import org.teragrid.portal.filebrowser.applet.util.LogManager;
 import org.teragrid.portal.filebrowser.applet.util.ResourceName;
 import org.teragrid.portal.filebrowser.applet.util.SGGCResourceBundle;
 
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
+
 @SuppressWarnings("unchecked")
 public class UrlCopy implements Runnable{
 
@@ -251,16 +253,16 @@ public class UrlCopy implements Runnable{
        
        // catch a 3rd party transfer when it's scheduled.
        //TODO: find a way to do a remote copy for transfers to/from the same resource. Right now, it relays through the client, which is bad for large files.
-      if (thirdParty && (srcServer.type == FTPType.GRIDFTP) &&
-              (destServer.type == FTPType.GRIDFTP) && 
+      if (thirdParty && (srcServer.protocol == FileProtocolType.GRIDFTP) &&
+              (destServer.protocol == FileProtocolType.GRIDFTP) && 
                !srcServer.host.equals(destServer.host)) {
            thirdPartyTransfer();
            return;
        }
        
 //      // uncomment when adding share support
-//      if (srcServer.type == FTPType.XSHARE ||
-//    		  destServer.type == FTPType.XSHARE) {
+//      if (srcServer.type == FileProtocolType.XSHARE ||
+//    		  destServer.type == FileProtocolType.XSHARE) {
 //    	  tgShareTransfer();
 //    	  return;
 //      }
@@ -434,36 +436,36 @@ public class UrlCopy implements Runnable{
 
        GlobusInputStream in = null;
 
-       switch(this.srcServer.type) {
-       case FTPType.GRIDFTP:
+       switch(this.srcServer.protocol) {
+       case GRIDFTP:
             in = new GridFTPInputStream(this.srcFTP, this.srcFile, this.srcServer.passiveMode, this.range.from>0?new StreamModeRestartMarker(this.range.from):null);
             break;
-        case FTPType.BBFTP:
+        case BBFTP:
             in = new BBFtpInputStream();
             break;
-        case FTPType.SFTP:
+        case SFTP:
             in = new SFTPInputStream();
             break;
-        case FTPType.FTP:
+        case FTP:
             in = new FTPInputStream(this.srcFTP, this.srcFile, this.srcServer.passiveMode, this.range.from>0?new StreamModeRestartMarker(this.range.from):null);
             break;
-        case FTPType.FILE:
+        case FILE:
             in = new GlobusFileInputStream(this.srcFile);
             long check = in.skip(this.range.from);
             if (check != this.range.from) {
                 LogManager.error("actually skip: " + check);
             }
             break;
-        case FTPType.HTTP:
+        case HTTP:
             in = new HTTPInputStream(this.srcFTP, this.srcFile);
             break;
-        case FTPType.S3:
+        case S3:
             in = new S3InputStream(this.srcFTP,this.srcFile);
             break;
-//        case FTPType.XSHARE:
+//        case XSHARE:
 //            in = new TGShareInputStream(this.srcFTP,this.srcFile);
 //            break;
-        case FTPType.IRODS:
+        case IRODS:
             in = new IRODSInputStream(this.srcFTP,this.srcFile);
             break;
         default:
@@ -494,32 +496,32 @@ public class UrlCopy implements Runnable{
        GlobusInputStream in = null;
        long result = 0;
 
-       switch(this.destServer.type) {
-       case FTPType.GRIDFTP:
+       switch(this.destServer.protocol) {
+       case GRIDFTP:
             in = new GridFTPInputStream(this.destFTP, this.desFile, this.destServer.passiveMode);
             break;
-        case FTPType.BBFTP:
+        case BBFTP:
             in = new BBFtpInputStream();
             break;
-        case FTPType.SFTP:
+        case SFTP:
             in = new SFTPInputStream();
             break;
-        case FTPType.FTP:
+        case FTP:
             in = new FTPInputStream(this.destFTP, this.desFile, this.destServer.passiveMode);
             break;
-        case FTPType.FILE:
+        case FILE:
             in = new GlobusFileInputStream(this.desFile);
             break;
-        case FTPType.HTTP:
+        case HTTP:
             in = new HTTPInputStream(this.destFTP, this.desFile);
             break;
-        case FTPType.S3:
+        case S3:
             in = new S3InputStream(this.destFTP, this.desFile);
             break;
-//        case FTPType.XSHARE:
+//        case XSHARE:
 //            in = new TGShareInputStream(this.destFTP, this.desFile);
 //            break;
-        case FTPType.IRODS:
+        case IRODS:
             in = new IRODSInputStream(this.destFTP, this.desFile);
             break;
         default:
@@ -556,36 +558,36 @@ public class UrlCopy implements Runnable{
 
        GlobusOutputStream out = null;
 
-       switch(this.destServer.type) {
-       case FTPType.GRIDFTP:
+       switch(this.destServer.protocol) {
+       case GRIDFTP:
             out = new GridFTPOutputStream(this.destFTP, this.desFile, this.destServer.passiveMode, this.appendMode);
             break;
-        case FTPType.BBFTP:
+        case BBFTP:
             out = new BBFtpOutputStream();
             break;
-        case FTPType.SFTP:
+        case SFTP:
             out = new SFTPOutputStream();
             break;
-        case FTPType.FTP:
+        case FTP:
             out = new FTPOutputStream(this.destFTP, this.desFile, this.destServer.passiveMode, this.appendMode);
             break;
-        case FTPType.FILE:
+        case FILE:
 //            out = new GlobusFileOutputStream(this.desFile, this.appendMode);
         	out = new GlobusRandomFileOutputStream(this.desFile, this.appendMode);
         	if (this.fileTask.getDstStartOffset() > 0) {
         		((GlobusRandomFileOutputStream)out).seek(this.fileTask.getDstStartOffset());
         	}
             break;
-        case FTPType.HTTP:
+        case HTTP:
             out = new HTTPOutputStream(this.destFTP, this.desFile, 0, true);
             break;
-        case FTPType.S3:
+        case S3:
             out = new S3OutputStream(this.destFTP,this.desFile,this.range.to);
             break;
-//        case FTPType.XSHARE:
+//        case XSHARE:
 //            out = new TGShareOutputStream(this.destFTP,this.desFile,this.range.to);
 //            break;
-        case FTPType.IRODS:
+        case IRODS:
             out = new IRODSOutputStream(this.destFTP,this.desFile);
             break;
         default:
@@ -745,14 +747,14 @@ public class UrlCopy implements Runnable{
    }
    
    private void adjust2Party() throws IOException, ServerException {
-       if (srcServer.type == FTPType.FILE && destServer.type == FTPType.FILE) {
+       if (srcServer.protocol == FileProtocolType.FILE && destServer.protocol == FileProtocolType.FILE) {
            return;
        }
        
-       if (srcServer.type == FTPType.FILE && 
+       if (srcServer.protocol == FileProtocolType.FILE && 
                destServer.connParallel > 1) {
            ((GridFTP)destFTP).setParellel(1);
-       } else if (destServer.type == FTPType.FILE && 
+       } else if (destServer.protocol == FileProtocolType.FILE && 
                srcServer.connParallel > 1) {
            ((GridFTP)srcFTP).setParellel(1);
        }
@@ -760,14 +762,14 @@ public class UrlCopy implements Runnable{
    
    
    private boolean canUseIrodsThirdPartyTransfer() {
-       return (srcServer.type == FTPType.IRODS && destServer.type == FTPType.IRODS);
+       return (srcServer.protocol == FileProtocolType.IRODS && destServer.protocol == FileProtocolType.IRODS);
    }
        
    private void irodsThirdPartyTransfer() throws UrlCopyException{
        try {
-           if (srcServer.type == destServer.type) {
+           if (srcServer.protocol == destServer.protocol) {
                ((Irods)srcFTP).copy(srcFile, desFile, true);
-//        	 } else if (srcServer.type == FTPType.IRODS) {
+//        	 } else if (srcServer.type == FileProtocolType.IRODS) {
 //               String destUriString = "gridftp://" + destServer.host + "/" + desFile;
 //               URI destUri = new URI(destUriString);
 //               ((Irods)srcFTP).copyToURI(srcFile, destUri);
@@ -805,7 +807,7 @@ public class UrlCopy implements Runnable{
 //	   try {
 //           if (srcServer.type == destServer.type) {
 //               ((TGShare)srcFTP).copy(srcFile, desFile);
-//           } else if (srcServer.type == FTPType.XSHARE) {
+//           } else if (srcServer.type == FileProtocolType.XSHARE) {
 //               ((TGShare)srcFTP).get(srcFile, getOutputStream());
 //           } else {
 //        	   // for some reason, streaming upload won't work, so we have to just copy

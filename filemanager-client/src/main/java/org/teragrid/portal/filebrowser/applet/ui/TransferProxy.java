@@ -21,7 +21,6 @@ import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.transfer.BatchTransfer;
 import org.teragrid.portal.filebrowser.applet.transfer.FIFOScheduler;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
 import org.teragrid.portal.filebrowser.applet.transfer.FileTransferTask;
 import org.teragrid.portal.filebrowser.applet.transfer.LargeFirstScheduler;
 import org.teragrid.portal.filebrowser.applet.transfer.LessFirstScheduler;
@@ -31,6 +30,7 @@ import org.teragrid.portal.filebrowser.applet.util.ResourceName;
 import org.teragrid.portal.filebrowser.applet.util.SGGCResourceBundle;
 
 import edu.utexas.tacc.wcs.filemanager.common.model.Task;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
 
 
 public class TransferProxy {
@@ -232,7 +232,7 @@ public class TransferProxy {
 				restartTask.setDisplayName(currentTask.getDisplayName());
 				restartTask.setDstStartOffset(currentTask.getDstStartOffset());
 				restartTask.setPara(currentTask.getPara());
-				restartTask.setParaID(currentTask.getParaID());
+				restartTask.setParaId(currentTask.getParaId());
 				restartTask.setSrcRange(currentTask.getSrcRange());
 				newTransferList.add(restartTask);
 				org.teragrid.portal.filebrowser.applet.transfer.HistoryManager.deleteTask(currentTask);
@@ -294,7 +294,7 @@ public class TransferProxy {
 
     @SuppressWarnings("unused")
 	private static boolean areBothGridFTP(FTPSettings sourceFTPSite, FTPSettings destFTPSite){
-        return sourceFTPSite.type == FTPType.GRIDFTP && destFTPSite.type == FTPType.GRIDFTP;
+        return sourceFTPSite.protocol.equals(FileProtocolType.GRIDFTP) && destFTPSite.protocol.equals(FileProtocolType.GRIDFTP);
     }
 
 }

@@ -18,16 +18,16 @@ import java.util.jar.Manifest;
 public class ConfigSettings {
 
 	/* Remote Service Locations */
-	public static final String SERVICE_MYPROXY_SERVER = "myproxy.teragrid.org";
+	public static final String SERVICE_MYPROXY_SERVER = "myproxy.xsede.org";
 	public static final String SERVICE_MYPROXY_PORT = "7512";
 	public static final String SERVICE_INCA_SERVLET = "http://laredo.tacc.utexas.edu:9001/xmlrpc";
-	public static final String SERVICE_SPEEDPAGE = "http://info.teragrid.org/web-apps/json/speedpage-v1";
+	public static final String SERVICE_SPEEDPAGE = "http://info.xsede.org/web-apps/json/speedpage-v1";
 	public static final String SERVICE_GPIR_SERVICE = "laredo.tacc.utexas.edu:8080/gpir/services/GPIRQuery";
 
-//	public static final String SERVICE_TGFM_SERVLET = "https://tg-portal-2.tacc.utexas.edu:8443/xmlrpc";
-	public static final String SERVICE_TGFM_SERVLET = "https://xupservices.tacc.utexas.edu:8443/xmlrpc";
-	public static final String SERVICE_TGSHARE_SERVICE = "http://loving.corral.tacc.utexas.edu:28080/ShareService";
-	public static final String SERVICE_TG_USER_PROFILE = "https://info.teragrid.org:8444/web-apps/json/profile-v1";
+	public static final String SERVICE_TGFM_API = "http://localhost:9090/";
+
+//	public static final String SERVICE_TGSHARE_SERVICE = "http://loving.corral.tacc.utexas.edu:28080/ShareService";
+	public static final String SERVICE_TG_USER_PROFILE = "https://info.xsede.org:8444/web-apps/json/profile-v1";
 
 //	public static final String SERVICE_TGFM_SERVLET = "http://dooley-mac.tacc.utexas.edu:8080/xmlrpc";
 //	public static final String SERVICE_TGSHARE_SERVICE = "http://127.0.0.1:8080/ShareService";

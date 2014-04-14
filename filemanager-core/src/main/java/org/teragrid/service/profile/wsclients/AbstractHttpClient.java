@@ -20,7 +20,7 @@ import edu.utexas.tacc.wcs.filemanager.common.exception.ResourceException;
  *
  */
 public class AbstractHttpClient {
-
+	
 	protected String doGet(String endpoint) throws Exception
 	{
 		URL endpointUrl = null;
@@ -60,8 +60,8 @@ public class AbstractHttpClient {
 			AuthorisationCredentials basicAuthCredentials = basicAuth(
 					username(username), password(password), endpointUrl);
 			
-			response = client.with(basicAuthCredentials)
-					.withTrustingSsl()
+			response = client.withTrustingSsl()
+					.with(basicAuthCredentials)
 					.get(endpointUrl);
 		
 			if (response.ok()) {
@@ -72,6 +72,7 @@ public class AbstractHttpClient {
 		}
 		catch (Throwable e)
 		{	
+			e.printStackTrace();
 			throw new ResourceException("Failed to contact remote service.", e);
 		}
 	}

@@ -13,13 +13,15 @@ public class ComputeDTO extends ResourceDTO implements TgcdbDTO {
 	
 	private String id;
 	private String tgcdbName;
-	private String status;
+	private String status = Service.UP;
 	private String localUsername;
     private Load load;
 //    private Set<Service> services = new HashSet<Service>();
 	private String loginHostname;
+	private Integer loginPort;
 	private String gridftpHostname;
-    
+	private Integer gridftpPort;
+	
 	public ComputeDTO() {}
 	
 //	public ComputeDTO(TeraGridSystem resource) {
@@ -100,6 +102,14 @@ public class ComputeDTO extends ResourceDTO implements TgcdbDTO {
 		return loginHostname;
 	}
 
+	public Integer getLoginPort() {
+		return loginPort;
+	}
+
+	public void setLoginPort(Integer loginPort) {
+		this.loginPort = loginPort;
+	}
+
 	/**
 	 * @param gridftpHostname the gridftpHostname to set
 	 */
@@ -127,6 +137,14 @@ public class ComputeDTO extends ResourceDTO implements TgcdbDTO {
 //	public void setServices(Set<Service> services) {
 //		this.services = services;
 //	}
+
+	public Integer getGridftpPort() {
+		return gridftpPort;
+	}
+
+	public void setGridftpPort(Integer gridftpPort) {
+		this.gridftpPort = gridftpPort;
+	}
 
 	/**
 	 * @return
@@ -189,7 +207,7 @@ public class ComputeDTO extends ResourceDTO implements TgcdbDTO {
 	}
 	
 	public String toString() {
-		return resourceId;
+		return String.format("%s (%s)", resourceId, type);
 	}
 
 	public String toCsv() {

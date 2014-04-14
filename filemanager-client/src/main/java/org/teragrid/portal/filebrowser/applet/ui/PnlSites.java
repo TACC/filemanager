@@ -42,14 +42,14 @@ import javax.swing.table.TableCellRenderer;
 
 import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.ConfigOperation;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPPort;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
 import org.teragrid.portal.filebrowser.applet.ui.permissions.StripedTable;
 import org.teragrid.portal.filebrowser.applet.ui.table.Reorderable;
 
 import com.explodingpixels.macwidgets.IAppWidgetFactory;
 
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.SystemType;
 import edu.utexas.tacc.wcs.filemanager.common.util.DBUtil;
 
 @SuppressWarnings("serial")
@@ -132,10 +132,10 @@ public class PnlSites extends JPanel {
 				String formattedHostname = site.host;
 				
 				ImageIcon ico = null;
-				if (site.type == FTPType.FILE) {
+				if (site.protocol.equals(FileProtocolType.FILE)) {
 					ico = AppMain.icoResourceLocal;
 					formattedHostname = "127.0.0.1";
-				} else if (site.type == FTPType.S3) {
+				} else if (site.protocol.equals(FileProtocolType.S3)) {
 					ico = AppMain.icoResourceAmazon;
 //				} else if (site.type == FTPType.XSHARE) {
 //					ico = AppMain.icoResourceTeraGridShare;
@@ -144,9 +144,9 @@ public class PnlSites extends JPanel {
 //					} catch (MalformedURLException e) {
 //						formattedHostname = site.host;
 //					}
-				} else if (site.hostType.equals(DBUtil.VIZ)) {
+				} else if (site.hostType.equals(SystemType.VIZ)) {
 					ico = AppMain.icoResourceViz;
-				} else if (site.hostType.equals(DBUtil.ARCHIVE)) {
+				} else if (site.hostType.equals(SystemType.ARCHIVE)) {
 					ico = AppMain.icoResourceArchive;
 				} else {
 					ico = AppMain.icoResourceCompute;
@@ -161,7 +161,7 @@ public class PnlSites extends JPanel {
 								"<span style=\"font-weight:bold;font-style:" + decoration + ";color:"+ titleColor + "\">"+site.name+"</span>" +
 							"</td></tr>" +
 							"<tr><td>" +
-								"<span style=\"font-size:x-small;color:" + urlColor + ";text-style:" + decoration + "\">"+FTPType.FTP_PROTOCOL[site.type].toLowerCase().trim() + "://"+formattedHostname+"</span>" +
+								"<span style=\"font-size:x-small;color:" + urlColor + ";text-style:" + decoration + "\">"+site.protocol.name().toLowerCase().trim() + "://"+formattedHostname+"</span>" +
 							"</td></tr></body></html>");
 				
 				lblSite.setIcon(ico);
@@ -423,25 +423,25 @@ public class PnlSites extends JPanel {
        
     private static ArrayList<FTPSettings> loadData() {
        ArrayList<FTPSettings> sites = new ArrayList<FTPSettings>();
-       FTPSettings site = new FTPSettings("Local",FTPPort.PORT_NONE,FTPType.FILE);
+       FTPSettings site = new FTPSettings("Local",FileProtocolType.FILE.getDefaultPort(),FileProtocolType.FILE);
        site.host = "localhost";
        sites.add(site);
-       site = new FTPSettings("Ranger",FTPPort.PORT_GRIDFTP,FTPType.GRIDFTP);
-       site.hostType = DBUtil.HPC;
+       site = new FTPSettings("Ranger",FileProtocolType.GRIDFTP.getDefaultPort(),FileProtocolType.GRIDFTP);
+       site.hostType = SystemType.HPC;
        site.host = "ranger.tacc.utexas.edu";
        sites.add(site);
-       site = new FTPSettings("Spur",FTPPort.PORT_GRIDFTP,FTPType.GRIDFTP);
-       site.hostType = DBUtil.VIZ;
+       site = new FTPSettings("Spur",FileProtocolType.GRIDFTP.getDefaultPort(),FileProtocolType.GRIDFTP);
+       site.hostType = SystemType.VIZ;
        site.host = "spur.tacc.utexas.edu";
        sites.add(site);
-       site = new FTPSettings("Ranch",FTPPort.PORT_GRIDFTP, FTPType.GRIDFTP);
-       site.hostType = DBUtil.ARCHIVE;
+       site = new FTPSettings("Ranch",FileProtocolType.GRIDFTP.getDefaultPort(), FileProtocolType.GRIDFTP);
+       site.hostType = SystemType.ARCHIVE;
        site.host = "ranch.tacc.utexas.edu";
        sites.add(site);
 //       site = new FTPSettings("$SHARE",FTPPort.PORT_TGSHARE, FTPType.XSHARE);
 //       site.host = "goodnight.corral.tacc.utexas.edu";
 //       sites.add(site);
-       site = new FTPSettings("Amazon S3",FTPPort.PORT_S3,FTPType.S3);
+       site = new FTPSettings("Amazon S3",FileProtocolType.S3.getDefaultPort(),FileProtocolType.S3);
        site.host = "s3.amazonws.com";
        sites.add(site);
        return sites;

@@ -10,9 +10,9 @@ This class implements a named procedure to retrieve the user give a dn
 @author Rion Dooley < dooley [at] tacc [dot] utexas [dot] edu >
 
 -->
-<hibernate-mapping package="edu.utexas.tacc.wcs.filemanager.service.model">
+<hibernate-mapping package="edu.utexas.tacc.wcs.filemanager.common.model">
 
-<class name="edu.utexas.tacc.wcs.filemanager.service.model.System" 
+<class name="edu.utexas.tacc.wcs.filemanager.common.model.System" 
 	   table="portal.usage" 
 	   lazy="false">
 

@@ -28,8 +28,9 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
 import org.teragrid.portal.filebrowser.applet.util.LogManager;
+
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
 
 /**
  * Simple utility for finding today's measured bandwith between two resources through 
@@ -115,7 +116,7 @@ public class Speedpage {
      */
     public int calculateBufferSize(FTPSettings source, FTPSettings dest) {
         
-        if (source.type == FTPType.GRIDFTP && dest.type == FTPType.GRIDFTP) {
+        if (source.protocol.equals(FileProtocolType.GRIDFTP) && dest.protocol.equals(FileProtocolType.GRIDFTP)) {
         	return DEFAULT_THIRD_PARTY_BUFFER_SIZE;
         } else {
         	return DEFAULT_LOCAL_BUFFER_SIZE; 

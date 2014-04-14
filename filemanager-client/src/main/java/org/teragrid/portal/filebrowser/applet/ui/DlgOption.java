@@ -55,14 +55,14 @@ import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.ConfigOperation;
 import org.teragrid.portal.filebrowser.applet.ConfigSettings;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPLogin;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPPort;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
 import org.teragrid.portal.filebrowser.applet.util.LogManager;
 import org.teragrid.portal.filebrowser.applet.util.ResourceName;
 import org.teragrid.portal.filebrowser.applet.util.SGGCResourceBundle;
 
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
 import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.NotificationType;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.SystemType;
 
 //TODO: optimize the buffer window based on resource bandwith predictions
 
@@ -592,7 +592,7 @@ public class DlgOption extends DlgEscape {
      */
     private void storeFields(int index) {
         
-    	int ftpType = ((FTPSettings)cbxSite.getItemAt(index)).type;
+    	FileProtocolType ftpType = ((FTPSettings)cbxSite.getItemAt(index)).protocol;
         ((FTPSettings)cbxSite.getItemAt(index)).passiveMode=(0==cmbConnData.getSelectedIndex());
         ((FTPSettings)cbxSite.getItemAt(index)).connRetry=Integer.parseInt(spnConnRetry.getValue().toString());
         ((FTPSettings)cbxSite.getItemAt(index)).connDelay=Integer.parseInt(spnConnDelay.getValue().toString());
@@ -604,7 +604,7 @@ public class DlgOption extends DlgEscape {
         ((FTPSettings)cbxSite.getItemAt(index)).stripeTransfers=(chkStripeTransfer.isSelected());
         ((FTPSettings)cbxSite.getItemAt(index)).maxSearchDepth = Integer.parseInt(spnSearchDepth.getValue().toString());
         ((FTPSettings)cbxSite.getItemAt(index)).maxSearchResults = Integer.parseInt(spnMaxSearchResults.getValue().toString());
-        if (ftpType == FTPType.S3) {
+        if (ftpType.equals(FileProtocolType.S3)) {
         	((FTPSettings)cbxSite.getItemAt(index)).userName = txtAwsAccessKeyId.getText();
             ((FTPSettings)cbxSite.getItemAt(index)).password = new String(pwdAwsSecretAccessKey.getPassword());
         } 
@@ -622,8 +622,8 @@ public class DlgOption extends DlgEscape {
      * @param index
      */
     private void updateFields(int index)  {
-        int ftpType = ((FTPSettings)cbxSite.getItemAt(index)).type;
-        if (ftpType == FTPType.S3) {
+    	FileProtocolType ftpType = ((FTPSettings)cbxSite.getItemAt(index)).protocol;
+        if (ftpType.equals(FileProtocolType.S3)) {
             cmbConnData.setEnabled(false);
             spnConnRetry.setValue(new Integer(((FTPSettings)cbxSite.getItemAt(index)).connRetry));
             spnConnDelay.setValue(new Integer(((FTPSettings)cbxSite.getItemAt(index)).connDelay));
@@ -637,10 +637,9 @@ public class DlgOption extends DlgEscape {
             chkStripeTransfer.setEnabled(false);
             spnMaxSearchResults.setValue(new Integer(((FTPSettings)cbxSite.getItemAt(index)).maxSearchResults));
             spnSearchDepth.setValue(new Integer(((FTPSettings)cbxSite.getItemAt(index)).maxSearchDepth));
-            if (ftpType == FTPType.S3) {
-	            txtAwsAccessKeyId.setText(((FTPSettings)cbxSite.getItemAt(index)).userName);
-	            pwdAwsSecretAccessKey.setText(((FTPSettings)cbxSite.getItemAt(index)).password);
-            } 
+            txtAwsAccessKeyId.setText(((FTPSettings)cbxSite.getItemAt(index)).userName);
+	        pwdAwsSecretAccessKey.setText(((FTPSettings)cbxSite.getItemAt(index)).password);
+             
 //            else {
 //            	txtTGShareUsername.setText(((FTPSettings)cbxSite.getItemAt(index)).userName);
 //            	pwdTGSharePassword.setText(((FTPSettings)cbxSite.getItemAt(index)).userName);
@@ -1019,9 +1018,9 @@ public class DlgOption extends DlgEscape {
         	FTPSettings s3Server = config.getSiteByName(ConfigSettings.RESOURCE_NAME_AMAZONS3);
             if (s3Server == null) {
              // Always add the s3Server by default;
-                s3Server = new FTPSettings(ConfigSettings.RESOURCE_NAME_AMAZONS3,FTPPort.PORT_S3,FTPType.S3);
+                s3Server = new FTPSettings(ConfigSettings.RESOURCE_NAME_AMAZONS3,FileProtocolType.S3.getDefaultPort(), FileProtocolType.S3);
                 s3Server.loginMode = FTPLogin.LOGIN_ASUSER;
-                s3Server.hostType = "archive";
+                s3Server.hostType = SystemType.ARCHIVE;
                 s3Server.userName = txtAwsAccessKeyId.getText();
                 s3Server.password = new String(pwdAwsSecretAccessKey.getPassword());
                 config.addSite(s3Server);

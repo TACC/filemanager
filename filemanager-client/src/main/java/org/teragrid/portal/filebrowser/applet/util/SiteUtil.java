@@ -13,10 +13,10 @@ import java.io.File;
 
 import org.teragrid.portal.filebrowser.applet.transfer.FTPLogin;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
-import org.teragrid.portal.filebrowser.applet.transfer.FTPType;
 import org.teragrid.service.profile.wsclients.model.ComputeDTO;
 
-import edu.utexas.tacc.wcs.filemanager.common.util.DBUtil;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
+import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.SystemType;
 
 /**
  * Insert Template description here.
@@ -76,9 +76,9 @@ public class SiteUtil {
         // Now create the site for use in the GUI
         site.name = system.getName();
         site.host = system.getGridftpHostname();
-        site.port = 2811;
+        site.filePort = 2811;
         site.resourceId = system.getResourceId();
-        site.type = FTPType.GRIDFTP;
+        site.protocol = FileProtocolType.GRIDFTP;
         site.passiveMode = true;
         site.available = system.getStatus().equalsIgnoreCase("up");
         site.connRetry = 2;
@@ -86,7 +86,7 @@ public class SiteUtil {
         site.connParallel = 1;
         site.connMaxNum = 2;
         site.loginMode = FTPLogin.LOGIN_USEPROXYINIT;
-        site.hostType = DBUtil.HPC;
+        site.hostType = SystemType.HPC;
         
         site.listed = true;
         

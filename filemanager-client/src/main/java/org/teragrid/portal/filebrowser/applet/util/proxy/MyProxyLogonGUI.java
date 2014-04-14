@@ -65,6 +65,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import org.globus.myproxy.MyProxyException;
 import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.ConfigOperation;
 import org.teragrid.portal.filebrowser.applet.util.SwingWorker;
@@ -153,6 +154,7 @@ public class MyProxyLogonGUI extends JPanel implements ActionListener {
 		usernameField.setToolTipText("Enter your MyProxy username.");
 
 		passwordField = new JPasswordField(10);
+		passwordField.setText("dr&mrsd00ley");
 		passwordField.setActionCommand(passwordFieldString);
 		passwordField.addActionListener(this);
 		passwordFieldLabel = createLabel(passwordFieldString, passwordField);
@@ -296,8 +298,10 @@ public class MyProxyLogonGUI extends JPanel implements ActionListener {
 		});
 	}
 
-	protected void logon() {
-		try {
+	protected void logon() 
+	{
+		try 
+		{
 			myproxy.setUsername(usernameField.getText());
 			myproxy.setPassphrase(new String(passwordField.getPassword()));
 			if (crednameField.getText().length() > 0) {
@@ -309,11 +313,20 @@ public class MyProxyLogonGUI extends JPanel implements ActionListener {
 			myproxy.setPort(Integer.parseInt(portField.getText()));
 			myproxy.requestTrustRoots(trustRootsCheckBox.isSelected());
 			//myproxy.requestTrustRoots(false);
+			
+			try {
+//				myproxy.bootstrapTrust(true);
+			} catch (Exception e) {
+				throw new MyProxyException("Failed to bootstrap trust with myproxy server", e);
+			}
+			
 			statusTextArea.setText("Connecting to " + myproxy.getHost()
 					+ "...\n");
 			myproxy.connect();
+			
 			statusTextArea.setText("Logging on...\n");
 			myproxy.logon();
+			
 			if (outputField.getText().length() == 0) {
 				statusTextArea.setText("Logon successful.\n");
 			} else {
@@ -328,6 +341,7 @@ public class MyProxyLogonGUI extends JPanel implements ActionListener {
 			if (trustRootsCheckBox.isSelected() && myproxy.writeTrustRoots()) {
 				statusTextArea.append("Trust roots written to "
 						+ MyProxyLogon.getTrustRootPath() + ".\n");
+				ConfigOperation.getInstance().rebuildCoGProperties();
 			}
 			saveProperties();
 			myproxyDialog.setVisible(false);
