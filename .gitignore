@@ -16,10 +16,6 @@ Icon
 keystore
 security/keystore
 security/*.*
-*.properties
-*.cfg.xml
-test/*.properties
-test/*.cfg.xml
 # Thumbnails
 ._*
 

@@ -11,4 +11,9 @@
 			<package name="edu.utexas.tacc.wcs.filemanager.service.model" />
 		</packages>
 	</test>
+	<test name="ResourceTests">
+		<packages>
+			<package name="edu.utexas.tacc.wcs.filemanager.service.manager" />
+		</packages>
+	</test>
 </suite>

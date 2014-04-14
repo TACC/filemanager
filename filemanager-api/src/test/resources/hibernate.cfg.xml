@@ -1,0 +1,30 @@
+<!DOCTYPE hibernate-configuration PUBLIC
+ "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+ "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<!-- DO NOT EDIT: This is a generated file that is synchronized -->
+<!-- by MyEclipse Hibernate tool integration. -->
+<hibernate-configuration>
+
+	<session-factory>
+		<!-- properties -->
+		<property name="hibernate.connection.url"><![CDATA[${filemanager.api.db.url}]]></property>
+		<property name="hibernate.connection.username">${filemanager.api.db.username}</property>
+		<property name="hibernate.connection.password">${filemanager.api.db.password}</property>
+		<property name="hibernate.connection.driver_class">${filemanager.api.db.test.driver}</property>
+		<property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+		<property name="hibernate.current_session_context_class">thread</property>
+		<property name="transaction.flush_before_completion">true</property>
+		<property name="hibernate.show_sql">false</property>
+
+		<!-- General connection properties -->
+		<!-- mapping files -->
+		<mapping resource="edu/utexas/tacc/wcs/filemanager/service/model/User.hbm.xml" />
+		<mapping resource="edu/utexas/tacc/wcs/filemanager/service/model/Transfer.hbm.xml" />
+		<mapping resource="edu/utexas/tacc/wcs/filemanager/service/model/System.hbm.xml" />
+		<mapping resource="edu/utexas/tacc/wcs/filemanager/service/model/Notification.hbm.xml" />
+		<mapping resource="edu/utexas/tacc/wcs/filemanager/service/model/Acctv.hbm.xml" />
+		<mapping resource="edu/utexas/tacc/wcs/filemanager/service/model/DN.hbm.xml" />
+	</session-factory>
+
+</hibernate-configuration>
