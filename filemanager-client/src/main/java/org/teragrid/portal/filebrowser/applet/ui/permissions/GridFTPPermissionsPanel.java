@@ -52,20 +52,26 @@ public class GridFTPPermissionsPanel extends PermissionsPanel {
 	protected TableModel createPermissionTableModel(Object permissions) {
 		// GridFTP files have basic FileInfo permissions.  We can parse the 
 		// mode value here.
+		int user = 0;
+		int group = 0;
+		int all = 0;
 		
-		int pem = 0;
-		if (permissions instanceof Integer)
-			pem = ((Integer)permissions).intValue();
-		else
-			pem = new Integer((String)permissions).intValue();
-		int user = (int)((float)pem / 100);
-		int group = (int)((float)(pem - user*100) / 10);
-		int other = pem - user*100 - group*10;
+		if (fileInfo.userCanRead()) user += 4;
+		if (fileInfo.userCanWrite()) user += 2;
+		if (fileInfo.userCanExecute()) user += 1;
+		
+		if (fileInfo.groupCanRead()) group += 4;
+		if (fileInfo.groupCanWrite()) group += 2;
+		if (fileInfo.groupCanExecute()) group += 1;
+		
+		if (fileInfo.allCanRead()) all += 4;
+		if (fileInfo.allCanWrite()) all += 2;
+		if (fileInfo.allCanExecute()) all += 1;
 		
 		String[][] values = new String[][]{
 				{"you",UnixPermissions.getStringValue(user)},
 				{"group",UnixPermissions.getStringValue(group)},
-				{"everyone",UnixPermissions.getStringValue(other)}
+				{"everyone",UnixPermissions.getStringValue(all)}
 		};
 		
 		DefaultTableModel tableModel = new DefaultTableModel(values, columnNames);

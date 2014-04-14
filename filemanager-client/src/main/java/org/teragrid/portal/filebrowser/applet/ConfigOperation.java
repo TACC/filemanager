@@ -783,6 +783,12 @@ public class ConfigOperation {
 	 * @return FTPSettings -
 	 */
 	public FTPSettings getSiteByHostame(String hostname) {
+		if (StringUtils.isEmpty(hostname) || 
+				StringUtils.equalsIgnoreCase(hostname,  "localhost.localdomain")) 
+		{
+			return getSiteByName("Local");
+		}
+		
 		for (FTPSettings currentSite: siteList) {
 			if (currentSite.host.equals(hostname)) {
 				return currentSite;

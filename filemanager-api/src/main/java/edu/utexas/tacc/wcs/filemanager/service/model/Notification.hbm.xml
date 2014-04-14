@@ -30,7 +30,7 @@ status of their transfer. The deliver mechanism is determined by the userType fi
 		</generator>
 	</id>
 
-	<property name="transferId" type="java.lang.Integer" column="transferid"/>
+	<property name="transferId" type="java.lang.Long" column="transferid"/>
 	<property name="type" type="notification_type" column="notificiationtype"/>
 	<property name="subject" type="string" column="subject"/>
 	<property name="message" type="string" column="message"/>

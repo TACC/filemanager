@@ -6,6 +6,7 @@ package org.teragrid.portal.filebrowser.applet;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -15,31 +16,24 @@ import java.util.jar.Manifest;
  * @author dooley
  * 
  */
-public class ConfigSettings {
-
+public class ConfigSettings 
+{	
+	public static Properties props = new Properties();
+    
+    static {
+        try {
+            props.load(ConfigSettings.class.getClassLoader().getResourceAsStream("client.properties"));            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    
+    }
 	/* Remote Service Locations */
-	public static final String SERVICE_MYPROXY_SERVER = "myproxy.xsede.org";
-	public static final String SERVICE_MYPROXY_PORT = "7512";
-	public static final String SERVICE_INCA_SERVLET = "http://laredo.tacc.utexas.edu:9001/xmlrpc";
-	public static final String SERVICE_SPEEDPAGE = "http://info.xsede.org/web-apps/json/speedpage-v1";
-	public static final String SERVICE_GPIR_SERVICE = "laredo.tacc.utexas.edu:8080/gpir/services/GPIRQuery";
-
-	public static final String SERVICE_TGFM_API = "http://localhost:9090/";
-
-//	public static final String SERVICE_TGSHARE_SERVICE = "http://loving.corral.tacc.utexas.edu:28080/ShareService";
-	public static final String SERVICE_TG_USER_PROFILE = "https://info.xsede.org:8444/web-apps/json/profile-v1";
-
-//	public static final String SERVICE_TGFM_SERVLET = "http://dooley-mac.tacc.utexas.edu:8080/xmlrpc";
-//	public static final String SERVICE_TGSHARE_SERVICE = "http://127.0.0.1:8080/ShareService";
-//	public static final String SERVICE_TG_USER_PROFILE = "http://dooley-mac.tacc.utexas.edu:8080/web-apps/json/profile-v1";
-	
-	/* Remote Trusted CA Tarballs */
-
-	public static final String[] TRUSTED_CA_TARBALLS = {
-			"http://software.xsede.org/security/xsede-certs.tar.gz",
-			"http://dl.dropbox.com/u/203259/prace_trusted_certs.tgz"
-			// insert other trusted ca bundles you want unpacked here
-	};
+	public static final String SERVICE_MYPROXY_SERVER = (String)props.getProperty("myproxy.host");
+	public static final String SERVICE_MYPROXY_PORT = (String)props.getProperty("myproxy.port");
+	public static final String SERVICE_SPEEDPAGE = (String)props.getProperty("xsede.api.speedpage");
+	public static final String SERVICE_TGFM_API = (String)props.getProperty("xsede.api.xfm");
+	public static final String SERVICE_TG_USER_PROFILE = (String)props.getProperty("xsede.api.profile");
 	
 	public static String SOFTWARE_VERSION;
 	public static String SOFTWARE_BUILD_DATE;
@@ -82,7 +76,7 @@ public class ConfigSettings {
 	public static final String RESOURCE_NAME_LOCAL = "Local";
 	public static final String RESOURCE_NAME_AMAZONS3 = "Amazon S3";
 //	public static final String RESOURCE_NAME_TGSHARE = "XSEDE $SHARE";
-	public static final String RESOURCE_NAME_SRB = "TeraGrid SRB";
+	public static final String RESOURCE_NAME_SRB = "XSEDE IRODS";
 	
 	/* Application Defaults XML Tag Values */
 	public static final String XML_TAG_CONFIGURATION = "resources";

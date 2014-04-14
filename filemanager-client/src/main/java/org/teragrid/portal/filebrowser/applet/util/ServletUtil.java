@@ -13,6 +13,9 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
+import org.restlet.Client;
+import org.restlet.Context;
+import org.restlet.data.Protocol;
 import org.restlet.engine.header.Header;
 import org.restlet.resource.ClientResource;
 import org.restlet.util.Series;
@@ -39,7 +42,7 @@ public class ServletUtil {
 	public static final String COLLEAGUES_SERVICE_URL = ConfigSettings.SERVICE_TGFM_API + "colleagues";
 	public static final String PARTNERS_SERVICE_URL = ConfigSettings.SERVICE_TGFM_API + "partners";
 	public static final String SYSTEMS_SERVICE_URL = ConfigSettings.SERVICE_TGFM_API + "systems";
-    
+    public static Client client = new Client(new Context(), Protocol.HTTP);
 	private static XStream xstream = new XStream(new DomDriver());
     
     private static String defaultFormat = "MMM d, yyyy h:mm:ss a";
@@ -66,16 +69,16 @@ public class ServletUtil {
     @SuppressWarnings("unchecked")
 	public static ClientResource getClient(String endpoint) 
     {
-    	ClientResource clientResource = new ClientResource(endpoint);
-    	Series<Header> headers = (Series<Header>) clientResource.getRequest().getAttributes().get("org.restlet.http.headers");;
+    	ClientResource service = new ClientResource(endpoint);
+    	Series<Header> headers = (Series<Header>) service.getRequest().getAttributes().get("org.restlet.http.headers");;
     	if (headers == null) { 
     		headers = new Series<Header>(Header.class); 
     	} 
     	headers.add("X-USER-DN", ((GlobusGSSCredentialImpl)AppMain.defaultCredential).getX509Credential().getIdentity());
+    	service.setNext(client);
+    	service.getRequest().getAttributes().put("org.restlet.http.headers", headers);
     	
-    	clientResource.getRequest().getAttributes().put("org.restlet.http.headers", headers);
-    	
-    	return clientResource;
+    	return service;
     }
     
 //    public static XmlRpcClient getClient() {

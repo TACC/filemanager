@@ -23,13 +23,15 @@ public class AbstractHttpClient {
 	
 	protected String doGet(String endpoint) throws Exception
 	{
+		CommonHttpClient client = null;
+		HttpResponse response = null;
 		URL endpointUrl = null;
 		try 
 		{
 			endpointUrl = new URL(endpoint);
 		
-			CommonHttpClient client = anApacheClient();
-			HttpResponse response = null;
+			client = anApacheClient();
+			
 			response = client.withTrustingSsl()
 						.withTrustingSsl()
 						.get(endpointUrl);

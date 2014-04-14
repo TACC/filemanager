@@ -21,6 +21,7 @@ import org.globus.ftp.exception.ServerException;
 import org.irods.jargon.core.protovalues.FilePermissionEnum;
 import org.irods.jargon.core.pub.domain.UserFilePermission;
 import org.teragrid.portal.filebrowser.applet.AppMain;
+import org.teragrid.portal.filebrowser.applet.exception.ResourceException;
 import org.teragrid.portal.filebrowser.applet.file.IRODSFileInfo;
 import org.teragrid.portal.filebrowser.applet.ui.DlgFindIrodsUser;
 import org.teragrid.portal.filebrowser.applet.ui.FTPThread;
@@ -53,17 +54,35 @@ public class IrodsPermissionsPanel extends PermissionsPanel {
 		
 		this.tBrowse = tBrowse;
 		this.path = path;
-		this.permissions = (List<UserFilePermission>)((IRODSFileInfo)fileInfo).getPermissions();
+		try {
+			this.permissions = (List<UserFilePermission>)tBrowse.getPermissions(path + "/" + fileInfo.getName());
+		} catch (Exception e) {
+			UserFilePermission p =new UserFilePermission();
+			p.setFilePermissionEnum(FilePermissionEnum.READ);
+			p.setUserName(tBrowse.getFTPSettings().userName);
+			p.setUserZone(tBrowse.getFTPSettings().zone);
+			this.permissions = new ArrayList<UserFilePermission>();
+			this.permissions.add(p);
+		}
 		this.model = createPermissionTableModel(this.permissions);
 		
 		init();
 		bottomBarInit();
 		pbLayout();
 		
-		if (!((IRODSFileInfo)fileInfo).isOwner()) {
-			this.btnAdd.setEnabled(false);
-			this.btnSub.setEnabled(false);
-			this.tblPermissions.setEnabled(false);
+		for (UserFilePermission pem: permissions) {
+			String username = pem.getUserName();
+			if (username.contains("#")) {
+				username = username.split("#")[0];
+			}
+			if (username.equals(tBrowse.getFTPSettings().userName) && 
+					!pem.getFilePermissionEnum().equals(FilePermissionEnum.OWN)) 
+			{
+				this.btnAdd.setEnabled(false);
+				this.btnSub.setEnabled(false);
+				this.tblPermissions.setEnabled(false);
+				break;
+			}
 		}
 		
 		//addInheritsPermissionCheckBox();
@@ -217,7 +236,7 @@ public class IrodsPermissionsPanel extends PermissionsPanel {
 						username,
 						true);
 				if (username.equals("GROUP_EVERYONE")) username = "everyone";
-				((DefaultTableModel)tblPermissions.getModel()).addRow(new String[]{username,UnixPermissions.READ});
+				((DefaultTableModel)tblPermissions.getModel()).addRow(new String[]{username,FilePermissionEnum.READ.name()});
 				editors.add(new MyComboBoxEditor(UnixPermissions.getStringValues()));
 			}
 		} else if (e.getSource() == btnSub) {

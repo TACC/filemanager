@@ -124,9 +124,10 @@ public class AppMain extends JApplet {
     public static final ImageIcon icoUpload=new ImageIcon(ClassLoader.getSystemResource("images/upload.gif"));
     
     // Queue Status Icons
-    public static final ImageIcon icoStatusGreen=new ImageIcon(ClassLoader.getSystemResource("images/statusGreen.jpg"));
-    public static final ImageIcon icoStatusYellow=new ImageIcon(ClassLoader.getSystemResource("images/statusYellow.jpg"));
-    public static final ImageIcon icoStatusRed=new ImageIcon(ClassLoader.getSystemResource("images/statusRed.jpg"));
+    public static final ImageIcon icoStatusGreen=new ImageIcon(ClassLoader.getSystemResource("images/statusGreen.png"));
+    public static final ImageIcon icoStatusYellow=new ImageIcon(ClassLoader.getSystemResource("images/statusYellow.png"));
+    public static final ImageIcon icoStatusRed=new ImageIcon(ClassLoader.getSystemResource("images/statusRed.png"));
+    public static final ImageIcon icoStatusComplete=new ImageIcon(ClassLoader.getSystemResource("images/statusComplete.png"));
     
     // File Management Icons
     public static final ImageIcon icoRefresh=new ImageIcon(ClassLoader.getSystemResource("images/reload.png"));

@@ -154,7 +154,7 @@ public class MyProxyLogonGUI extends JPanel implements ActionListener {
 		usernameField.setToolTipText("Enter your MyProxy username.");
 
 		passwordField = new JPasswordField(10);
-		passwordField.setText("dr&mrsd00ley");
+		passwordField.setText("");
 		passwordField.setActionCommand(passwordFieldString);
 		passwordField.addActionListener(this);
 		passwordFieldLabel = createLabel(passwordFieldString, passwordField);

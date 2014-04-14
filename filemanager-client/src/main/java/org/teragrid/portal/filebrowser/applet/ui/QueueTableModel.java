@@ -15,10 +15,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JProgressBar;
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.lang3.StringUtils;
 import org.globus.ftp.FileInfo;
 import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.transfer.FileTransferTask;
@@ -60,7 +62,7 @@ public class QueueTableModel extends AbstractTableModel{
     public QueueTableModel(Component parent, List<FileTransferTask> fileTaskList){
         if(fileTaskList == null){
             this.fileTaskList = new ArrayList<FileTransferTask>();
-        }else{
+        } else {
             this.fileTaskList = fileTaskList;
         }
         this.parent = parent;
@@ -114,13 +116,16 @@ public class QueueTableModel extends AbstractTableModel{
                 icon = AppMain.icoStatusYellow;
                 break;
             case Task.DONE:
-                icon = new ImageIcon();
+                icon = AppMain.icoStatusComplete;
                 break;
             case Task.FAILED:
                 icon = AppMain.icoStatusRed;
                 break;
             case Task.ONGOING:
                 icon = AppMain.icoStatusGreen;
+                break;
+            case Task.STOPPED:
+                icon = AppMain.icoStop;
                 break;
             default:
                 icon = AppMain.icoHelp;
@@ -131,8 +136,14 @@ public class QueueTableModel extends AbstractTableModel{
         case 1:
             //Item Name
             FileInfo file = fileTask.getFile();
-//            value = new IconData((file.isDirectory()||file.isSoftLink()?AppMain.icoFolder:AppMain.icoFile),ListModel.getFileName(file));
-            value = new IconData((file.isDirectory()||file.isSoftLink()?AppMain.icoFolder:AppMain.icoFile),fileTask.getDisplayName());
+            Icon ico = null;
+            if (file == null) {
+            	ico = (fileTask.getFileType() == FileInfo.DIRECTORY_TYPE || fileTask.getFileType() == FileInfo.SOFTLINK_TYPE) ? AppMain.icoFolder: AppMain.icoFile;
+            } else {
+            	ico = (file.isDirectory()||file.isSoftLink()) ? AppMain.icoFolder: AppMain.icoFile; 
+            }
+            String filename = StringUtils.isEmpty(fileTask.getDisplayName()) ? fileTask.getFileName() : fileTask.getDisplayName();	
+            value = new IconData(ico, filename);
             break;
         case 2:
             //Source

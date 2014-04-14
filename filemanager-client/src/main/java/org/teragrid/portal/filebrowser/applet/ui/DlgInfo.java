@@ -48,6 +48,8 @@ import org.apache.commons.lang3.StringUtils;
 //import org.alfresco.service.cmr.version.Version;
 import org.globus.ftp.FileInfo;
 import org.globus.ftp.exception.ServerException;
+import org.irods.jargon.core.protovalues.FilePermissionEnum;
+import org.irods.jargon.core.pub.domain.UserFilePermission;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.renderer.ComponentProvider;
 import org.jdesktop.swingx.renderer.DefaultTreeRenderer;
@@ -67,6 +69,8 @@ import org.teragrid.portal.filebrowser.applet.util.LogManager;
 import com.explodingpixels.macwidgets.IAppWidgetFactory;
 import com.explodingpixels.macwidgets.MacFontUtils;
 //import org.teragrid.portal.filebrowser.applet.file.TGShareFileInfo;
+
+
 
 
 import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.FileProtocolType;
@@ -327,13 +331,26 @@ public class DlgInfo extends DlgEscape {
 		String[][] permissionTableRows;
 		if (fileInfo instanceof IRODSFileInfo) {
 			// pull the permissions directly
-			String permissions;
+			
 			try {
-				permissions = (String)this.tBrowse.getPermissions(path);
+				List<UserFilePermission> permissions = (List<UserFilePermission>)this.tBrowse.getPermissions(path + "/" + fileInfo.getName());
+				FilePermissionEnum pemEnum = FilePermissionEnum.READ;
+				for (UserFilePermission pem: permissions) {
+					String username = pem.getUserName();
+					if (username.contains("#")) {
+						username = username.split("#")[0];
+					}
+					if (username.equals(tBrowse.ftpServer.userName)) {
+						pemEnum = pem.getFilePermissionEnum();
+						break;
+					}
+				}
+				
 				permissionTableRows = new String[][]{
 						{"Permissions:",""},
-						{"You can: ", getPermission(permissions)}
+						{"You can: ", getPermission(pemEnum)}
 				};
+				
 			} catch (Exception e) {
 				permissionTableRows = new String[][]{
 						{"Permissions:",""},
@@ -598,23 +615,23 @@ public class DlgInfo extends DlgEscape {
 		return icn;
 	}
 	
-	private String getPermission(String permission) 
+	private String getPermission(FilePermissionEnum permission) 
 	{
-		if (permission.equalsIgnoreCase("all")) {
+		if (permission.equals(FilePermissionEnum.OWN)) {
             return "Read & Write & Execute" ;
         } 
 		
 		List<String> response = new ArrayList<String>();
 		
-		if (permission.contains("read")) {
-			response.add("Read");
+		if (permission.equals(FilePermissionEnum.READ)) {
+			return "Read";
 		}
 		
-		if (permission.contains("write")) {
-			response.add("Write");
+		if (permission.equals(FilePermissionEnum.WRITE)) {
+			return "Read & Write";
 		}
 		
-		if (permission.contains("execute")) {
+		if (permission.equals(FilePermissionEnum.EXECUTE)) {
 			response.add("Execute");
 		}
 		

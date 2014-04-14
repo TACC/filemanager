@@ -119,7 +119,7 @@ public class NotificationDAO {
         
         Session session = HibernateUtil.getSession();
         
-        List<Notification> sites = null;
+        List<Notification> sites = new ArrayList<Notification>();
         
         try {
             
@@ -145,7 +145,7 @@ public class NotificationDAO {
         
         Session session = HibernateUtil.getSession();
         
-        List<Notification> sites = null;
+        List<Notification> sites = new ArrayList<Notification>();
         
         try {
             
@@ -172,7 +172,7 @@ public class NotificationDAO {
         
         Session session = HibernateUtil.getSession();
         
-        List<Notification> sites = null;
+        List<Notification> sites = new ArrayList<Notification>();
         
         try {
             
@@ -199,7 +199,7 @@ public class NotificationDAO {
         
         Session session = HibernateUtil.getSession();
         
-        List<Notification> sites = null;
+        List<Notification> sites = new ArrayList<Notification>();
         
         try {
             
@@ -225,7 +225,7 @@ public class NotificationDAO {
         
         Session session = HibernateUtil.getSession();
         
-        List<Notification> sites = null;
+        List<Notification> sites = new ArrayList<Notification>();
         
         try {
             

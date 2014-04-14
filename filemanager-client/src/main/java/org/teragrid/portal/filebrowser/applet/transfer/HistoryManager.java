@@ -14,11 +14,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
-import org.apache.commons.lang.StringUtils;
+import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
 import org.restlet.resource.ClientResource;
 import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.ConfigOperation;
@@ -88,7 +87,6 @@ public class HistoryManager {
 			taskList.add(task);
 			statusList.add(task.task2State());
 		}
-
 	}
 
 	/**
@@ -261,6 +259,7 @@ public class HistoryManager {
 	 * Make an RPC call to the TG File History servlet and retrieve the user's
 	 * file transfer history.
 	 */
+	@SuppressWarnings("unchecked")
 	public static void refreshTaskList() 
 	{	
 		if (!ConfigOperation.isLoggingEnabled()) return;
@@ -271,9 +270,13 @@ public class HistoryManager {
 			
 			ClientResource clientResource = ServletUtil.getClient(ServletUtil.TRANSFERS_SERVICE_URL);
 			BulkTransfersResource client = clientResource.wrap(BulkTransfersResource.class);
-			List<Transfer> transfers = client.getAllTransfers();
+			Object response = client.getAllTransfers();
+			List<Transfer> transfers = (List<Transfer>)((List)response).get(0);
 			for(Transfer transfer: transfers) {
-				taskList.add(new FileTransferTask(transfer));
+				FileTransferTask task = new FileTransferTask(transfer);
+				if (task.getSrcSite() != null && task.getDestSite() != null) {
+					taskList.add(task);
+				}
 			}
 		} 
 		catch (Exception e)
@@ -288,18 +291,16 @@ public class HistoryManager {
 			}
 		}
 	
-		for (FileTransferTask task : taskList) {
-			String name = ConfigOperation.getInstance().getSiteName(
-					task.getSrcSite().host);
-			if (name != null) {
-				task.getSrcSite().name = name;
-			}
-			name = ConfigOperation.getInstance().getSiteName(
-					task.getDestSite().host);
-			if (name != null) {
-				task.getDestSite().name = name;
-			}
-		}
+//		for (FileTransferTask task : taskList) {
+//			String name = ConfigOperation.getInstance().getSiteName(task.getSrcSite().host);
+//			if (name != null) {
+//				task.getSrcSite().name = name;
+//			}
+//			name = ConfigOperation.getInstance().getSiteName(task.getDestSite().host);
+//			if (name != null) {
+//				task.getDestSite().name = name;
+//			}
+//		}
 	}
 
 	/**
@@ -416,9 +417,11 @@ public class HistoryManager {
 				try 
 				{
 					List<Transfer> transfers = new ArrayList<Transfer>();
-
+					String userDn = ((GlobusGSSCredentialImpl) AppMain.defaultCredential).getX509Credential().getIdentity();
 					for (FileTransferTask fileTransferTask : tasks) {
-						transfers.add(fileTransferTask.toTransfer());
+						Transfer transfer = fileTransferTask.toTransfer();
+						transfer.setDn(userDn);
+						transfers.add(transfer);
 					}
 					
 					ClientResource clientResource = ServletUtil.getClient(ServletUtil.TRANSFERS_SERVICE_URL);
@@ -430,8 +433,8 @@ public class HistoryManager {
 						notificationType = NotificationType.NONE;
 					}
 					BulkTransferRequest bulkTransferRequest = new BulkTransferRequest(transfers, "", notificationType);
-					List<Long> transferIds = client.addMultipleTransfers(bulkTransferRequest);
-					
+					Object response = client.addMultipleTransfers(bulkTransferRequest);
+					List<Long> transferIds = (List<Long>)((List)response).get(0);
 					LogManager.debug("Sending transfers to service for logging");
 					
 					for (int i = 0; i < transferIds.size(); i++) {
@@ -584,9 +587,10 @@ public class HistoryManager {
 				try
 				{	
 					List<Transfer> transfers = new ArrayList<Transfer>();
-
+					
 					for (FileTransferTask fileTransferTask : tasks) {
-						transfers.add(fileTransferTask.toTransfer());
+						Transfer transfer = fileTransferTask.toTransfer();
+						transfers.add(transfer);
 					}
 					
 					ClientResource clientResource = ServletUtil.getClient(ServletUtil.TRANSFERS_SERVICE_URL);

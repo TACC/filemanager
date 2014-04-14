@@ -645,6 +645,10 @@ public class FTPThread extends Thread{
 	{
 		return this.ftpSrvConn.findUsers(searchString);
 	}
+	
+	public FTPSettings getFTPSettings() {
+		return this.ftpServer;
+	}
     
 }
 

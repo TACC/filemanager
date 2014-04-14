@@ -10,11 +10,13 @@
 
 package org.teragrid.portal.filebrowser.applet.transfer;
 
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.Calendar;
 
 import org.globus.ftp.ByteRange;
 import org.globus.ftp.FileInfo;
+import org.teragrid.portal.filebrowser.applet.ConfigOperation;
 import org.teragrid.portal.filebrowser.applet.ui.DrawState;
 import org.teragrid.portal.filebrowser.applet.ui.ListModel;
 import org.teragrid.portal.filebrowser.applet.util.ResourceName;
@@ -63,13 +65,14 @@ public class FileTransferTask extends Transfer implements Task {
 		this.notified = transfer.getNotified();
 		this.created = transfer.getCreated();
 		this.start = transfer.getStart();
-		this.startTime = start.getTimeInMillis();
+		this.startTime = start != null ? start.getTimeInMillis() : 0;
 		this.stop = transfer.getStop();
 		this.para = transfer.getPara();
 		this.paraId = transfer.getParaId();
 		this.speed = transfer.getSpeed();
 		this.progress = transfer.getProgress();
 		this.fileName = transfer.getFileName();
+		this.displayName = transfer.getFileName();
 		this.fileDate = transfer.getFileDate();
 		this.fileType = transfer.getFileType();
 		this.fileSize = transfer.getFileSize();
@@ -77,8 +80,12 @@ public class FileTransferTask extends Transfer implements Task {
 		this.task = transfer.getTask();
 		this.status = transfer.getStatus();
 		this.visible = transfer.isVisible();
-		this.source = transfer.getSource();
-		this.dest = transfer.getDest();
+		URI srcUri = URI.create(transfer.getSource());
+		this.source = srcUri.getPath();
+		this.srcSite = ConfigOperation.getInstance().getSiteByHostame(srcUri.getHost());
+		URI destUri = URI.create(transfer.getDest());
+		this.dest = destUri.getPath();
+		this.destSite = ConfigOperation.getInstance().getSiteByHostame(destUri.getHost());
     }
     
     public FileTransferTask(FileInfo file, FTPSettings srcSite, FTPSettings destSite, String srcDir, String destDir){
@@ -412,13 +419,24 @@ public class FileTransferTask extends Transfer implements Task {
         DrawState state = new DrawState(this, DrawState.ARROW_LEN, DrawState.STEP_LEN);
         return state;
     }
+    
+    public String getSourceUri() {
+    	return this.srcSite.getPrefix() + this.srcSite.host + ":" + this.srcSite.filePort + 
+        		"/" + this.source + "/" + this.file.getName();
+    }
+    
+    public String getDestUri() {
+    	return this.destSite.getPrefix() + this.destSite.host + ":" + this.destSite.filePort + 
+        		"/" + this.dest + "/" + this.file.getName();
+    }
 
     /**
      * Return a url string
      * @return String
      */
     public String toString() {
-        return this.srcSite.getPrefix() + this.srcSite.host + this.source + "/" + this.file.getName() + " (" + this.srcSite.name + ")";
+        return this.srcSite.getPrefix() + this.srcSite.host + ":" + this.srcSite.filePort + 
+        		"/" + this.source + "/" + this.file.getName();
     }
 
 	public long getDstStartOffset() {
@@ -467,8 +485,8 @@ public class FileTransferTask extends Transfer implements Task {
 		transfer.setTask(task);
 		transfer.setStatus(status);
 		transfer.setVisible(visible);
-		transfer.setSource(source);
-		transfer.setDest(dest);
+		transfer.setSource(getSourceUri());
+		transfer.setDest(getDestUri());
         
 		return transfer;
     }

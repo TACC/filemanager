@@ -22,7 +22,7 @@ done via 3rd party transfer.
 	   lazy="true">
 
 	<id name="id"
-		type="java.lang.Integer"
+		type="java.lang.Long"
 		column="id"
 		unsaved-value="null">
 		<generator class="sequence">
@@ -49,7 +49,7 @@ done via 3rd party transfer.
 	<property name="fileTime" type="string" column="fTime"/>
 	<property name="created" type="java.util.Calendar" column="created"/>
 	<property name="task" type="text" column="task"/>
-	<property name="file" type="text" column="file"/>
+	<!-- <property name="file" type="text" column="file"/> -->
 	<property name="visible" not-null="true" >
    		<column sql-type="BOOLEAN" not-null="true" name="is_visible" />
 	</property>

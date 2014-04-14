@@ -19,6 +19,7 @@ import java.util.Vector;
 import org.globus.ftp.ByteRange;
 import org.globus.ftp.FileInfo;
 import org.globus.ftp.Session;
+import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
 import org.teragrid.portal.filebrowser.applet.AppMain;
 import org.teragrid.portal.filebrowser.applet.ConfigOperation;
 import org.teragrid.portal.filebrowser.applet.ui.ListModel;
@@ -339,7 +340,14 @@ public class BatchTransfer extends Thread
 //	}
     
     public static void addTask(List<FileTransferTask> taskList, FileInfo file, FTPSettings srcSite, 
-    		FTPSettings destSite, String srcDir, String destDir, int parallism, String newName) {
+    		FTPSettings destSite, String srcDir, String destDir, int parallism, String newName) 
+    {
+    	String userDn = null;
+    	
+    	if (AppMain.defaultCredential != null) {
+    		userDn = ((GlobusGSSCredentialImpl)AppMain.defaultCredential).getX509Credential().getIdentity().replaceAll(",","/");
+    	}
+    	
     	if (taskList == null || file == null || srcSite == null
     			|| destSite == null || srcDir == null || destDir == null || parallism <= 0) {
     		return;
@@ -351,6 +359,7 @@ public class BatchTransfer extends Thread
     			newtask.setNewName(newName);
     			newtask.setDisplayName(newName);
     		}
+    		newtask.setDn(userDn);
     		taskList.add(newtask);
     	} else {
 			long begin = 0, end = 0, nSize = file.getSize() / parallism;
@@ -372,6 +381,7 @@ public class BatchTransfer extends Thread
 					newtask.setDisplayName(newtask.getNewName() + "[" + (j + 1)
 						+ "]");
 				}
+				newtask.setDn(userDn);
 				newtask.setParaId(j + 1);
 				newtask.setPara(parallism);
 				taskList.add(newtask);

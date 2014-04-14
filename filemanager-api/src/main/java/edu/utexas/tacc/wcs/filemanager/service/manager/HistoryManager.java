@@ -94,7 +94,8 @@ public class HistoryManager {
     
     @SuppressWarnings("unchecked")
 	public  List<Long> add(List<Transfer> transfers, String epr, NotificationType type) 
-    throws MalformedURLException, URISyntaxException, PersistenceException {
+    throws MalformedURLException, URISyntaxException, PersistenceException 
+    {
         if (!_dn.equals(transfers.get(0).getDn()))
             throw new PermissionException("Permission denied. User DN does not match transfer DN");
         
@@ -121,8 +122,8 @@ public class HistoryManager {
     }
     
     public Long add(Transfer transfer, String epr, NotificationType type) 
-    throws PersistenceException, MalformedURLException, URISyntaxException {
-        
+    throws PersistenceException, MalformedURLException, URISyntaxException 
+    {        
         if (!_dn.equals(transfer.getDn()))
             throw new PermissionException("Permission denied. User DN does not match transfer DN");
         
