@@ -58,16 +58,18 @@ public class EnvironmentThread extends Thread{
 //										AppMain.ssoPassword);
         	
     	List<EnvironmentVariable> environment = new ArrayList<EnvironmentVariable>();
-    	
+    	FTPSettings currentServerSettings = pnlBrowse.getFtpServer();
     	GsiSshClient client = null;
-    	if (!pnlBrowse.getFtpServer().isLocal() && 
-    			!pnlBrowse.getFtpServer().hostType.equals(SystemType.ARCHIVE) &&
-    			!StringUtils.isEmpty(pnlBrowse.getFtpServer().sshHost) && 
-    			pnlBrowse.getFtpServer().protocol.equals(FileProtocolType.GRIDFTP)) 
+    	if (!currentServerSettings.isLocal() && 
+    			!currentServerSettings.hostType.equals(SystemType.ARCHIVE) &&
+    			!StringUtils.isEmpty(currentServerSettings.sshHost) && 
+    			currentServerSettings.protocol.equals(FileProtocolType.GRIDFTP)) 
     	{
     		try 
     		{
-        		client = new GsiSshClient( pnlBrowse.getFtpServer().sshHost, pnlBrowse.getFtpServer().sshPort, AppMain.defaultCredential);
+        		client = new GsiSshClient( currentServerSettings.sshHost, 
+        								currentServerSettings.sshPort, 
+        								AppMain.defaultCredential);
         		
         		Properties props = client.env();
     	        

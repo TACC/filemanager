@@ -9,14 +9,25 @@
 
 package org.teragrid.portal.filebrowser.applet.util;
 
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.List;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang.StringUtils;
 import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
 import org.restlet.Client;
 import org.restlet.Context;
+import org.restlet.data.Parameter;
 import org.restlet.data.Protocol;
 import org.restlet.engine.header.Header;
+import org.restlet.ext.ssl.SslContextFactory;
 import org.restlet.resource.ClientResource;
 import org.restlet.util.Series;
 import org.teragrid.portal.filebrowser.applet.AppMain;
@@ -42,7 +53,7 @@ public class ServletUtil {
 	public static final String COLLEAGUES_SERVICE_URL = ConfigSettings.SERVICE_TGFM_API + "colleagues";
 	public static final String PARTNERS_SERVICE_URL = ConfigSettings.SERVICE_TGFM_API + "partners";
 	public static final String SYSTEMS_SERVICE_URL = ConfigSettings.SERVICE_TGFM_API + "systems";
-    public static Client client = new Client(new Context(), Protocol.HTTP);
+    public static Client client = null;
 	private static XStream xstream = new XStream(new DomDriver());
     
     private static String defaultFormat = "MMM d, yyyy h:mm:ss a";
@@ -59,9 +70,17 @@ public class ServletUtil {
     {
         xstream.registerConverter(new DateConverter(defaultFormat, acceptableFormats));
     }
+    
+    static {
+    	// Create all-trusting host name verifier
+    	HostnameVerifier allHostsValid = new HostnameVerifier() {
+    	      public boolean verify(String hostname, SSLSession session) {
+    	        return true;
+    	      }
+    	    };
+    	HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+    }
 
-    
-    
     public static XStream getXStream() {
     	return xstream;
     }
@@ -69,7 +88,86 @@ public class ServletUtil {
     @SuppressWarnings("unchecked")
 	public static ClientResource getClient(String endpoint) 
     {
+    	if (client == null) 
+    	{
+    		if (endpoint.startsWith("https")) {
+    			client = new Client(new Context(), Protocol.HTTPS);
+    		} else {
+    			client = new Client(new Context(), Protocol.HTTP);
+    		}
+    	}
+   
+//    	try {
+//	       
+//    	} catch (Exception e) {
+//    		LogManager.error("Failed to enable SSL", e);
+//    	}
+//      
+//  	 	// Install the all-trusting trust manager
+//        SSLContext sc = SSLContext.getInstance("SSL");
+//        // Create empty HostnameVerifier
+//        HostnameVerifier hv = new HostnameVerifier() {
+//
+//			public boolean verify(String arg0, SSLSession arg1) {
+//				return true;
+//			}
+//             
+//        };
+//
+//        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+//        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+//        HttpsURLConnection.setDefaultHostnameVerifier(hv);
+//        
+//    	System.setProperty("javax.net.ssl.trustStore", ConfigOperation.getUserHome() + "xup_filemanager"
+//				+ File.separator + "security" + File.separator + "keystore");
+//        System.setProperty("javax.net.ssl.trustStorePassword", "changeit");
+//        System.setProperty("javax.net.ssl.trustStoreType", "JKS");
+//        
+//    	LogManager.debug("Trust store location: " + System.getProperty("javax.net.ssl.trustStore"));
+    	
+//    	Series<Parameter> parameters = client.getContext().getParameters();
+//    	parameters.add("truststorePath", ConfigOperation.getUserHome() + "xup_filemanager"
+//				+ File.separator + "security" + File.separator + "keystore");
+//    	parameters.add("truststorePassword", "changeit");
+//    	parameters.add("trustPassword", "changeit");
+//    	parameters.add("truststoreType", "JKS");
+    	
     	ClientResource service = new ClientResource(endpoint);
+    	
+
+		try
+    	{
+			
+    		TrustManager tm = new X509TrustManager() {
+	    	    public void checkClientTrusted(X509Certificate[] chain,
+	    	                    String authType)
+	    	                    throws CertificateException {
+	    	    }
+	
+	    	    public X509Certificate[] getAcceptedIssuers() {
+	    	        return new X509Certificate[0];
+	    	    }
+	
+	    	    public void checkServerTrusted(X509Certificate[] chain,
+	    	                    String authType)
+	    	                    throws CertificateException {
+	    	        // This will never throw an exception.
+	    	        // This doesn't check anything at all: it's insecure.
+	    	    }
+	    	};
+	
+	    	final SSLContext sslContext = SSLContext.getInstance("TLS");
+	    	sslContext.init(null, new TrustManager[] { tm }, null);
+	    	
+	    	Context context = client.getContext();
+	    	context.getAttributes().put("sslContextFactory", new SslContextFactory() {
+	    	    public void init(Series<Parameter> parameters) { }
+	    	    public SSLContext createSslContext() { return sslContext; }
+	    	});
+	    } catch (Exception e) {
+			LogManager.error("Failed to enable SSL", e);
+		}
+    	
     	Series<Header> headers = (Series<Header>) service.getRequest().getAttributes().get("org.restlet.http.headers");;
     	if (headers == null) { 
     		headers = new Series<Header>(Header.class); 
@@ -124,7 +222,7 @@ public class ServletUtil {
 ////	        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 ////	        HttpsURLConnection.setDefaultHostnameVerifier(hv);
 //	        
-//	    	System.setProperty("javax.net.ssl.trustStore", ConfigOperation.getUserHome() + "tgup_filemanager"
+//	    	System.setProperty("javax.net.ssl.trustStore", ConfigOperation.getUserHome() + "xup_filemanager"
 //					+ File.separator + "certificates" + File.separator + "keystore");
 //	        System.setProperty("javax.net.ssl.trustStorePassword", "changeit");
 //	        System.setProperty("javax.net.ssl.trustStoreType", "JKS");

@@ -73,8 +73,6 @@ public class FTPSettings implements Comparable<FTPSettings>/* implements Cloneab
 
     private Vector<SHGridFTP> connPool = new Vector<SHGridFTP>(connMaxNum);//connection pool
     private Vector<GsiSSH> tunnelPool = new Vector<GsiSSH>(connMaxNum);//gsissh tunnel pool
-//    @SuppressWarnings("unused")
-//	private ArrayList trans = new ArrayList();
     public SystemType hostType = SystemType.HPC;
     public boolean listed = true;
     public Component parent = null;
@@ -89,13 +87,16 @@ public class FTPSettings implements Comparable<FTPSettings>/* implements Cloneab
     	this.resourceId = system.getResourceId();
     	
     	this.sshHost = system.getSshHostname();
-    	this.sshPort = system.getSshPort() == null ? system.getProtocol().getDefaultPort() : system.getSshPort();
+    	this.sshPort = system.getSshPort() == null ? 22 : system.getSshPort();
     	
     	this.userName = system.getUserName();
     	
-//    	this.protocol = system.getProtocol();
-//    	this.host = system.getFtpHostname();
-//    	this.filePort = system.getFtpPort();
+    	this.protocol = system.getProtocol();
+    	this.host = system.getFtpHostname();
+    	this.filePort = system.getFtpPort();
+    	if (this.protocol.equals(FileProtocolType.GRIDFTP)) {
+    		this.passiveMode = true;
+    	}
     }
     
     public FTPSettings(String sHost){
@@ -109,6 +110,7 @@ public class FTPSettings implements Comparable<FTPSettings>/* implements Cloneab
     public FTPSettings(String sHost, Integer nPort, FileProtocolType nType){
         this.name=sHost;
         this.sshHost=sHost;
+        this.sshPort = 22;
         this.host=sHost;
         this.filePort= nPort == null ? nType.getDefaultPort() : nPort;
         this.protocol=nType;
@@ -136,35 +138,6 @@ public class FTPSettings implements Comparable<FTPSettings>/* implements Cloneab
     {
         return protocol.getSchema();
     }
-
-//    @SuppressWarnings("unused")
-//	private InetAddress getIP(){
-//        try {
-//            return InetAddress.getByName(host);
-//        } catch (Exception ex) {
-//            AppMain.Error(null,SGGCResourceBundle.getResourceString(ResourceName.KEY_ERROR_FTPSETTINGS_INVALIDIP));
-//            return null;
-//        }
-//    }
-
-    
-//    public SHGridFTP getConnection() throws IOException,ServerException{
-//        SHGridFTP ftpConn=null;
-//        if(connPool.size()<=connMaxNum){
-//            ftpConn=new SHGridFTP(this);
-//            connPool.add(ftpConn);
-//        }
-//        else{
-//            int j=0;
-//            for (ListIterator i = connPool.listIterator(); i.hasNext(); ) {
-//                SHGridFTP conn = (SHGridFTP)i.next();
-//                if(!(0==j && this==Local) && conn.isIdle()) {ftpConn=conn;break;}
-//                j++;
-//            }
-//        }
-//        return ftpConn;
-//    }
-
 
     public SHGridFTP getConnection() throws IOException, ServerException{
         SHGridFTP conn = null;
@@ -379,8 +352,10 @@ public class FTPSettings implements Comparable<FTPSettings>/* implements Cloneab
 	
 	public FTPSettings clone(Component parent) {
 	    FTPSettings clone = new FTPSettings(this.name,this.filePort,this.protocol);
-	    clone.host=this.host;
+	    clone.host = this.host;
+	    clone.filePort = this.filePort;
 	    clone.sshHost = this.sshHost;
+	    clone.sshPort = this.sshPort;
         clone.loginMode = this.loginMode;
         clone.showHidden = this.showHidden;
         clone.passiveMode = this.passiveMode;
@@ -404,10 +379,14 @@ public class FTPSettings implements Comparable<FTPSettings>/* implements Cloneab
 	}
 	
 	public int compareTo(FTPSettings o) {
-		if (this.name.compareTo(((FTPSettings)o).name) == 0) {
-        	return this.host.compareTo(((FTPSettings)o).host);
+		if (this.name.compareTo(o.name) == 0) {
+        	if (this.host.compareTo(o.host) == 0) {
+        		return this.filePort.compareTo(o.filePort);
+        	} else {
+        		return this.host.compareTo(o.host); 
+        	}
         } else {
-        	return this.name.compareTo(((FTPSettings)o).name);
+        	return this.name.compareTo(o.name);
         }
 	}
 	

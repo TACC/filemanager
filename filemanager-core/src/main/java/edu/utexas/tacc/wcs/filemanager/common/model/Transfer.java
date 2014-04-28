@@ -402,15 +402,16 @@ public class Transfer implements Comparable<Transfer>
      * @return
      */
     public int compareTo(Transfer o) {
-    	if (this.source.compareTo(((Transfer)o).getSource()) > 0 ||
-                this.dest.compareTo(((Transfer)o).getDest()) > 0 ||
-                this.dn.compareTo(((Transfer)o).getDn()) > 0 ||
-                this.status > ((Transfer)o).getStatus() ||
-                this.epr.compareTo(((Transfer)o).getEpr()) > 0) {
-            return 1;
-        }
-    	
-    	return 0;
+    	return this.created.compareTo(o.created);
+//    	if (this.source.compareTo(((Transfer)o).getSource()) > 0 ||
+//                this.dest.compareTo(((Transfer)o).getDest()) > 0 ||
+//                this.dn.compareTo(((Transfer)o).getDn()) > 0 ||
+//                this.status > ((Transfer)o).getStatus() ||
+//                this.epr.compareTo(((Transfer)o).getEpr()) > 0) {
+//            return 1;
+//        }
+//    	
+//    	return 0;
     }
     
     /**

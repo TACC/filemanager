@@ -124,7 +124,7 @@ public class TransferDAO {
             Criteria criteria = session.createCriteria(Transfer.class);
             criteria.add(Restrictions.eq("visible", true));
             criteria.setProjection(Projections.rowCount());
-            return ((Integer)criteria.list().get(0)).intValue();
+            return ((Long)criteria.list().get(0)).intValue();
             
         }  catch (HibernateException ex) {
             throw new PersistenceException(ex);
@@ -141,20 +141,19 @@ public class TransferDAO {
     public List<Transfer> getAllTransfersByDN(String dn)
     throws PersistenceException {
 
-    	int transferCount = getTransfersCount(dn);
+//    	int transferCount = getTransfersCount(dn);
     	
         Session session = HibernateUtil.getSession();
         
-        List<Transfer> sites = new ArrayList<Transfer>();
+        List<Transfer> transfers = new ArrayList<Transfer>();
         
         try 
         { 
-            sites = session.createQuery(
-                    "from Transfer t where t.dn = :dn and t.visible = :visible order by t.created desc")
+        	transfers = session.createQuery(
+                    "from Transfer t where t.dn = :dn and t.visible = :visible order by t.id desc")
                     .setString("dn",dn)
                     .setBoolean("visible", true)
-                    .setFirstResult((transferCount >= MAX_RESULTS)?transferCount - MAX_RESULTS: 0)
-        	        .setMaxResults(150)
+                    .setMaxResults(150)
                     .list();
             
         }  catch (HibernateException ex) {
@@ -165,7 +164,7 @@ public class TransferDAO {
         } finally {
         	HibernateUtil.closeSession();
         }
-        return sites;
+        return transfers;
     }
 
     // ********************************************************** //
@@ -180,10 +179,10 @@ public class TransferDAO {
         try {
             
             sites = session.createQuery(
-                    "select task from Transfers t where t.dn = :dn and t.visible = :visible order by t.created desc")
+                    "from Transfer t where t.dn = :dn and t.visible = :visible order by t.id desc")
                 .setString("dn",dn)
                 .setBoolean("visible", true)
-                .setFirstResult(page * pageSize)
+                .setFirstResult((page-1) * pageSize)
                 .setMaxResults(pageSize)
                 .list();
             

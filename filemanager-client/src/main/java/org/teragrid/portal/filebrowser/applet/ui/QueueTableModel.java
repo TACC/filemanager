@@ -32,7 +32,7 @@ import edu.utexas.tacc.wcs.filemanager.common.model.Task;
 import edu.utexas.tacc.wcs.filemanager.common.model.enumeration.NotificationType;
 
 @SuppressWarnings("serial")
-public class QueueTableModel extends AbstractTableModel{
+public class QueueTableModel extends AbstractTableModel {
     //column names of the table
     private final String [] TABLE_COLUMN_NAMES = new String[]{
             SGGCResourceBundle.getResourceString(ResourceName.KEY_DISPLAY_QUEUETABLEMODEL_ID),
@@ -221,6 +221,7 @@ public class QueueTableModel extends AbstractTableModel{
         }
         
         Collections.sort(this.fileTaskList);
+        Collections.reverse(this.fileTaskList);
         
         
     }

@@ -1,0 +1,9 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="XSEDE Filemanager Core Tests" verbose="5" parallel="false">
+	<test name="xsede iss tests">
+		<packages>
+			<package name="org.teragrid.service.profile.wsclients" />
+		</packages>
+	</test>
+</suite>

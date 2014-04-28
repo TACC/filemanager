@@ -47,10 +47,14 @@
 	</properties>
 
 	<build>
+
 		<resources>
 			<resource>
 				<filtering>true</filtering>
 				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>help/**</exclude>
+				</excludes>
 			</resource>
 		</resources>
 		<testResources>
@@ -62,47 +66,67 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>org.teragrid.portal.filebrowser.applet.AppMain</mainClass>
-						</manifest>
-					</archive>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-				</configuration>
 				<executions>
 					<execution>
-						<id>make-assembly</id> <!-- this is used for inheritance merges -->
+						<id>make-help-assembly</id> <!-- this is used for inheritance merges -->
+						<phase>package</phase> <!-- append to the packaging phase. -->
+						<goals>
+							<goal>single</goal> <!-- goals == mojos -->
+						</goals>
+						<configuration>
+							<finalName>help</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<outputDirectory>${project.build.directory}/classes</outputDirectory>
+							<descriptors>
+								<descriptor>src/main/assembly/help-assembly.xml</descriptor>
+							</descriptors>
+						</configuration>
+
+					</execution>
+					<execution>
+						<id>make-jar-assembly</id> <!-- this is used for inheritance merges -->
 						<phase>package</phase> <!-- bind to the packaging phase -->
 						<goals>
 							<goal>single</goal>
 						</goals>
+						<configuration>
+							<finalName>filemanager</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<archive>
+								<manifest>
+									<mainClass>org.teragrid.portal.filebrowser.applet.AppMain</mainClass>
+								</manifest>
+							</archive>
+							<descriptors>
+								<descriptor>src/main/assembly/jar-assembly.xml</descriptor>
+							</descriptors>
+						</configuration>
 					</execution>
+
 				</executions>
+			</plugin>
+
+			<!-- Don't deploy the jar -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jarsigner-plugin</artifactId>
-				<version>1.3.2</version>
-				<executions>
-					<execution>
-						<id>sign</id>
-						<phase>package</phase> <!-- bind to the packaging phase -->
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
+				<artifactId>maven-install-plugin</artifactId>
 				<configuration>
-					<keystore>src/test/security/keystore</keystore>
-					<alias>tacc</alias>
-					<storetype>jks</storetype>
-					<storepass>changeit</storepass>
-					<keypass>changeit</keypass>
+					<skip>true</skip>
 				</configuration>
 			</plugin>
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jarsigner-plugin</artifactId> 
+				<version>1.3.2</version> <executions> <execution> <id>sign</id> <phase>package</phase> 
+				bind to the packaging phase <goals> <goal>sign</goal> </goals> </execution> 
+				</executions> <configuration> <keystore>src/test/security/keystore</keystore> 
+				<alias>tacc</alias> <storetype>jks</storetype> <storepass>changeit</storepass> 
+				<keypass>changeit</keypass> </configuration> </plugin> -->
 		</plugins>
 	</build>
 

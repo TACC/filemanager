@@ -67,6 +67,9 @@ public class FileTransferTask extends Transfer implements Task {
 		this.start = transfer.getStart();
 		this.startTime = start != null ? start.getTimeInMillis() : 0;
 		this.stop = transfer.getStop();
+		if (start != null && stop != null) {
+			this.totalTime = transfer.getStop().getTimeInMillis() - transfer.getStart().getTimeInMillis();
+		}
 		this.para = transfer.getPara();
 		this.paraId = transfer.getParaId();
 		this.speed = transfer.getSpeed();
@@ -80,10 +83,10 @@ public class FileTransferTask extends Transfer implements Task {
 		this.task = transfer.getTask();
 		this.status = transfer.getStatus();
 		this.visible = transfer.isVisible();
-		URI srcUri = URI.create(transfer.getSource());
+		URI srcUri = URI.create(transfer.getSource().replace("$", "").replace(" ", "_"));
 		this.source = srcUri.getPath();
 		this.srcSite = ConfigOperation.getInstance().getSiteByHostame(srcUri.getHost());
-		URI destUri = URI.create(transfer.getDest());
+		URI destUri = URI.create(transfer.getDest().replace("$", "").replace(" ", "_").replace("Local:", "Local"));
 		this.dest = destUri.getPath();
 		this.destSite = ConfigOperation.getInstance().getSiteByHostame(destUri.getHost());
     }
@@ -457,7 +460,7 @@ public class FileTransferTask extends Transfer implements Task {
 
     public int compareTo(FileTransferTask o) 
     {
-    	return created.compareTo(o.created);
+    	return id.compareTo(o.id);
     }
     
     public Transfer toTransfer()
@@ -482,6 +485,7 @@ public class FileTransferTask extends Transfer implements Task {
 		transfer.setFileType(file.isDirectory() ? FileInfo.DIRECTORY_TYPE : FileInfo.FILE_TYPE);
 		transfer.setFileSize(file.getSize());
 		transfer.setFileTime(file.getTime());
+		transfer.setStop(stop);
 		transfer.setTask(task);
 		transfer.setStatus(status);
 		transfer.setVisible(visible);

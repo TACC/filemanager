@@ -10,6 +10,8 @@
 
 package org.teragrid.portal.filebrowser.applet.transfer;
 
+import java.util.Calendar;
+
 import org.globus.io.urlcopy.UrlCopyListener;
 import org.teragrid.portal.filebrowser.applet.ui.UIRefresher;
 import org.teragrid.portal.filebrowser.applet.util.LogManager;
@@ -133,6 +135,7 @@ public class TransferListener implements UrlCopyListener {
            this.fileTask.setProgress(100);
            this.fileTask.setLeftTime(0);
            this.fileTask.setTotalTime(totalTime);
+           this.fileTask.setStop(Calendar.getInstance());
            if (totalTime != 0) {
         	   this.fileTask.setSpeed(this.fileTask.getSize()*1024/totalTime);
            }

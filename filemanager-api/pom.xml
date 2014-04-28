@@ -51,6 +51,7 @@
 		<filemanager.api.db.test.driver>org.postgresql.Driver</filemanager.api.db.test.driver>
 		<filemanager.api.db.test.url>jdbc:postgresql://localhost:5432/teragrid</filemanager.api.db.test.url>
 
+		<filemanager.api.db.name>teragrid</filemanager.api.db.name>
 		<filemanager.api.db.host>localhost</filemanager.api.db.host>
 		<filemanager.api.db.port>5432</filemanager.api.db.port>
 		<filemanager.api.db.password></filemanager.api.db.password>
@@ -171,6 +172,14 @@
 					<skip>true</skip>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>

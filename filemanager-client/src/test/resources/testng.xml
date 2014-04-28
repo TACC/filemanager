@@ -1,0 +1,14 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="XSEDE Filemanager Tests" verbose="5" parallel="false">
+	<!-- <test name="transfer tests">
+		<packages>
+			<package name="org.teragrid.portal.filebrowser.applet.transfer" />
+		</packages>
+	</test> -->
+	<!-- <test name="myproxy integration">
+		<packages>
+			<package name="org.teragrid.portal.filebrowser.applet.proxy" />
+		</packages> 
+	</test>-->
+</suite>

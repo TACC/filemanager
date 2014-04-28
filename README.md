@@ -89,7 +89,7 @@ and all needed libraries to a folder that can be deployed to a web server for us
 1. At the command line, run 'ant dist'.  This will compile, bundle, sign, and deploy the client and an index.html file for you to run the client locally from your web browser.
 1. Point your web browser to the directory the client was just deployed in.
 1. The client will run a grid-proxy-init if no valid credentials are passed to it from the index.html file.
-To avoid this, just copy a valid proxy file to the ~/tgup_filemanager/proxies folder on your computer.
+To avoid this, just copy a valid proxy file to the ~/xup_filemanager/proxies folder on your computer.
 The XFM will automatically discover it there.
 
 <p style="border: thin solid red; padding: 3px;">NOTE: the XFM is meant to be run as a client server 

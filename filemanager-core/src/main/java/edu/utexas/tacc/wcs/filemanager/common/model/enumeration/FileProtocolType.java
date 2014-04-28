@@ -40,7 +40,7 @@ public enum FileProtocolType
 	
 	public String getSchema()
 	{
-		return this.schema + "://";
+		return this.schema;
 	}
 
 	public static FileProtocolType getType(String sType) {

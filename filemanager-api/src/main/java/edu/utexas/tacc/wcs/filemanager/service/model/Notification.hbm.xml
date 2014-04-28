@@ -22,7 +22,7 @@ status of their transfer. The deliver mechanism is determined by the userType fi
 	   lazy="true">
 
 	<id name="id"
-		type="java.lang.Integer"
+		type="java.lang.Long"
 		column="id"
 		unsaved-value="null">
 		<generator class="sequence">

@@ -1,7 +1,7 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="iPlant Profile Service API" verbose="5" parallel="false">
-	<test name="APIResourceTests">
+<suite name="XSEDE Filemanager API" verbose="5" parallel="false">
+	<!-- <test name="APIResourceTests">
 		<packages>
 			<package name="edu.utexas.tacc.wcs.filemanager.service.resources.impl" />
 		</packages>
@@ -15,5 +15,5 @@
 		<packages>
 			<package name="edu.utexas.tacc.wcs.filemanager.service.manager" />
 		</packages>
-	</test>
+	</test> -->
 </suite>

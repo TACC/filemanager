@@ -21,6 +21,7 @@ import java.util.ListIterator;
 import java.util.Properties;
 import java.util.Vector;
 
+import org.apache.commons.lang3.StringUtils;
 import org.globus.ftp.FileInfo;
 import org.globus.ftp.Session;
 import org.globus.ftp.exception.ClientException;
@@ -326,21 +327,32 @@ public class FTPThread extends Thread{
         	AppMain.Error(this.pnlBrowse,ex.getMessage(), SGGCResourceBundle.getResourceString(ResourceName.KEY_DISPLAY_ERROR));
         	pnlBrowse.disConn();
         }
-        catch(ServerException ex){
-
-        	AppMain.Error(this.pnlBrowse,ex.getCustomMessage(), SGGCResourceBundle.getResourceString(ResourceName.KEY_DISPLAY_ERROR));
-			switch (ex.getCode()) {
-			case ServerException.REPLY_TIMEOUT:
-
-				bRemove = false;
-				this.bConnected = false;
-				this.pnlBrowse.disConn();
-				break;
-			default:
-				//AppMain.Error(this.pnlBrowse,ex.getMessage(), SGGCResourceBundle.getResourceString(ResourceName.KEY_DISPLAY_ERROR));
-				break;
+        catch(ServerException ex)
+        {
+        	String message = "";
+        	switch (ex.getCode()) 
+        	{
+				case ServerException.REPLY_TIMEOUT:
+					message = "Timeout waiting for a response from the server.";
+					bRemove = false;
+					this.bConnected = false;
+					this.pnlBrowse.disConn();
+					break;
+				case ServerException.UNSPECIFIED:
+					if (ex.getCustomMessage().contains("Network is unreachable")) {
+						message = "Network is unreachable.";
+					} else {
+						message = ex.getCustomMessage();
+					}
+				default:
+					//AppMain.Error(this.pnlBrowse,ex.getMessage(), SGGCResourceBundle.getResourceString(ResourceName.KEY_DISPLAY_ERROR));
+					message = StringUtils.isEmpty(ex.getCustomMessage()) ? ex.getCodeExplanation(ex.getCode()) : ex.getCustomMessage();
+					break;
 			}
-			LogManager.error(ex.getCustomMessage(), ex);
+        	AppMain.Error(this.pnlBrowse, 
+					message, 
+					SGGCResourceBundle.getResourceString(ResourceName.KEY_DISPLAY_ERROR));
+			LogManager.error(message, ex);
         }
         finally{
             if(null != this.pnlBrowse) {

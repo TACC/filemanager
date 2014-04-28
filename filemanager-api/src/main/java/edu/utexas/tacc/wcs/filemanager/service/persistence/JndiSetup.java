@@ -43,7 +43,7 @@ public class JndiSetup
             ds.setDatabaseName(props.getProperty("dbname"));
             ds.setUser(props.getProperty("user"));
             ds.setPassword(props.getProperty("password"));
-
+            ds.setSsl(true);
             // Put datasource in JNDI context
             ic.bind("java:comp/env/jdbc/" + props.getProperty("ds_name"), ds);
             

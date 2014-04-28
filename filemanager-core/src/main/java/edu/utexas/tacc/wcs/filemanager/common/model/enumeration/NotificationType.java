@@ -39,7 +39,7 @@
 package edu.utexas.tacc.wcs.filemanager.common.model.enumeration;
 
 public enum NotificationType {
-    EMAIL, NONE;
+    EMAIL, NONE, TEXT;
     
     public static NotificationType getType(String type) {
         for (int i=0;i<NotificationType.values().length;i++) {

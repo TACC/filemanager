@@ -127,7 +127,7 @@ public class GridFTPPermissionsPanel extends PermissionsPanel {
 //		}
 //		
 //		GridFTPPermissionsPanel panel = null;
-//		AppMain.defaultCredential = GridFTP.authorize("/Users/dooley/tgup_filemanager/proxies/x509up_u501");
+//		AppMain.defaultCredential = GridFTP.authorize("/Users/dooley/xup_filemanager/proxies/x509up_u501");
 //		
 //		try {
 //			FTPThread ftpThread = new FTPThread(new FTPSettings("ranger.tacc.utexas.edu"),true,this);

@@ -293,11 +293,12 @@ public class UrlCopy implements Runnable{
     			   _exception = e;
     			   nRetry--;
     			   Long start = new Date().getTime();
-    			   while ((new Date().getTime() - start) < 100) {
-//                     wait(100);
-                   }
+//    			   while ((new Date().getTime() - start) < 100) {
+////                     wait(100);
+//                   }
     		   }
     	   } while (_exception != null && nRetry > 0);
+    	  
     	   if (_exception != null) {
     	       AppMain.Error(parent, "Can't open source file: " + _exception.getMessage());
         	   LogManager.debug("Can't open source file: " + this.srcFile);
@@ -313,9 +314,9 @@ public class UrlCopy implements Runnable{
     			   _exception = e;
     			   nRetry--;
     			   Long start = new Date().getTime();
-    			   while ((new Date().getTime() - start) < 100) {
-//    			       wait(100);
-    			   }
+//    			   while ((new Date().getTime() - start) < 100) {
+////    			       wait(100);
+//    			   }
     		   }
     	   } while (_exception != null && nRetry > 0);
     	   
@@ -605,7 +606,7 @@ public class UrlCopy implements Runnable{
     	   return;
        }
 
-       Iterator iter = this.listeners.iterator();
+       Iterator<UrlCopyListener> iter = this.listeners.iterator();
        while(iter.hasNext()) {
            ((UrlCopyListener)iter.next()).transfer(transferedBytes - this.range.from, this.range.to - this.range.from);
        }

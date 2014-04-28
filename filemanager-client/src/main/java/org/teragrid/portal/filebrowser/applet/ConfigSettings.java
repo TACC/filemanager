@@ -62,8 +62,8 @@ public class ConfigSettings
 	}
 
 	/* Bundled jars unpacked during startup */
-	public static final String BUNDLED_JAR_HELP = "etc/help.jar";
-	public static final String BUNDLED_JAR_CERTS = "etc/ca.jar";
+	public static final String BUNDLED_JAR_HELP = "help.zip";
+	public static final String BUNDLED_JAR_CERTS = "ca.jar";
 	
 	
 	/* Work files used by the client */

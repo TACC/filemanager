@@ -271,11 +271,14 @@ public class HistoryManager {
 			ClientResource clientResource = ServletUtil.getClient(ServletUtil.TRANSFERS_SERVICE_URL);
 			BulkTransfersResource client = clientResource.wrap(BulkTransfersResource.class);
 			Object response = client.getAllTransfers();
-			List<Transfer> transfers = (List<Transfer>)((List)response).get(0);
-			for(Transfer transfer: transfers) {
-				FileTransferTask task = new FileTransferTask(transfer);
-				if (task.getSrcSite() != null && task.getDestSite() != null) {
-					taskList.add(task);
+			if (!((List)response).isEmpty())
+			{
+				List<Transfer> transfers = (List<Transfer>)((List)response).get(0);
+				for(Transfer transfer: transfers) {
+					FileTransferTask task = new FileTransferTask(transfer);
+					if (task.getSrcSite() != null && task.getDestSite() != null) {
+						taskList.add(task);
+					}
 				}
 			}
 		} 
@@ -564,7 +567,10 @@ public class HistoryManager {
 		
 	}
 
-	public static void update(FileTransferTask task) {
+	public static void update(FileTransferTask task) 
+	{
+		if (task.getId() == null) return;
+		
 		update(Arrays.asList(task));
 	}
 

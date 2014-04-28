@@ -25,9 +25,15 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.JarURLConnection;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.UnknownHostException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,6 +48,7 @@ import java.util.jar.Manifest;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.openssl.EncryptionException;
 import org.globus.common.CoGProperties;
 import org.globus.gsi.CredentialException;
 import org.globus.gsi.X509Credential;
@@ -54,6 +61,7 @@ import org.teragrid.portal.filebrowser.applet.exception.ResourceException;
 import org.teragrid.portal.filebrowser.applet.transfer.FTPSettings;
 import org.teragrid.portal.filebrowser.applet.transfer.GridFTP;
 import org.teragrid.portal.filebrowser.applet.ui.Bookmark;
+import org.teragrid.portal.filebrowser.applet.util.Encryption;
 import org.teragrid.portal.filebrowser.applet.util.FileUtils;
 import org.teragrid.portal.filebrowser.applet.util.LogManager;
 import org.teragrid.portal.filebrowser.applet.util.ResourceName;
@@ -227,7 +235,7 @@ public class ConfigOperation {
 					LogManager.error("Failed to unpack help files.", e);
 				}
 				
-				// unpack keystore
+				AppMain.updateSplash(-1, "Unpacking trust stores...");
 				try {
 					JarEntry keystoreEntry = new JarEntry(tgfmJar.getEntry("security/keystore"));
 					File destKeystore = new File(getKeystoreDir() + File.separator + "keystore");
@@ -242,7 +250,7 @@ public class ConfigOperation {
 				
 				// copy help
 				AppMain.updateSplash(-1, "Unpacking help system...");
-				File srcHelpDir = new File(appHome + "help");
+				File srcHelpDir = new File(appHome + "../../src/main/resources/help");
 				if (!srcHelpDir.exists()) {
 					throw new IOException("Failed to copy help files from "
 							+ srcHelpDir.getAbsolutePath());
@@ -442,7 +450,7 @@ public class ConfigOperation {
 //			//params.addElement("/C=US/O=National Center for Supercomputing Applications/OU=People/CN=Nada Cagle");
 			
 			ClientResource clientResource = ServletUtil.getClient(ServletUtil.SYSTEMS_SERVICE_URL);
-					SystemsResource client = clientResource.wrap(SystemsResource.class);
+			SystemsResource client = clientResource.wrap(SystemsResource.class);
 			Object response = client.retrieveResources();
 			List<edu.utexas.tacc.wcs.filemanager.common.model.System> sites = new ArrayList<edu.utexas.tacc.wcs.filemanager.common.model.System>();
 			if (response == null || ((List)response).isEmpty()) {
@@ -1159,11 +1167,8 @@ public class ConfigOperation {
 			out.close();
 			
 		} catch (Exception e) {
-			AppMain
-					.getLogger()
-					.error(
-							SGGCResourceBundle
-									.getResourceString(ResourceName.KEY_ERROR_CONFIGOPERATION_WRITEFILE),e);
+			AppMain.getLogger().error(
+					SGGCResourceBundle.getResourceString(ResourceName.KEY_ERROR_CONFIGOPERATION_WRITEFILE), e);
 			return false;
 		}
 
@@ -1183,6 +1188,10 @@ public class ConfigOperation {
 		if (sitesFile.exists()) {
 			try {
 				sites = (ArrayList<FTPSettings>)xstream.fromXML(org.apache.commons.io.FileUtils.readFileToString(sitesFile));
+				for(FTPSettings site: sites)
+				{
+					site.password = decrypt(site.password);
+				}
 			} catch (Exception e) {				
 				LogManager.error("Failed to load sites file",e);
 			} 
@@ -1230,14 +1239,22 @@ public class ConfigOperation {
 	 * hydrated data objects.
 	 * 
 	 * @return
+	 * @throws EncryptionException 
 	 */
-	private ArrayList<FTPSettings> getDereferenceSiteList() {
+	private ArrayList<FTPSettings> getDereferenceSiteList() throws EncryptionException 
+	{
 		ArrayList<FTPSettings> dereferencedSites = new ArrayList<FTPSettings>();
 		
-		for(FTPSettings site: siteList) {
-			FTPSettings dereferencedSite = new FTPSettings(site.name,site.filePort,site.protocol);
+		for(FTPSettings site: siteList) 
+		{
+			FTPSettings dereferencedSite = new FTPSettings(site.name, site.filePort, site.protocol);
 			dereferencedSite.host = site.host;
+			dereferencedSite.filePort = site.filePort;
 			dereferencedSite.sshHost = site.sshHost;
+			dereferencedSite.sshPort = site.sshPort;
+			dereferencedSite.userName = site.userName;
+			dereferencedSite.password = encrypt(site.password);
+			
 			dereferencedSite.protocol = site.protocol;
 			dereferencedSite.available = site.available;
 			dereferencedSite.passiveMode = site.passiveMode;
@@ -1247,9 +1264,7 @@ public class ConfigOperation {
 			dereferencedSite.connKeepAlive = site.connKeepAlive;
 			dereferencedSite.connMaxNum = site.connMaxNum;
 			dereferencedSite.loginMode = site.loginMode;
-			dereferencedSite.userName = site.userName;
 			dereferencedSite.bufferSize = site.bufferSize;
-			dereferencedSite.password = site.password;
 			dereferencedSite.resource = site.resource;
 			dereferencedSite.zone = site.zone;
 			dereferencedSite.hostType = site.hostType;
@@ -1266,6 +1281,101 @@ public class ConfigOperation {
 		
 		return dereferencedSites;
 	}
+	
+	/**
+	 * Decrypts some value
+	 * 
+	 * @return the decrypted value
+	 * @throws EncryptionException 
+	 */
+	public String decrypt(String value) throws EncryptionException
+	{
+		if (StringUtils.isEmpty(value)) {
+			return value;
+		} else {
+			Encryption crypt = new Encryption();
+			try
+			{	
+				crypt.setPassword(ConfigOperation.getThatOneThingWeWant());
+				return crypt.decrypt(value);
+			}
+			catch (Exception e)
+			{
+				throw new EncryptionException("Unable to decrypt the password");
+			}
+		}
+	}
+	
+	/**
+	 * Encrypts some value
+	 * 
+	 * @return an encrypted value
+	 * @throws EncryptionException 
+	 */
+	public String encrypt(String value) throws EncryptionException
+	{
+		if (StringUtils.isEmpty(value)) {
+			return value;
+		} else {
+			Encryption crypt = new Encryption();
+			try
+			{
+				crypt.setPassword(ConfigOperation.getThatOneThingWeWant());
+				return crypt.encrypt(value);
+			}
+			catch (Exception e)
+			{
+				throw new EncryptionException("Unable to encrypt the password");
+			}
+		}
+	}
+	
+	public static char[] getThatOneThingWeWant()
+	{
+		String result = "Your mac is unstable and annoying"; 
+		try {
+            InetAddress address = InetAddress.getLocalHost();
+            /*
+             * Get NetworkInterface for the current host and then read
+             * the hardware address.
+             */
+            NetworkInterface ni = NetworkInterface.getByInetAddress(address);
+            if (ni != null) {
+                byte[] mac = ni.getHardwareAddress();
+                StringBuilder builder = new StringBuilder();
+                if (mac != null) {
+                    /*
+                     * Extract each array of mac address and convert it 
+                     * to hexa with the following format 
+                     * 08-00-27-DC-4A-9E.
+                     */
+                    for (int i = 0; i < mac.length; i++) {
+                    	builder.append(String.format("%02X%s",
+                                mac[i], (i < mac.length - 1) ? "-" : ""));
+                    }
+                    result = builder.toString();
+                }
+            }
+        } catch (UnknownHostException e) {
+            LogManager.error("Cannot find local mac address of this system. Localhost is unknown");
+        } catch (SocketException e) {
+        	LogManager.error("Cannot find local mac address of this system. Failed to open socket to localhost.");
+        }
+		
+//		MessageDigest digest;
+//		try {
+//			digest = MessageDigest.getInstance("MD5");
+//			digest.update(result.getBytes());
+//			byte[] md5mac = digest.digest();
+//			return new String(md5mac).toCharArray();
+//		} catch (NoSuchAlgorithmException e) {
+//			// TODO Auto-generated catch block
+//			return result.toCharArray();
+//		}
+		
+		return result.toCharArray();
+	}
+	
 	/**
 	 * Load the saved sites from disk or init new ones if not present.
 	 * 
@@ -1340,9 +1450,9 @@ public class ConfigOperation {
 
 		try 
 		{
-			String home = System.getProperty("tgfm.home");
+			String home = System.getProperty("xfm.home");
 			if (home == null) {
-				URL url = ClassLoader.getSystemResource("sggc.properties");
+				URL url = ClassLoader.getSystemResource("client.properties");
 				if (url.getProtocol().startsWith("htt")
 						|| url.getProtocol().startsWith("jar")) {
 					home = System.getProperty("user.home");
@@ -1397,7 +1507,7 @@ public class ConfigOperation {
 	}
 	
 	public static String getKeystoreDir() {
-		String certDir = getUserHome() + "tgup_filemanager"
+		String certDir = getUserHome() + "xup_filemanager"
 				+ File.separator + "security";
 		
 		File dir = new File(certDir);
@@ -1412,7 +1522,7 @@ public class ConfigOperation {
 	 * @return the absolute path to the TGFM directory
 	 */
 	public String getDataDir() {
-		String deployDir = getUserHome() + "tgup_filemanager"
+		String deployDir = getUserHome() + "xup_filemanager"
 				+ File.separator + "filebrowser";
 
 		File dir = new File(deployDir);
@@ -1439,7 +1549,7 @@ public class ConfigOperation {
 	 * @return the absolute path to the TGFM certificate directory
 	 */
 	public static String getCertificateDir() {
-		String certDir = getUserHome() + "tgup_filemanager"
+		String certDir = getUserHome() + "xup_filemanager"
 				+ File.separator + "certificates";
 
 //		String oldDir = getConfigValue("certificates");
@@ -1461,7 +1571,7 @@ public class ConfigOperation {
 	 * @return the absolute path to the TGFM certificate directory
 	 */
 	public String getProxyDir() {
-		String proxyDir = getUserHome() + "tgup_filemanager" + File.separator
+		String proxyDir = getUserHome() + "xup_filemanager" + File.separator
 				+ "proxies";
 //		String oldDir = getConfigValue("proxy");
 //		if (oldDir == null || oldDir.equals("")) {
@@ -1484,7 +1594,7 @@ public class ConfigOperation {
 	 * @return the absolute path to the TGFM helpset directory
 	 */
 	public String getHelpDir() {
-		String helpDir = getUserHome() + "tgup_filemanager" + File.separator
+		String helpDir = getUserHome() + "xup_filemanager" + File.separator
 				+ "help";
 //		String oldDir = getConfigValue("help_dir");
 //		if (oldDir == null || oldDir.equals("")) {

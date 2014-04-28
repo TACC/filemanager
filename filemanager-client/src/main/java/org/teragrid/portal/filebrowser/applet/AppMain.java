@@ -911,7 +911,8 @@ public class AppMain extends JApplet {
     private boolean areAnyDone(int[] rows) {
         for (int i=0;i<rows.length;i++) {
             String status = (String)((QueueTableModel)tblQueue.getModel()).getValueAt(rows[i],10);
-            if (StringUtils.equals(status.toUpperCase(), FileTransferTask.getStatusString(Task.STOPPED)) || 
+            if (StringUtils.isEmpty(status) || 
+            		StringUtils.equals(status.toUpperCase(), FileTransferTask.getStatusString(Task.STOPPED)) || 
             		StringUtils.equals(status.toUpperCase(), FileTransferTask.getStatusString(Task.FAILED)) ||
                     StringUtils.equals(status.toUpperCase(), FileTransferTask.getStatusString(Task.DONE))) 
                 return true;
