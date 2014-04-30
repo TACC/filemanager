@@ -22,7 +22,8 @@ public class ConfigSettings
     
     static {
         try {
-            props.load(ConfigSettings.class.getClassLoader().getResourceAsStream("client.properties"));            
+            props.load(ConfigSettings.class.getClassLoader().getResourceAsStream("client.properties"));          
+            System.setProperty("jsse.enableCBCProtection", "false");
         } catch (Exception e) {
             e.printStackTrace();
         }

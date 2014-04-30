@@ -54,12 +54,13 @@ class TextBoxMap {
     }
 }
 
-public class TextAppender extends AppenderSkeleton{
+public class TextAppender extends AppenderSkeleton
+{
 	@SuppressWarnings("unused")
 	private String message;
     private ArrayList<TextBoxMap> logBoxes;
     private static TextAppender instance = null;
-    private static int logPanelTextBoxMapIndex = -1;
+    private static int logPanelTextBoxMapIndex = 0;
     
     public TextAppender() {
         String pattern =  "[%d{yyyy.MM.dd HH:mm:ss} %c{2}] %-5p %m%n";
@@ -88,7 +89,6 @@ public class TextAppender extends AppenderSkeleton{
         
         // we log everything to the logging pane
         this.logBoxes.get(logPanelTextBoxMapIndex).addLog(layout.format(event));
-//        if(!content.endsWith("\n")) this.logBoxes.get(logPanelTextBoxMapIndex).addLog("\n");
 
         if(layout.ignoresThrowable()) {
             String[] s = event.getThrowableStrRep();
@@ -96,8 +96,6 @@ public class TextAppender extends AppenderSkeleton{
                 int len = s.length;
                 for (int i = 0; i < len; i++) {
                 	LogManager.debug(s[i]);
-//                    System.err.print(s[i]);
-//                    System.err.println("");
                 }
             }
         }
@@ -125,7 +123,7 @@ public class TextAppender extends AppenderSkeleton{
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
 	public static TextAppender getInstance() {
         if (instance == null) {
             Logger logger = Logger.getRootLogger();

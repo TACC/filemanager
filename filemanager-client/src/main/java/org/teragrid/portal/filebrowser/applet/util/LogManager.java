@@ -22,7 +22,6 @@ import org.teragrid.portal.filebrowser.applet.transfer.TextAppender;
 
 public class LogManager {
 	private static Logger logger = Logger.getLogger(LogManager.class.getName());
-//    private static File logFile = new File("/Users/dooley/Desktop/sggc.log");
     private static Appender textAreaAppender;
     
     private static URL logFile = LogManager.class.getClassLoader().getResource("log4j.properties");
@@ -37,7 +36,6 @@ public class LogManager {
         Logger.getRootLogger().removeAllAppenders();
         PropertyConfigurator.configure(logFile);
         Logger.getRootLogger().addAppender(textAreaAppender);
-	    
 	}
 
 	public static Logger getLogger() {
@@ -73,3 +71,6 @@ public class LogManager {
 		logger.info(message);
 	}
 }
+
+
+
