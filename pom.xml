@@ -58,6 +58,11 @@
 			<url>https://maven.tacc.utexas.edu/nexus/content/repositories/releases</url>
 		</repository>
 		<repository>
+			<id>taccaci-snapshot</id>
+			<name>TACC ACI Maven snapshot repository</name>
+			<url>https://maven.tacc.utexas.edu/nexus/content/repositories/snapshots</url>
+		</repository>
+		<repository>
 			<id>maven-restlet</id>
 			<name>Public online Restlet repository</name>
 			<url>http://maven.restlet.org</url>
