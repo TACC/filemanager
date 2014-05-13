@@ -94,7 +94,7 @@
 							<appendAssemblyId>false</appendAssemblyId>
 							<archive>
 								<manifest>
-									<mainClass>org.teragrid.portal.filebrowser.applet.AppMain</mainClass>
+									<mainClass>edu.utexas.tacc.wcs.filemanager.client.AppMain</mainClass>
 								</manifest>
 							</archive>
 							<descriptors>
