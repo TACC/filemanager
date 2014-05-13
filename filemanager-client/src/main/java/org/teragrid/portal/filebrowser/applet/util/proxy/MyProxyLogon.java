@@ -272,7 +272,7 @@ public class MyProxyLogon {
 	private final static String TRUSTED_CERT_PATH = ConfigOperation.getCertificateDir();
 	public static final int DEFAULT_PORT = 7512;
 	
-	protected final static int keySize = 1024;
+	protected final static int keySize = 2048;
 	protected final int MIN_PASS_PHRASE_LEN = 6;
 	protected final static String keyAlg = "RSA";
 	protected final static String pkcs10SigAlgName = "SHA1withRSA";
