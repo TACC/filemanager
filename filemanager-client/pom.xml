@@ -99,6 +99,8 @@
 									<Application-Name>XSEDE File Manager</Application-Name>
 									<Codebase>*</Codebase>
 									<Permissions>all-permissions</Permissions>
+									<Application-Library-Allowable-Codebase>*</Application-Library-Allowable-Codebase>
+									<Caller-Allowable-Codebase>*</Caller-Allowable-Codebase>
 								</manifestEntries>
 							</archive>
 							<descriptors>

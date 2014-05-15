@@ -92,129 +92,129 @@ public class AppMain extends JApplet {
 //public class AppMain extends JFrame {
     
     // Clipboard icons
-    public static final ImageIcon icoCopy = new ImageIcon(ClassLoader.getSystemResource("images/copy.gif"));
-    public static final ImageIcon icoCut = new ImageIcon(ClassLoader.getSystemResource("images/cut.gif"));
-    public static final ImageIcon icoPaste = new ImageIcon(ClassLoader.getSystemResource("images/paste.gif"));
+    public static final ImageIcon icoCopy = new ImageIcon(AppMain.class.getClassLoader().getResource("images/copy.gif"));
+    public static final ImageIcon icoCut = new ImageIcon(AppMain.class.getClassLoader().getResource("images/cut.gif"));
+    public static final ImageIcon icoPaste = new ImageIcon(AppMain.class.getClassLoader().getResource("images/paste.gif"));
     
     // UI views icons
-    public static final ImageIcon icoPreferences = new ImageIcon(ClassLoader.getSystemResource("images/preferences.png"));
-    public static final ImageIcon icoSearch = new ImageIcon(ClassLoader.getSystemResource("images/search.png"));
-    public static final ImageIcon icoSearchPressed = new ImageIcon(ClassLoader.getSystemResource("images/search_pressed.png"));
-    public static final ImageIcon icoBook = new ImageIcon(ClassLoader.getSystemResource("images/bookmarks.png"));
-    public static final ImageIcon icoBookPressed = new ImageIcon(ClassLoader.getSystemResource("images/bookmarks_pressed.png"));
-    public static final ImageIcon icoBandwidth=new ImageIcon(ClassLoader.getSystemResource("images/bandwidth.png"));
-    public static final ImageIcon icoBandwidthPressed=new ImageIcon(ClassLoader.getSystemResource("images/bandwidth_pressed.png"));
-    public static final ImageIcon icoFavorite = new ImageIcon(ClassLoader.getSystemResource("images/favorite.gif"));
-    public static final ImageIcon icoHelp = new ImageIcon(ClassLoader.getSystemResource("images/help.png"));
-    public static final ImageIcon icoAboutbox = new ImageIcon(ClassLoader.getSystemResource("images/about.png"));
-    public static final ImageIcon icoProperties = new ImageIcon(ClassLoader.getSystemResource("images/gear.jpg"));
+    public static final ImageIcon icoPreferences = new ImageIcon(AppMain.class.getClassLoader().getResource("images/preferences.png"));
+    public static final ImageIcon icoSearch = new ImageIcon(AppMain.class.getClassLoader().getResource("images/search.png"));
+    public static final ImageIcon icoSearchPressed = new ImageIcon(AppMain.class.getClassLoader().getResource("images/search_pressed.png"));
+    public static final ImageIcon icoBook = new ImageIcon(AppMain.class.getClassLoader().getResource("images/bookmarks.png"));
+    public static final ImageIcon icoBookPressed = new ImageIcon(AppMain.class.getClassLoader().getResource("images/bookmarks_pressed.png"));
+    public static final ImageIcon icoBandwidth=new ImageIcon(AppMain.class.getClassLoader().getResource("images/bandwidth.png"));
+    public static final ImageIcon icoBandwidthPressed=new ImageIcon(AppMain.class.getClassLoader().getResource("images/bandwidth_pressed.png"));
+    public static final ImageIcon icoFavorite = new ImageIcon(AppMain.class.getClassLoader().getResource("images/favorite.gif"));
+    public static final ImageIcon icoHelp = new ImageIcon(AppMain.class.getClassLoader().getResource("images/help.png"));
+    public static final ImageIcon icoAboutbox = new ImageIcon(AppMain.class.getClassLoader().getResource("images/about.png"));
+    public static final ImageIcon icoProperties = new ImageIcon(AppMain.class.getClassLoader().getResource("images/gear.jpg"));
     
     // File Listing views
-    public static final ImageIcon icoDetailView = new ImageIcon(ClassLoader.getSystemResource("images/detail.png"));
-    public static final ImageIcon icoIconView = new ImageIcon(ClassLoader.getSystemResource("images/icon.png"));
-    public static final ImageIcon icoListView = new ImageIcon(ClassLoader.getSystemResource("images/list.png"));
+    public static final ImageIcon icoDetailView = new ImageIcon(AppMain.class.getClassLoader().getResource("images/detail.png"));
+    public static final ImageIcon icoIconView = new ImageIcon(AppMain.class.getClassLoader().getResource("images/icon.png"));
+    public static final ImageIcon icoListView = new ImageIcon(AppMain.class.getClassLoader().getResource("images/list.png"));
     
     // Transfer control
-    public static final ImageIcon icoStop = new ImageIcon(ClassLoader.getSystemResource("images/rstop.gif"));
-    public static final ImageIcon icoStopConn=new ImageIcon(ClassLoader.getSystemResource("images/rstop.gif"));
-    public static final ImageIcon icoDisconn=new ImageIcon(ClassLoader.getSystemResource("images/eject.png"));
-    public static final ImageIcon icoDisconnPressed=new ImageIcon(ClassLoader.getSystemResource("images/eject_pressed.png"));
-    public static final ImageIcon icoDownload=new ImageIcon(ClassLoader.getSystemResource("images/download.gif"));
-    public static final ImageIcon icoConn=new ImageIcon(ClassLoader.getSystemResource("images/connect.jpg"));
-    public static final ImageIcon icoUpload=new ImageIcon(ClassLoader.getSystemResource("images/upload.gif"));
+    public static final ImageIcon icoStop = new ImageIcon(AppMain.class.getClassLoader().getResource("images/rstop.gif"));
+    public static final ImageIcon icoStopConn=new ImageIcon(AppMain.class.getClassLoader().getResource("images/rstop.gif"));
+    public static final ImageIcon icoDisconn=new ImageIcon(AppMain.class.getClassLoader().getResource("images/eject.png"));
+    public static final ImageIcon icoDisconnPressed=new ImageIcon(AppMain.class.getClassLoader().getResource("images/eject_pressed.png"));
+    public static final ImageIcon icoDownload=new ImageIcon(AppMain.class.getClassLoader().getResource("images/download.gif"));
+    public static final ImageIcon icoConn=new ImageIcon(AppMain.class.getClassLoader().getResource("images/connect.jpg"));
+    public static final ImageIcon icoUpload=new ImageIcon(AppMain.class.getClassLoader().getResource("images/upload.gif"));
     
     // Queue Status Icons
-    public static final ImageIcon icoStatusGreen=new ImageIcon(ClassLoader.getSystemResource("images/statusGreen.png"));
-    public static final ImageIcon icoStatusYellow=new ImageIcon(ClassLoader.getSystemResource("images/statusYellow.png"));
-    public static final ImageIcon icoStatusRed=new ImageIcon(ClassLoader.getSystemResource("images/statusRed.png"));
-    public static final ImageIcon icoStatusComplete=new ImageIcon(ClassLoader.getSystemResource("images/statusComplete.png"));
+    public static final ImageIcon icoStatusGreen=new ImageIcon(AppMain.class.getClassLoader().getResource("images/statusGreen.png"));
+    public static final ImageIcon icoStatusYellow=new ImageIcon(AppMain.class.getClassLoader().getResource("images/statusYellow.png"));
+    public static final ImageIcon icoStatusRed=new ImageIcon(AppMain.class.getClassLoader().getResource("images/statusRed.png"));
+    public static final ImageIcon icoStatusComplete=new ImageIcon(AppMain.class.getClassLoader().getResource("images/statusComplete.png"));
     
     // File Management Icons
-    public static final ImageIcon icoRefresh=new ImageIcon(ClassLoader.getSystemResource("images/reload.png"));
-    public static final ImageIcon icoRefreshPressed=new ImageIcon(ClassLoader.getSystemResource("images/reload_pressed.png"));
-    public static final ImageIcon icoRename=new ImageIcon(ClassLoader.getSystemResource("images/rename.png"));
-    public static final ImageIcon icoRenamePressed=new ImageIcon(ClassLoader.getSystemResource("images/rename_pressed.png"));
-    public static final ImageIcon icoNewFolder = new ImageIcon(ClassLoader.getSystemResource("images/newfolder.png"));
-    public static final ImageIcon icoNewFolderPressed = new ImageIcon(ClassLoader.getSystemResource("images/newfolder_pressed.png"));
-    public static final ImageIcon icoInfo=new ImageIcon(ClassLoader.getSystemResource("images/info.png"));
-    public static final ImageIcon icoInfoPressed=new ImageIcon(ClassLoader.getSystemResource("images/info_pressed.png"));
-    public static final ImageIcon icoDelete=new ImageIcon(ClassLoader.getSystemResource("images/trash.png"));
-    public static final ImageIcon icoDeletePressed=new ImageIcon(ClassLoader.getSystemResource("images/trash_pressed.png"));
+    public static final ImageIcon icoRefresh=new ImageIcon(AppMain.class.getClassLoader().getResource("images/reload.png"));
+    public static final ImageIcon icoRefreshPressed=new ImageIcon(AppMain.class.getClassLoader().getResource("images/reload_pressed.png"));
+    public static final ImageIcon icoRename=new ImageIcon(AppMain.class.getClassLoader().getResource("images/rename.png"));
+    public static final ImageIcon icoRenamePressed=new ImageIcon(AppMain.class.getClassLoader().getResource("images/rename_pressed.png"));
+    public static final ImageIcon icoNewFolder = new ImageIcon(AppMain.class.getClassLoader().getResource("images/newfolder.png"));
+    public static final ImageIcon icoNewFolderPressed = new ImageIcon(AppMain.class.getClassLoader().getResource("images/newfolder_pressed.png"));
+    public static final ImageIcon icoInfo=new ImageIcon(AppMain.class.getClassLoader().getResource("images/info.png"));
+    public static final ImageIcon icoInfoPressed=new ImageIcon(AppMain.class.getClassLoader().getResource("images/info_pressed.png"));
+    public static final ImageIcon icoDelete=new ImageIcon(AppMain.class.getClassLoader().getResource("images/trash.png"));
+    public static final ImageIcon icoDeletePressed=new ImageIcon(AppMain.class.getClassLoader().getResource("images/trash_pressed.png"));
     
     // Browsing Icons
     public static Icon icoFile = null;
-    public static final ImageIcon icoFileLarge = new ImageIcon(ClassLoader.getSystemResource("images/file32.png"));
+    public static final ImageIcon icoFileLarge = new ImageIcon(AppMain.class.getClassLoader().getResource("images/file32.png"));
     public static final Icon icoFolder = FileSystemView.getFileSystemView().getSystemIcon(new File(System.getProperty("user.home")));
-    public static final ImageIcon icoFolderLarge = new ImageIcon(ClassLoader.getSystemResource("images/folder32.png"));
-    public static final ImageIcon icoNetwork=new ImageIcon(ClassLoader.getSystemResource("images/network.png"));
-    public static final ImageIcon icoFolderExpanded = new ImageIcon(ClassLoader.getSystemResource("images/folderexpanded.gif"));
-    public static final ImageIcon icoRightArrow = new ImageIcon(ClassLoader.getSystemResource("images/toarrow.png"));
+    public static final ImageIcon icoFolderLarge = new ImageIcon(AppMain.class.getClassLoader().getResource("images/folder32.png"));
+    public static final ImageIcon icoNetwork=new ImageIcon(AppMain.class.getClassLoader().getResource("images/network.png"));
+    public static final ImageIcon icoFolderExpanded = new ImageIcon(AppMain.class.getClassLoader().getResource("images/folderexpanded.gif"));
+    public static final ImageIcon icoRightArrow = new ImageIcon(AppMain.class.getClassLoader().getResource("images/toarrow.png"));
     
     // Notification icons
-    public static final ImageIcon icoIM=new ImageIcon(ClassLoader.getSystemResource("images/chat.png"));
-    public static final ImageIcon icoEmail=new ImageIcon(ClassLoader.getSystemResource("images/email.png"));
-    public static final ImageIcon icoNotify=new ImageIcon(ClassLoader.getSystemResource("images/notify.png"));
-    public static final ImageIcon icoSMS=new ImageIcon(ClassLoader.getSystemResource("images/sms.png"));
+    public static final ImageIcon icoIM=new ImageIcon(AppMain.class.getClassLoader().getResource("images/chat.png"));
+    public static final ImageIcon icoEmail=new ImageIcon(AppMain.class.getClassLoader().getResource("images/email.png"));
+    public static final ImageIcon icoNotify=new ImageIcon(AppMain.class.getClassLoader().getResource("images/notify.png"));
+    public static final ImageIcon icoSMS=new ImageIcon(AppMain.class.getClassLoader().getResource("images/sms.png"));
     
     // Editing Icons
-    public static final ImageIcon icoAdd=new ImageIcon(ClassLoader.getSystemResource("images/add.jpg"));
-    public static final ImageIcon icoRemove=new ImageIcon(ClassLoader.getSystemResource("images/remove.jpg"));
-    public static final ImageIcon icoEdit=new ImageIcon(ClassLoader.getSystemResource("images/edit.jpg"));
-    public static final ImageIcon icoSortUp = new ImageIcon(ClassLoader.getSystemResource("images/sortup.gif"));
-    public static final ImageIcon icoSortDown = new ImageIcon(ClassLoader.getSystemResource("images/sortdown.gif"));
-    public static final ImageIcon icoLocked = new ImageIcon(ClassLoader.getSystemResource("images/locked.jpg"));
-    public static final ImageIcon icoUnlocked = new ImageIcon(ClassLoader.getSystemResource("images/unlocked.jpg"));
+    public static final ImageIcon icoAdd=new ImageIcon(AppMain.class.getClassLoader().getResource("images/add.jpg"));
+    public static final ImageIcon icoRemove=new ImageIcon(AppMain.class.getClassLoader().getResource("images/remove.jpg"));
+    public static final ImageIcon icoEdit=new ImageIcon(AppMain.class.getClassLoader().getResource("images/edit.jpg"));
+    public static final ImageIcon icoSortUp = new ImageIcon(AppMain.class.getClassLoader().getResource("images/sortup.gif"));
+    public static final ImageIcon icoSortDown = new ImageIcon(AppMain.class.getClassLoader().getResource("images/sortdown.gif"));
+    public static final ImageIcon icoLocked = new ImageIcon(AppMain.class.getClassLoader().getResource("images/locked.jpg"));
+    public static final ImageIcon icoUnlocked = new ImageIcon(AppMain.class.getClassLoader().getResource("images/unlocked.jpg"));
     
     // Identity icons
-    public static final ImageIcon icoUser = new ImageIcon(ClassLoader.getSystemResource("images/user.png"));
-    public static final ImageIcon icoGroup = new ImageIcon(ClassLoader.getSystemResource("images/group.png"));
-    public static final ImageIcon icoContact = new ImageIcon(ClassLoader.getSystemResource("images/contact.png"));
+    public static final ImageIcon icoUser = new ImageIcon(AppMain.class.getClassLoader().getResource("images/user.png"));
+    public static final ImageIcon icoGroup = new ImageIcon(AppMain.class.getClassLoader().getResource("images/group.png"));
+    public static final ImageIcon icoContact = new ImageIcon(AppMain.class.getClassLoader().getResource("images/contact.png"));
     
     // Navigation Icons
-    public static final ImageIcon icoBack=new ImageIcon(ClassLoader.getSystemResource("images/back.jpg"));
-    public static final ImageIcon icoFwd = new ImageIcon(ClassLoader.getSystemResource("images/forward.jpg"));
-    public static final ImageIcon icoUpDir=new ImageIcon(ClassLoader.getSystemResource("images/up.gif"));
-    public static final ImageIcon icoUpDirPressed=new ImageIcon(ClassLoader.getSystemResource("images/up_pressed.gif"));
-    public static final ImageIcon icoGoTo=new ImageIcon(ClassLoader.getSystemResource("images/goto.png"));
-    public static final ImageIcon icoGoToPressed=new ImageIcon(ClassLoader.getSystemResource("images/goto_pressed.png"));
-    public static final ImageIcon icoHome=new ImageIcon(ClassLoader.getSystemResource("images/home.png"));
-    public static final ImageIcon icoHomePressed=new ImageIcon(ClassLoader.getSystemResource("images/home_pressed.png"));
-    public static final ImageIcon icoTGArchive = new ImageIcon(ClassLoader.getSystemResource("images/TG_ARCHIVE.png"));
-    public static final ImageIcon icoTGScratch = new ImageIcon(ClassLoader.getSystemResource("images/TG_SLASH.png"));
-    public static final ImageIcon icoTGWork = new ImageIcon(ClassLoader.getSystemResource("images/TG_WORK.png"));
-    public static final ImageIcon icoEnvironment = new ImageIcon(ClassLoader.getSystemResource("images/environment.png"));
-    public static final ImageIcon icoEnvironmentPressed = new ImageIcon(ClassLoader.getSystemResource("images/environment_pressed.png"));
+    public static final ImageIcon icoBack=new ImageIcon(AppMain.class.getClassLoader().getResource("images/back.jpg"));
+    public static final ImageIcon icoFwd = new ImageIcon(AppMain.class.getClassLoader().getResource("images/forward.jpg"));
+    public static final ImageIcon icoUpDir=new ImageIcon(AppMain.class.getClassLoader().getResource("images/up.gif"));
+    public static final ImageIcon icoUpDirPressed=new ImageIcon(AppMain.class.getClassLoader().getResource("images/up_pressed.gif"));
+    public static final ImageIcon icoGoTo=new ImageIcon(AppMain.class.getClassLoader().getResource("images/goto.png"));
+    public static final ImageIcon icoGoToPressed=new ImageIcon(AppMain.class.getClassLoader().getResource("images/goto_pressed.png"));
+    public static final ImageIcon icoHome=new ImageIcon(AppMain.class.getClassLoader().getResource("images/home.png"));
+    public static final ImageIcon icoHomePressed=new ImageIcon(AppMain.class.getClassLoader().getResource("images/home_pressed.png"));
+    public static final ImageIcon icoTGArchive = new ImageIcon(AppMain.class.getClassLoader().getResource("images/TG_ARCHIVE.png"));
+    public static final ImageIcon icoTGScratch = new ImageIcon(AppMain.class.getClassLoader().getResource("images/TG_SLASH.png"));
+    public static final ImageIcon icoTGWork = new ImageIcon(AppMain.class.getClassLoader().getResource("images/TG_WORK.png"));
+    public static final ImageIcon icoEnvironment = new ImageIcon(AppMain.class.getClassLoader().getResource("images/environment.png"));
+    public static final ImageIcon icoEnvironmentPressed = new ImageIcon(AppMain.class.getClassLoader().getResource("images/environment_pressed.png"));
     
     // Connection Type Icons
-    public static final ImageIcon icoResourceTeraGridShare = new ImageIcon(ClassLoader.getSystemResource("images/idisk.png"));
-    public static final ImageIcon icoResourceAmazon = new ImageIcon(ClassLoader.getSystemResource("images/amazon.png"));
-    public static final ImageIcon icoResourceCompute = new ImageIcon(ClassLoader.getSystemResource("images/compute_resource.png"));
-    public static final ImageIcon icoResourceArchive =new ImageIcon(ClassLoader.getSystemResource("images/storage_resource.png"));
-    public static final ImageIcon icoResourceViz = new ImageIcon(ClassLoader.getSystemResource("images/viz-resource.png"));
-    public static final ImageIcon icoResourceLocal = new ImageIcon(ClassLoader.getSystemResource("images/local-resource.png"));
+    public static final ImageIcon icoResourceTeraGridShare = new ImageIcon(AppMain.class.getClassLoader().getResource("images/idisk.png"));
+    public static final ImageIcon icoResourceAmazon = new ImageIcon(AppMain.class.getClassLoader().getResource("images/amazon.png"));
+    public static final ImageIcon icoResourceCompute = new ImageIcon(AppMain.class.getClassLoader().getResource("images/compute_resource.png"));
+    public static final ImageIcon icoResourceArchive =new ImageIcon(AppMain.class.getClassLoader().getResource("images/storage_resource.png"));
+    public static final ImageIcon icoResourceViz = new ImageIcon(AppMain.class.getClassLoader().getResource("images/viz-resource.png"));
+    public static final ImageIcon icoResourceLocal = new ImageIcon(AppMain.class.getClassLoader().getResource("images/local-resource.png"));
     
     // Branding Icons
-    public static final ImageIcon icoTeraGrid = new ImageIcon(ClassLoader.getSystemResource("images/xsede.png"));
-    public static final ImageIcon icoTeraGridSmall = new ImageIcon(ClassLoader.getSystemResource("images/xsede-small.png"));
-    public static final ImageIcon imgSplash = new ImageIcon(ClassLoader.getSystemResource("images/xsede-splash.png"));
-    public static final ImageIcon icoError = new ImageIcon(ClassLoader.getSystemResource("images/error_message_icon.png"));
-    public static final ImageIcon icoWarn = new ImageIcon(ClassLoader.getSystemResource("images/warning_message_icon.png"));
-    public static final ImageIcon icoPrompt = new ImageIcon(ClassLoader.getSystemResource("images/xsede_prompt_message_icon.png"));
-    public static final Image imgBackground = new ImageIcon(ClassLoader.getSystemResource("images/background.jpg")).getImage();
+    public static final ImageIcon icoTeraGrid = new ImageIcon(AppMain.class.getClassLoader().getResource("images/xsede.png"));
+    public static final ImageIcon icoTeraGridSmall = new ImageIcon(AppMain.class.getClassLoader().getResource("images/xsede-small.png"));
+    public static final ImageIcon imgSplash = new ImageIcon(AppMain.class.getClassLoader().getResource("images/xsede-splash.png"));
+    public static final ImageIcon icoError = new ImageIcon(AppMain.class.getClassLoader().getResource("images/error_message_icon.png"));
+    public static final ImageIcon icoWarn = new ImageIcon(AppMain.class.getClassLoader().getResource("images/warning_message_icon.png"));
+    public static final ImageIcon icoPrompt = new ImageIcon(AppMain.class.getClassLoader().getResource("images/xsede_prompt_message_icon.png"));
+    public static final Image imgBackground = new ImageIcon(AppMain.class.getClassLoader().getResource("images/background.jpg")).getImage();
 
-//    public static final ImageIcon icoTeraGrid = new ImageIcon(ClassLoader.getSystemResource("images/eudat.png"));
-//    public static final ImageIcon icoTeraGridSmall = new ImageIcon(ClassLoader.getSystemResource("images/eudat-small.png"));
-//    public static final ImageIcon imgSplash = new ImageIcon(ClassLoader.getSystemResource("images/eudat-splash.png"));
-//    public static final ImageIcon icoError = new ImageIcon(ClassLoader.getSystemResource("images/eudat_error_message_icon.png"));
-//    public static final ImageIcon icoWarn = new ImageIcon(ClassLoader.getSystemResource("images/eudat_warning_message_icon.png"));
-//    public static final ImageIcon icoPrompt = new ImageIcon(ClassLoader.getSystemResource("images/eudat_prompt_message_icon.png"));
-//    public static final Image imgBackground = new ImageIcon(ClassLoader.getSystemResource("images/eudat-background.jpg")).getImage();
+//    public static final ImageIcon icoTeraGrid = new ImageIcon(AppMain.class.getClassLoader().getResource("images/eudat.png"));
+//    public static final ImageIcon icoTeraGridSmall = new ImageIcon(AppMain.class.getClassLoader().getResource("images/eudat-small.png"));
+//    public static final ImageIcon imgSplash = new ImageIcon(AppMain.class.getClassLoader().getResource("images/eudat-splash.png"));
+//    public static final ImageIcon icoError = new ImageIcon(AppMain.class.getClassLoader().getResource("images/eudat_error_message_icon.png"));
+//    public static final ImageIcon icoWarn = new ImageIcon(AppMain.class.getClassLoader().getResource("images/eudat_warning_message_icon.png"));
+//    public static final ImageIcon icoPrompt = new ImageIcon(AppMain.class.getClassLoader().getResource("images/eudat_prompt_message_icon.png"));
+//    public static final Image imgBackground = new ImageIcon(AppMain.class.getClassLoader().getResource("images/eudat-background.jpg")).getImage();
     
     // Share Overlay Icons
-    public static final ImageIcon icoShareItem = new ImageIcon(ClassLoader.getSystemResource("images/share-item.png"));
-    public static final ImageIcon icoShareItem16 = new ImageIcon(ClassLoader.getSystemResource("images/share-item16.png"));
-//    public static final ImageIcon icoShareChild = new ImageIcon(ClassLoader.getSystemResource("images/share-child.png"));
-//    public static final ImageIcon icoShareChild16 = new ImageIcon(ClassLoader.getSystemResource("images/share-child16.png"));
+    public static final ImageIcon icoShareItem = new ImageIcon(AppMain.class.getClassLoader().getResource("images/share-item.png"));
+    public static final ImageIcon icoShareItem16 = new ImageIcon(AppMain.class.getClassLoader().getResource("images/share-item16.png"));
+//    public static final ImageIcon icoShareChild = new ImageIcon(AppMain.class.getClassLoader().getResource("images/share-child.png"));
+//    public static final ImageIcon icoShareChild16 = new ImageIcon(AppMain.class.getClassLoader().getResource("images/share-child16.png"));
     
     private static Logger logger = LogManager.getLogger();
     private static AppMain appMain = null;

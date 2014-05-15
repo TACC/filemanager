@@ -15,6 +15,11 @@
 			<useProjectArtifact>true</useProjectArtifact>
 			<unpack>true</unpack>
 			<scope>runtime</scope>
+			<unpackOptions>
+				<excludes>
+					<exclude>**/META-INF/services/org.restlet.engine.converter.ConverterHelper</exclude>
+				</excludes>
+			</unpackOptions>
 		</dependencySet>
 	</dependencySets>
 	<fileSets>
@@ -23,6 +28,7 @@
 			<outputDirectory>/</outputDirectory>
 			<excludes>
 				<exclude>help/*</exclude>
+				<exclude>**/META-INF/services/org.restlet.engine.converter.ConverterHelper</exclude>
 			</excludes>
 		</fileSet>
 	</fileSets>
