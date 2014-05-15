@@ -95,6 +95,8 @@
 							<archive>
 								<manifest>
 									<mainClass>edu.utexas.tacc.wcs.filemanager.client.AppMain</mainClass>
+									<Permissions>all-permissions</Permissions>
+									<Application-Name>XSEDE File Manager</Application-Name>
 								</manifest>
 							</archive>
 							<descriptors>
