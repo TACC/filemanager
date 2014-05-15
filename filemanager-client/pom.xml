@@ -81,7 +81,6 @@
 								<descriptor>src/main/assembly/help-assembly.xml</descriptor>
 							</descriptors>
 						</configuration>
-
 					</execution>
 					<execution>
 						<id>make-jar-assembly</id> <!-- this is used for inheritance merges -->
@@ -95,9 +94,12 @@
 							<archive>
 								<manifest>
 									<mainClass>edu.utexas.tacc.wcs.filemanager.client.AppMain</mainClass>
-									<Permissions>all-permissions</Permissions>
-									<Application-Name>XSEDE File Manager</Application-Name>
 								</manifest>
+								<manifestEntries>
+									<Application-Name>XSEDE File Manager</Application-Name>
+									<Codebase>*</Codebase>
+									<Permissions>all-permissions</Permissions>
+								</manifestEntries>
 							</archive>
 							<descriptors>
 								<descriptor>src/main/assembly/jar-assembly.xml</descriptor>
